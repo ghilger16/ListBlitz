@@ -1,11 +1,7 @@
-import { View, Text } from "react-native";
+import { LandingContent } from "./routes/route-landing";
 
 const Home: React.FC = () => {
-  return (
-    <View>
-      <Text>Home</Text>
-    </View>
-  );
+  return <LandingContent />;
 };
 
 export default Home;
