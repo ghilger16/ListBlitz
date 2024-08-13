@@ -1,18 +1,15 @@
-import { ScrollView, View, Text } from "react-native";
-
+import React from "react";
 import * as Styled from "./PurchasedSection.styled";
+import { BlitzPack } from "@Components";
+
+const blitzPackTitles = ["Pack 1", "Pack 2", "Pack 3"]; // Example titles
+
 export const PurchasedSection: React.FC = () => {
   return (
     <Styled.ScrollContainer horizontal>
-      <View>
-        <Text>Item </Text>
-      </View>
-      <View>
-        <Text>Item </Text>
-      </View>
-      <View>
-        <Text>Item </Text>
-      </View>
+      {blitzPackTitles.map((title, index) => (
+        <BlitzPack key={index} title={title} />
+      ))}
     </Styled.ScrollContainer>
   );
 };

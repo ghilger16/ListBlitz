@@ -1,19 +1,27 @@
-import { View, Text, SafeAreaView } from "react-native";
+import { View, Text, SafeAreaView, ScrollView } from "react-native";
 
 import { Stack, useRouter } from "expo-router";
 import * as Styled from "./LandingContent.styled";
 import { PurchasedSection } from "./components/purchased";
+import { AlphaBlitzSection } from "./components/alpha-blitz";
+import { StoreSection } from "./components/store";
 
 export const LandingContent: React.FC = () => {
   return (
-    <SafeAreaView>
+    <Styled.SafeArea>
       <Stack.Screen
         options={{
-          headerTitle: () => <Styled.HeaderTitle>ListBlitz</Styled.HeaderTitle>,
+          headerTitle: () => (
+            <Styled.HeaderTitle>List Blitz</Styled.HeaderTitle>
+          ),
           headerTitleAlign: "center",
         }}
       />
-      <PurchasedSection />
-    </SafeAreaView>
+      <ScrollView>
+        <PurchasedSection />
+        <AlphaBlitzSection />
+        <StoreSection />
+      </ScrollView>
+    </Styled.SafeArea>
   );
 };
