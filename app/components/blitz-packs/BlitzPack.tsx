@@ -4,11 +4,12 @@ import * as Styled from "./BlitzPack.styled";
 
 interface IBlitzPackProps {
   title: string;
+  onPress: () => void;
 }
 
-export const BlitzPack: React.FC<IBlitzPackProps> = ({ title }) => {
+export const BlitzPack: React.FC<IBlitzPackProps> = ({ title, onPress }) => {
   return (
-    <Styled.CardContainer>
+    <Styled.CardContainer onPress={onPress}>
       <Styled.CardTitle>{title}</Styled.CardTitle>
     </Styled.CardContainer>
   );
