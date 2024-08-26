@@ -1,1 +1,1 @@
-export { GameplayContent } from "./GameplayContent";
+export { default as GameplayContent } from "./GameplayContent";

@@ -1,6 +1,6 @@
 import { View, Text, SafeAreaView, ScrollView } from "react-native";
 
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import * as Styled from "./LandingContent.styled";
 import { PurchasedSection } from "./components/purchased";
 import { AlphaBlitzSection } from "./components/alpha-blitz";

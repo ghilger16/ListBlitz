@@ -1,13 +1,24 @@
 import React from "react";
-import { useGlobalSearchParams } from "expo-router";
-import { View, Text } from "react-native";
+import { useGlobalSearchParams, Stack } from "expo-router";
+import { View, Text, SafeAreaView } from "react-native";
 
-export const GameplayContent: React.FC = () => {
-  const { params } = useGlobalSearchParams();
+import * as Styled from "./GameplayContent.styled";
+import { PlayersSelect } from "@Components/players-select";
+
+const GameplayContent: React.FC = () => {
+  const { title } = useGlobalSearchParams();
 
   return (
-    <View>
-      <Text>Gameplay for {params}</Text>
-    </View>
+    <SafeAreaView>
+      <Stack.Screen options={{ headerShown: false }} />
+      <View>
+        <Styled.Title>Gameplay for {title}</Styled.Title>
+      </View>
+      <Styled.PlayersWrapper>
+        <PlayersSelect />
+      </Styled.PlayersWrapper>
+    </SafeAreaView>
   );
 };
+
+export default GameplayContent;
