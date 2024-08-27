@@ -20,17 +20,30 @@ export const ButtonText = styled.Text`
 `;
 
 export const Circle = styled.View`
-  width: 100px;
-  height: 100px;
-  border-radius: 50px;
-  background-color: #f0f0f0;
+  width: 300px;
+  height: 300px;
+  border-radius: 150px;
+  border: 2px solid black;
   align-items: center;
-  justify-content: center;
-  margin: 20px 0;
+  justify-content: space-between;
+  padding: 20px 0;
 `;
 
 export const CircleText = styled.Text`
   font-size: 40px;
   font-weight: bold;
   color: #333;
+`;
+
+export const NumberContainer = styled.View`
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const NumberText = styled.Text`
+  font-size: 30px;
+  font-weight: bold;
+  color: #007bff;
 `;
