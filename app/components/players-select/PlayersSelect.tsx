@@ -1,13 +1,14 @@
 import React, { useState } from "react";
+import { Text } from "react-native";
 
 import * as Styled from "./PlayersSelect.styled";
 
-export const PlayersSelect: React.FC = () => {
-  const [count, setCount] = useState(1);
+export const PlayersSelect: React.FC<any> = ({ onStartClick }) => {
+  const [count, setCount] = useState(0);
 
   const increment = () => setCount((prevCount) => prevCount + 1);
   const decrement = () =>
-    setCount((prevCount) => (prevCount > 1 ? prevCount - 1 : 1));
+    setCount((prevCount) => (prevCount ? prevCount - 1 : 0));
 
   const renderNumbers = () => {
     const numbers = [];
@@ -49,6 +50,9 @@ export const PlayersSelect: React.FC = () => {
           <Styled.ButtonText>-</Styled.ButtonText>
         </Styled.Button>
       </Styled.Circle>
+      <Styled.Button onPress={() => onStartClick(count)}>
+        <Text>Start</Text>
+      </Styled.Button>
     </Styled.Container>
   );
 };

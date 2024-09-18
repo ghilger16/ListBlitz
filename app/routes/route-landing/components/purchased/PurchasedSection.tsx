@@ -10,7 +10,7 @@ export const PurchasedSection: React.FC = () => {
 
   const handlePackPress = (title: string) => {
     router.push({
-      pathname: `routes/route-gameplay/GameplayContent`,
+      pathname: `routes/route-player-select/PlayerSelectContent`,
       params: { title },
     });
   };
