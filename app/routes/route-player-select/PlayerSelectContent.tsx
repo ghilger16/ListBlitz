@@ -1,21 +1,18 @@
 import React from "react";
 import { useGlobalSearchParams, Stack, useRouter } from "expo-router";
 import { View, Text, SafeAreaView } from "react-native";
-
 import * as Styled from "./PlayerSelectContent.styled";
 import { PlayersSelect } from "@Components/players-select";
+import { useGameplay } from "app/context/game-context/GameContext";
 
 const PlayersSelectContent: React.FC = () => {
   const { title } = useGlobalSearchParams();
   const router = useRouter();
-  const [playerCount, setPlayerCount] = React.useState<number | null>(null);
+  const { initializePlayers } = useGameplay();
 
   const handlePlayerCount = (count: number) => {
-    setPlayerCount(count);
-    router.push({
-      pathname: `routes/route-gameplay/GameplayContent`,
-      params: { title, playerCount: count },
-    });
+    initializePlayers(count);
+    router.push(`routes/route-gameplay/GameplayContent`);
   };
 
   return (
