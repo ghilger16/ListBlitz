@@ -8,39 +8,45 @@ const prompts = [
   "List famous bands from the 70's",
   "Name popular programming languages",
   "List U.S. Presidents",
-]; // Hardcoded prompts for now
+];
 
 const GameplayContent: React.FC = () => {
-  const { title } = useGlobalSearchParams();
+  const { title, mode } = useGlobalSearchParams(); // Get the selected mode
   const router = useRouter();
 
-  // Accessing the gameplay context to retrieve players and methods
   const { players, updatePlayerScore } = useGameplay();
 
-  const playerCount = players.length; // Use players array length as the player count
-  const TIMER_DURATION = 2;
+  const playerCount = players.length;
+  const TIMER_DURATION = 10;
   const [currentPlayer, setCurrentPlayer] = useState(1);
   const [timer, setTimer] = useState(TIMER_DURATION);
-  const [score, setScore] = useState(0);
+  const [score, setScore] = useState(0); // Number of correct answers in the round
+  const [answersCount, setAnswersCount] = useState(0); // Track answers in Chill Mode
   const [currentPrompt, setCurrentPrompt] = useState(prompts[0]);
   const [isGameStarted, setIsGameStarted] = useState(false);
 
-  // Timer effect
+  // Timer effect (for Blitz Mode only)
   useEffect(() => {
-    let countdown: NodeJS.Timeout;
-    if (isGameStarted && timer > 0) {
-      countdown = setInterval(() => {
+    if (mode === "blitz" && isGameStarted && timer > 0) {
+      const countdown = setInterval(() => {
         setTimer((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
       }, 1000);
+
+      return () => clearInterval(countdown);
     }
+  }, [isGameStarted, timer, mode]);
 
-    return () => clearInterval(countdown);
-  }, [isGameStarted, timer]);
+  // Handle game completion
+  useEffect(() => {
+    if (currentPlayer > playerCount) {
+      router.push("/results");
+    }
+  }, [currentPlayer]);
 
-  // Handle score increment
   const handleScoreIncrement = () => {
     if (isGameStarted) {
       setScore((prevScore) => prevScore + 1);
+      setAnswersCount((prevCount) => prevCount + 1); // For Chill Mode
     }
   };
 
@@ -49,7 +55,7 @@ const GameplayContent: React.FC = () => {
     setIsGameStarted(true);
   };
 
-  // Handle next player's turn and update their score in context
+  // Handle next player's turn and update their score
   const handleNextPlayer = () => {
     // Save the current player's score
     updatePlayerScore(currentPlayer, score);
@@ -59,12 +65,13 @@ const GameplayContent: React.FC = () => {
       setIsGameStarted(false);
       setTimer(TIMER_DURATION);
       setScore(0);
+      setAnswersCount(0); // Reset for Chill Mode
 
       const nextPromptIndex =
         (prompts.indexOf(currentPrompt) + 1) % prompts.length;
       setCurrentPrompt(prompts[nextPromptIndex]);
     } else {
-      // Push to results page
+      // Navigate to results screen
       router.push({
         pathname: "routes/route-results/ResultsContent",
         params: {
@@ -73,6 +80,13 @@ const GameplayContent: React.FC = () => {
       });
     }
   };
+
+  // Trigger next player in Chill Mode after 5 answers
+  useEffect(() => {
+    if (mode === "chill" && answersCount >= 5) {
+      handleNextPlayer();
+    }
+  }, [answersCount, mode]);
 
   return (
     <SafeAreaView>
@@ -83,15 +97,21 @@ const GameplayContent: React.FC = () => {
       <Styled.PlayersWrapper>
         <Text>Current Player: {players[currentPlayer - 1]?.name}</Text>
         <Text>Prompt: {currentPrompt}</Text>
-        <Text>Time Remaining: {timer}s</Text>
+        {mode === "blitz" && <Text>Time Remaining: {timer}s</Text>}
         <Text>Score: {score}</Text>
         <TouchableOpacity
           onPress={isGameStarted ? handleScoreIncrement : handleGameStart}
         >
           <Text style={{ fontSize: 40 }}>{isGameStarted ? "✔️" : "Start"}</Text>
         </TouchableOpacity>
-        <Text>{isGameStarted ? "Tap for Correct Answer" : "Tap to Start"}</Text>
-        {timer === 0 && (
+        <Text>
+          {isGameStarted
+            ? mode === "blitz"
+              ? "Tap for Correct Answer"
+              : `Give 5 Answers`
+            : "Tap to Start"}
+        </Text>
+        {timer === 0 && mode === "blitz" && (
           <TouchableOpacity
             style={{
               position: "absolute",
