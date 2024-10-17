@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useGlobalSearchParams, Stack, useRouter } from "expo-router";
 import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
-
-import * as Styled from "./GameplayContent.styled"; // Assuming your styled components are already set
+import * as Styled from "./GameplayContent.styled";
+import { useGameplay } from "app/context/game-context/GameContext";
 
 const prompts = [
   "List famous bands from the 70's",
@@ -11,18 +11,21 @@ const prompts = [
 ]; // Hardcoded prompts for now
 
 const GameplayContent: React.FC = () => {
-  const { title, playerCount: playerCountParam } = useGlobalSearchParams();
+  const { title } = useGlobalSearchParams();
   const router = useRouter();
 
-  const playerCount = Number(playerCountParam) || 1;
-  const TIMER_DURATION = 10;
+  // Accessing the gameplay context to retrieve players and methods
+  const { players, updatePlayerScore } = useGameplay();
+
+  const playerCount = players.length; // Use players array length as the player count
+  const TIMER_DURATION = 2;
   const [currentPlayer, setCurrentPlayer] = useState(1);
   const [timer, setTimer] = useState(TIMER_DURATION);
   const [score, setScore] = useState(0);
-  const [scores, setScores] = useState<number[]>(Array(playerCount).fill(0));
   const [currentPrompt, setCurrentPrompt] = useState(prompts[0]);
   const [isGameStarted, setIsGameStarted] = useState(false);
 
+  // Timer effect
   useEffect(() => {
     let countdown: NodeJS.Timeout;
     if (isGameStarted && timer > 0) {
@@ -34,26 +37,22 @@ const GameplayContent: React.FC = () => {
     return () => clearInterval(countdown);
   }, [isGameStarted, timer]);
 
-  useEffect(() => {
-    if (currentPlayer > playerCount) router.push("/results");
-  }, [currentPlayer]);
-
+  // Handle score increment
   const handleScoreIncrement = () => {
     if (isGameStarted) {
       setScore((prevScore) => prevScore + 1);
     }
   };
 
+  // Handle starting the game
   const handleGameStart = () => {
     setIsGameStarted(true);
   };
 
+  // Handle next player's turn and update their score in context
   const handleNextPlayer = () => {
-    setScores((prevScores) => {
-      const newScores = [...prevScores];
-      newScores[currentPlayer - 1] = score;
-      return newScores;
-    });
+    // Save the current player's score
+    updatePlayerScore(currentPlayer, score);
 
     if (currentPlayer < playerCount) {
       setCurrentPlayer((prevPlayer) => prevPlayer + 1);
@@ -65,7 +64,13 @@ const GameplayContent: React.FC = () => {
         (prompts.indexOf(currentPrompt) + 1) % prompts.length;
       setCurrentPrompt(prompts[nextPromptIndex]);
     } else {
-      router.push("routes/route-results/ResultsContent");
+      // Push to results page
+      router.push({
+        pathname: "routes/route-results/ResultsContent",
+        params: {
+          scores: JSON.stringify(players.map((player) => player.score)),
+        },
+      });
     }
   };
 
@@ -76,7 +81,7 @@ const GameplayContent: React.FC = () => {
         <Styled.Title>Gameplay for {title}</Styled.Title>
       </View>
       <Styled.PlayersWrapper>
-        <Text>Current Player: {currentPlayer}</Text>
+        <Text>Current Player: {players[currentPlayer - 1]?.name}</Text>
         <Text>Prompt: {currentPrompt}</Text>
         <Text>Time Remaining: {timer}s</Text>
         <Text>Score: {score}</Text>
@@ -96,15 +101,7 @@ const GameplayContent: React.FC = () => {
               padding: 10,
               borderRadius: 50,
             }}
-            onPress={
-              currentPlayer < playerCount
-                ? handleNextPlayer
-                : () =>
-                    router.push({
-                      pathname: "routes/route-results/ResultsContent",
-                      params: { scores: JSON.stringify(scores) },
-                    })
-            }
+            onPress={handleNextPlayer}
           >
             <Text>
               {currentPlayer < playerCount

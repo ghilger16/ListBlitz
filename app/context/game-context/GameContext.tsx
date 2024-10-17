@@ -9,6 +9,7 @@ interface Player {
 interface GameContextType {
   players: Player[];
   initializePlayers: (playerCount: number) => void;
+  updatePlayerScore: (id: number, score: number) => void; // New method to update player score
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -25,8 +26,19 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     setPlayers(newPlayers);
   };
 
+  // Function to update the score of a specific player
+  const updatePlayerScore = (id: number, score: number) => {
+    setPlayers((prevPlayers) =>
+      prevPlayers.map((player) =>
+        player.id === id ? { ...player, score } : player
+      )
+    );
+  };
+
   return (
-    <GameContext.Provider value={{ players, initializePlayers }}>
+    <GameContext.Provider
+      value={{ players, initializePlayers, updatePlayerScore }}
+    >
       {children}
     </GameContext.Provider>
   );
