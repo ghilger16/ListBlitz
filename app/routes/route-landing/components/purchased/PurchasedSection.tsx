@@ -22,8 +22,8 @@ export const PurchasedSection: React.FC = () => {
       {blitzPacks.map((pack) => (
         <BlitzPack
           key={pack.id}
-          title={pack.name}
-          onPress={() => handlePackPress(pack.name)}
+          title={pack.title}
+          onPress={() => handlePackPress(pack.title)}
         />
       ))}
     </Styled.ScrollContainer>

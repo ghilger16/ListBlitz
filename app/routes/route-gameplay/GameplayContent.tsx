@@ -3,6 +3,7 @@ import { useGlobalSearchParams, Stack, useRouter } from "expo-router";
 import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
 import * as Styled from "./GameplayContent.styled";
 import { useGameplay } from "app/context/game-context/GameContext";
+import { useGetPromptsByBlitzPack } from "app/services";
 
 const prompts = [
   "List famous bands from the 70's",
@@ -15,6 +16,12 @@ const GameplayContent: React.FC = () => {
   const router = useRouter();
 
   const { players, updatePlayerScore } = useGameplay();
+
+  const {
+    data: prompts,
+    error,
+    isLoading,
+  } = useGetPromptsByBlitzPack(blitzPackId);
 
   const playerCount = players.length;
   const TIMER_DURATION = 10;
