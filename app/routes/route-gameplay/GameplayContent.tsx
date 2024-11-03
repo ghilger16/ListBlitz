@@ -36,13 +36,7 @@ const GameplayContent: React.FC = () => {
     }
   }, [isGameStarted, timer, mode]);
 
-  // Handle game completion
-  useEffect(() => {
-    if (currentPlayer > playerCount) {
-      router.push("/results");
-    }
-  }, [currentPlayer]);
-
+  // Handle score increment
   const handleScoreIncrement = () => {
     if (isGameStarted) {
       setScore((prevScore) => prevScore + 1);
@@ -71,13 +65,18 @@ const GameplayContent: React.FC = () => {
         (prompts.indexOf(currentPrompt) + 1) % prompts.length;
       setCurrentPrompt(prompts[nextPromptIndex]);
     } else {
-      // Navigate to results screen
-      router.push({
-        pathname: "routes/route-results/ResultsContent",
-        params: {
-          scores: JSON.stringify(players.map((player) => player.score)),
-        },
-      });
+      // If Chill Mode, just return to the main menu after the last player finishes
+      if (mode === "chill") {
+        router.push("/"); // Redirect to the main menu
+      } else {
+        // For Blitz Mode, still show the results
+        router.push({
+          pathname: "routes/route-results/ResultsContent",
+          params: {
+            scores: JSON.stringify(players.map((player) => player.score)),
+          },
+        });
+      }
     }
   };
 
@@ -87,6 +86,11 @@ const GameplayContent: React.FC = () => {
       handleNextPlayer();
     }
   }, [answersCount, mode]);
+
+  // Return to landing page function
+  const handleReturnToLanding = () => {
+    router.push("/"); // Navigate back to the landing page
+  };
 
   return (
     <SafeAreaView>
@@ -131,6 +135,21 @@ const GameplayContent: React.FC = () => {
           </TouchableOpacity>
         )}
       </Styled.PlayersWrapper>
+
+      {/* Button to return to landing page */}
+      <TouchableOpacity
+        style={{
+          backgroundColor: "red",
+          padding: 15,
+          borderRadius: 10,
+          position: "absolute",
+          bottom: 20,
+          left: 20,
+        }}
+        onPress={handleReturnToLanding}
+      >
+        <Text style={{ color: "white", fontSize: 18 }}>Return to Home</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };

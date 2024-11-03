@@ -1,3 +1,4 @@
+import React from "react";
 import { LandingContent } from "./routes/route-landing";
 
 const Home: React.FC = () => {

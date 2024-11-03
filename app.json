@@ -6,11 +6,11 @@
     },
     "plugins": ["expo-router"],
     "name": "ListBlitz",
-    "slug": "ListBlitz"
-  },
-  "extra": {
-    "navigation": {
-      "headerShown": false
+    "slug": "ListBlitz",
+    "extra": {
+      "navigation": {
+        "headerShown": false
+      }
     }
   }
 }
