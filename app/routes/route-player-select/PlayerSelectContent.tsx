@@ -6,7 +6,7 @@ import { PlayersSelect } from "@Components/players-select";
 import { useGameplay } from "app/context/game-context/GameContext";
 
 const PlayersSelectContent: React.FC = () => {
-  const { title } = useGlobalSearchParams();
+  const { title, id } = useGlobalSearchParams();
   const router = useRouter();
   const { initializePlayers } = useGameplay();
   const [playerCount, setPlayerCount] = useState<number | null>(null); // Store selected player count
@@ -28,7 +28,7 @@ const PlayersSelectContent: React.FC = () => {
     if (playerCount && selectedMode) {
       router.push({
         pathname: "routes/route-gameplay/GameplayContent",
-        params: { mode: selectedMode }, // Pass the selected mode as a parameter
+        params: { mode: selectedMode, id }, // Pass the selected mode as a parameter
       });
     } else {
       // Show an alert if either the player count or mode is not selected

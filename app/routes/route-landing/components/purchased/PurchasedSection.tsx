@@ -10,10 +10,10 @@ export const PurchasedSection: React.FC = () => {
   const router = useRouter();
   const { data: blitzPacks = [], isLoading, error } = useGetBlitzPacks();
 
-  const handlePackPress = (title: string) => {
+  const handlePackPress = (title: string, id: number) => {
     router.push({
       pathname: `routes/route-player-select/PlayerSelectContent`,
-      params: { title },
+      params: { title, id },
     });
   };
 
@@ -23,7 +23,7 @@ export const PurchasedSection: React.FC = () => {
         <BlitzPack
           key={pack.id}
           title={pack.title}
-          onPress={() => handlePackPress(pack.title)}
+          onPress={() => handlePackPress(pack.title, pack.id)}
         />
       ))}
     </Styled.ScrollContainer>

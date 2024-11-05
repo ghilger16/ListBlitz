@@ -12,7 +12,8 @@ const prompts = [
 ];
 
 const GameplayContent: React.FC = () => {
-  const { title, mode } = useGlobalSearchParams(); // Get the selected mode
+  const { title, mode, id } = useGlobalSearchParams(); // Get the selected mode
+
   const router = useRouter();
 
   const { players, updatePlayerScore } = useGameplay();
@@ -21,7 +22,7 @@ const GameplayContent: React.FC = () => {
     data: prompts,
     error,
     isLoading,
-  } = useGetPromptsByBlitzPack(blitzPackId);
+  } = useGetPromptsByBlitzPack(Number(id));
 
   const playerCount = players.length;
   const TIMER_DURATION = 10;
