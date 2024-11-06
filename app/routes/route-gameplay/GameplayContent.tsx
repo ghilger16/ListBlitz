@@ -5,21 +5,13 @@ import * as Styled from "./GameplayContent.styled";
 import { useGameplay } from "app/context/game-context/GameContext";
 import { useGetPromptsByBlitzPack } from "app/services";
 
-const prompts = [
-  "List famous bands from the 70's",
-  "Name popular programming languages",
-  "List U.S. Presidents",
-];
-
 const GameplayContent: React.FC = () => {
-  const { title, mode, id } = useGlobalSearchParams(); // Get the selected mode
-
+  const { title, mode, id } = useGlobalSearchParams();
   const router = useRouter();
-
   const { players, updatePlayerScore } = useGameplay();
 
   const {
-    data: prompts,
+    data: prompts = [], // Default to an empty array if prompts is undefined
     error,
     isLoading,
   } = useGetPromptsByBlitzPack(Number(id));
@@ -28,12 +20,15 @@ const GameplayContent: React.FC = () => {
   const TIMER_DURATION = 10;
   const [currentPlayer, setCurrentPlayer] = useState(1);
   const [timer, setTimer] = useState(TIMER_DURATION);
-  const [score, setScore] = useState(0); // Number of correct answers in the round
-  const [answersCount, setAnswersCount] = useState(0); // Track answers in Chill Mode
-  const [currentPrompt, setCurrentPrompt] = useState(prompts[0]);
+  const [score, setScore] = useState(0);
+  const [answersCount, setAnswersCount] = useState(0);
+  const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(false);
 
-  // Timer effect (for Blitz Mode only)
+  // Update prompt on index change
+  const currentPrompt = prompts[currentPromptIndex]?.promptText || "Loading...";
+
+  // Timer effect for Blitz Mode
   useEffect(() => {
     if (mode === "blitz" && isGameStarted && timer > 0) {
       const countdown = setInterval(() => {
@@ -44,22 +39,18 @@ const GameplayContent: React.FC = () => {
     }
   }, [isGameStarted, timer, mode]);
 
-  // Handle score increment
   const handleScoreIncrement = () => {
     if (isGameStarted) {
       setScore((prevScore) => prevScore + 1);
-      setAnswersCount((prevCount) => prevCount + 1); // For Chill Mode
+      setAnswersCount((prevCount) => prevCount + 1);
     }
   };
 
-  // Handle starting the game
   const handleGameStart = () => {
     setIsGameStarted(true);
   };
 
-  // Handle next player's turn and update their score
   const handleNextPlayer = () => {
-    // Save the current player's score
     updatePlayerScore(currentPlayer, score);
 
     if (currentPlayer < playerCount) {
@@ -67,17 +58,14 @@ const GameplayContent: React.FC = () => {
       setIsGameStarted(false);
       setTimer(TIMER_DURATION);
       setScore(0);
-      setAnswersCount(0); // Reset for Chill Mode
+      setAnswersCount(0);
 
-      const nextPromptIndex =
-        (prompts.indexOf(currentPrompt) + 1) % prompts.length;
-      setCurrentPrompt(prompts[nextPromptIndex]);
+      // Calculate the next prompt index, cycling back to the start if at the end
+      setCurrentPromptIndex((prevIndex) => (prevIndex + 1) % prompts.length);
     } else {
-      // If Chill Mode, just return to the main menu after the last player finishes
       if (mode === "chill") {
-        router.push("/"); // Redirect to the main menu
+        router.push("/");
       } else {
-        // For Blitz Mode, still show the results
         router.push({
           pathname: "routes/route-results/ResultsContent",
           params: {
@@ -88,17 +76,18 @@ const GameplayContent: React.FC = () => {
     }
   };
 
-  // Trigger next player in Chill Mode after 5 answers
   useEffect(() => {
     if (mode === "chill" && answersCount >= 5) {
       handleNextPlayer();
     }
   }, [answersCount, mode]);
 
-  // Return to landing page function
   const handleReturnToLanding = () => {
-    router.push("/"); // Navigate back to the landing page
+    router.push("/");
   };
+
+  if (isLoading) return <Text>Loading...</Text>;
+  if (error) return <Text>Error loading prompts.</Text>;
 
   return (
     <SafeAreaView>
@@ -144,7 +133,6 @@ const GameplayContent: React.FC = () => {
         )}
       </Styled.PlayersWrapper>
 
-      {/* Button to return to landing page */}
       <TouchableOpacity
         style={{
           backgroundColor: "red",
