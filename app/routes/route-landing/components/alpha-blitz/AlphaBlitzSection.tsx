@@ -1,9 +1,12 @@
+import React from "react";
 import * as Styled from "./AlphaBlitzSection.styled";
 
-export const AlphaBlitzSection: React.FC = () => {
+const AlphaBlitzSection: React.FC = () => {
   return (
     <Styled.Container>
       <Styled.Title>Alpha Blitz</Styled.Title>
     </Styled.Container>
   );
 };
+
+export default AlphaBlitzSection;

@@ -1,27 +1,43 @@
 import styled from "styled-components/native";
+import { LinearGradient } from "expo-linear-gradient";
 
+// Container for each card
 export const CardContainer = styled.TouchableOpacity`
-  width: 75px;
-  height: 100px;
+  width: 100px;
+  height: 120px;
   background-color: #fff;
-  border-radius: 5px;
-  padding: 5px;
-  margin: 5px;
+  border-radius: 25px;
+  margin: 2px;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-  elevation: 3;
+  elevation: 5; /* Shadow for Android */
+  overflow: hidden;
 `;
 
+// Title of the card
 export const CardTitle = styled.Text`
   font-size: 14px;
   font-weight: bold;
   text-align: center;
-  margin-top: 5px;
+  margin-top: 8px;
+  color: #333;
 `;
 
+// Image inside the card
 export const CardImage = styled.Image`
-  width: 50px;
-  height: 50px;
-  margin-bottom: 5px;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 8px;
+`;
+
+// Gradient background for the card (requires expo-linear-gradient)
+export const VibrantBackground = styled(LinearGradient).attrs(() => ({
+  colors: ["#fdd835", "#29b6f6", "#ef5350"], // Gradient colors
+  start: { x: 0, y: 0 },
+  end: { x: 1, y: 1 },
+}))`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* Places the gradient behind the content */
 `;

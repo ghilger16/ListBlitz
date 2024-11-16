@@ -10,6 +10,7 @@ interface IBlitzPackProps {
 export const BlitzPack: React.FC<IBlitzPackProps> = ({ title, onPress }) => {
   return (
     <Styled.CardContainer onPress={onPress}>
+      <Styled.VibrantBackground />
       <Styled.CardTitle>{title}</Styled.CardTitle>
     </Styled.CardContainer>
   );

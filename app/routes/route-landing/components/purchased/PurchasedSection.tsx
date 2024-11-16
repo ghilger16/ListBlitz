@@ -6,7 +6,7 @@ import { useGetBlitzPacks } from "app/services";
 
 const blitzPackTitles = ["Pack", "Pack 2", "Pack 3", "Pack 4", "Pack 5"];
 
-export const PurchasedSection: React.FC = () => {
+const PurchasedSection: React.FC = () => {
   const router = useRouter();
   const { data: blitzPacks = [], isLoading, error } = useGetBlitzPacks();
 
@@ -29,3 +29,5 @@ export const PurchasedSection: React.FC = () => {
     </Styled.ScrollContainer>
   );
 };
+
+export default PurchasedSection;

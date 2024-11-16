@@ -1,3 +1,4 @@
+import React from "react";
 import { useGameplay } from "app/context/game-context/GameContext";
 import { SafeAreaView, View, Text } from "react-native";
 

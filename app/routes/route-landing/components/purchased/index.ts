@@ -1,1 +1,1 @@
-export { PurchasedSection } from "./PurchasedSection";
+export { default as PurchasedSection } from "./PurchasedSection";

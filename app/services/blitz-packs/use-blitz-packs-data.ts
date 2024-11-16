@@ -1,12 +1,12 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import * as React from "react";
-import { BlitzPack } from "../types";
+import { IBlitzPack } from "../types";
 import { getBlitzPacks } from "./blitz-packs-service";
 
-type UseGetBlitzPacks = UseQueryResult<BlitzPack[], unknown>;
+type UseGetBlitzPacks = UseQueryResult<IBlitzPack[], unknown>;
 
 export const useGetBlitzPacks = (): UseGetBlitzPacks => {
-  const result = useQuery<BlitzPack[], unknown>({
+  const result = useQuery<IBlitzPack[], unknown>({
     queryKey: ["blitz-packs"],
     queryFn: getBlitzPacks,
   });

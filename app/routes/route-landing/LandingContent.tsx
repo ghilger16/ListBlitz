@@ -2,14 +2,16 @@ import React from "react";
 import { Text, ScrollView, ActivityIndicator } from "react-native";
 
 import { Stack } from "expo-router";
-import { PurchasedSection } from "./components/purchased";
+
 import { AlphaBlitzSection } from "./components/alpha-blitz";
 import { StoreSection } from "./components/store";
 import { useGetBlitzPacks } from "app/services";
 
 import * as Styled from "./LandingContent.styled";
+import PurchasedSection from "./components/purchased/PurchasedSection";
+import CustomHeader from "./components/custom-header/CustomHeader";
 
-export const LandingContent: React.FC = () => {
+const LandingContent: React.FC = () => {
   const { data: blitzPacks = [], isLoading, error } = useGetBlitzPacks();
 
   // Display a loading spinner while data is being fetched
@@ -31,14 +33,12 @@ export const LandingContent: React.FC = () => {
       </Styled.SafeArea>
     );
   }
+
   return (
     <Styled.SafeArea>
       <Stack.Screen
         options={{
-          headerTitle: () => (
-            <Styled.HeaderTitle>List Blitz</Styled.HeaderTitle>
-          ),
-          headerTitleAlign: "center",
+          header: () => <CustomHeader />,
         }}
       />
       <ScrollView>
@@ -49,3 +49,5 @@ export const LandingContent: React.FC = () => {
     </Styled.SafeArea>
   );
 };
+
+export default LandingContent;

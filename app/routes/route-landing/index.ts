@@ -1,1 +1,1 @@
-export { LandingContent } from "./LandingContent";
+export { default as LandingContent } from "./LandingContent";

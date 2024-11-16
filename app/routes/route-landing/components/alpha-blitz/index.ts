@@ -1,1 +1,1 @@
-export { AlphaBlitzSection } from "./AlphaBlitzSection";
+export { default as AlphaBlitzSection } from "./AlphaBlitzSection";
