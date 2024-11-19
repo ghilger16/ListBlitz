@@ -6,8 +6,7 @@ export const CardContainer = styled.TouchableOpacity`
   height: 150px;
   margin: 2px;
   padding: 10px;
-  border-radius: 10px;
-  background-color: #fff;
+  border-radius: 25px;
   shadow-color: #000;
   shadow-opacity: 0.1;
   shadow-radius: 4px;
@@ -30,11 +29,9 @@ export const CardImage = styled.Image`
   margin-bottom: 8px;
 `;
 
-export const VibrantBackground = styled(LinearGradient).attrs(() => ({
-  colors: ["#fdd835", "#29b6f6", "#ef5350"], // Gradient colors
-  start: { x: 0, y: 0 },
-  end: { x: 1, y: 1 },
-}))`
+export const VibrantBackground = styled(LinearGradient)<{
+  colors: [string, string];
+}>`
   position: absolute;
   width: 100%;
   height: 100%;

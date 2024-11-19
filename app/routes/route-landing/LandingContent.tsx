@@ -3,13 +3,13 @@ import { Text, ScrollView, ActivityIndicator } from "react-native";
 
 import { Stack } from "expo-router";
 
-import { AlphaBlitzSection } from "./components/alpha-blitz";
-import { StoreSection } from "./components/store";
 import { useGetBlitzPacks } from "app/services";
 
 import * as Styled from "./LandingContent.styled";
-import PurchasedSection from "./components/purchased/PurchasedSection";
+
 import CustomHeader from "./components/custom-header/CustomHeader";
+import { PackLibrary } from "./components/pack-library";
+import { AlphaBlitzSection } from "./components/alpha-blitz";
 
 const LandingContent: React.FC = () => {
   const { data: blitzPacks = [], isLoading, error } = useGetBlitzPacks();
@@ -42,7 +42,7 @@ const LandingContent: React.FC = () => {
         }}
       />
       <ScrollView>
-        <PurchasedSection />
+        <PackLibrary />
         <AlphaBlitzSection />
       </ScrollView>
     </Styled.SafeArea>
