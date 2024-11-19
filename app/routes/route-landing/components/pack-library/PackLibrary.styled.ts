@@ -6,7 +6,7 @@ export const ScrollContainer = styled.ScrollView.attrs({
   },
 })`
   flex-grow: 0;
-  margin-top: 15px;
+  margin-top: 5px;
 `;
 
 export const Title = styled.Text`

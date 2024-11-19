@@ -2,10 +2,9 @@ import styled from "styled-components/native";
 import { LinearGradient } from "expo-linear-gradient";
 
 export const CardContainer = styled.TouchableOpacity`
-  width: 120px;
-  height: 150px;
+  width: 100px;
+  height: 130px;
   margin: 2px;
-  padding: 10px;
   border-radius: 25px;
   shadow-color: #000;
   shadow-opacity: 0.1;
@@ -35,5 +34,6 @@ export const VibrantBackground = styled(LinearGradient)<{
   position: absolute;
   width: 100%;
   height: 100%;
+  border-radius: 25px;
   z-index: -1; /* Places the gradient behind the content */
 `;
