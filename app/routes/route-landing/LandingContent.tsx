@@ -44,7 +44,6 @@ const LandingContent: React.FC = () => {
       <ScrollView>
         <PurchasedSection />
         <AlphaBlitzSection />
-        <StoreSection />
       </ScrollView>
     </Styled.SafeArea>
   );

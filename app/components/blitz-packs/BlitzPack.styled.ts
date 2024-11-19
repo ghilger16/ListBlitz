@@ -1,20 +1,21 @@
 import styled from "styled-components/native";
 import { LinearGradient } from "expo-linear-gradient";
 
-// Container for each card
 export const CardContainer = styled.TouchableOpacity`
-  width: 100px;
-  height: 120px;
-  background-color: #fff;
-  border-radius: 25px;
+  width: 120px;
+  height: 150px;
   margin: 2px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #fff;
+  shadow-color: #000;
+  shadow-opacity: 0.1;
+  shadow-radius: 4px;
+  elevation: 3;
   align-items: center;
   justify-content: center;
-  elevation: 5; /* Shadow for Android */
-  overflow: hidden;
 `;
 
-// Title of the card
 export const CardTitle = styled.Text`
   font-size: 14px;
   font-weight: bold;
@@ -23,14 +24,12 @@ export const CardTitle = styled.Text`
   color: #333;
 `;
 
-// Image inside the card
 export const CardImage = styled.Image`
   width: 60px;
   height: 60px;
   margin-bottom: 8px;
 `;
 
-// Gradient background for the card (requires expo-linear-gradient)
 export const VibrantBackground = styled(LinearGradient).attrs(() => ({
   colors: ["#fdd835", "#29b6f6", "#ef5350"], // Gradient colors
   start: { x: 0, y: 0 },

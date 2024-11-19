@@ -1,10 +1,20 @@
 import styled from "styled-components/native";
 
-export const ScrollContainer = styled.ScrollView`
+export const ScrollContainer = styled.ScrollView.attrs({
+  contentContainerStyle: {
+    paddingHorizontal: 10,
+  },
+})`
   flex-grow: 0;
-  horizontal: true;
-  padding-vertical: 10px;
-  border-bottom-width: 2px;
-  border-bottom-color: #ddd;
-  height: 250px;
+  margin-top: 15px;
+`;
+
+export const ContentContainer = styled.View`
+  flex-direction: column;
+`;
+
+export const Row = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 10px;
 `;
