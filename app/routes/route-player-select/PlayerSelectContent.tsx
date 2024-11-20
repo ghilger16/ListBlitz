@@ -9,32 +9,24 @@ const PlayersSelectContent: React.FC = () => {
   const { title, id } = useGlobalSearchParams();
   const router = useRouter();
   const { initializePlayers } = useGameplay();
-  const [playerCount, setPlayerCount] = useState<number | null>(null); // Store selected player count
-  const [selectedMode, setSelectedMode] = useState<string | null>(null); // Store selected mode
+  const [playerCount, setPlayerCount] = useState<number | null>(null);
 
-  // Handle player count selection
-  const handlePlayerCount = (count: number) => {
-    setPlayerCount(count);
-    initializePlayers(count); // Initialize players when the player count is selected
-  };
-
-  // Handle mode selection
-  const handleModeSelect = (mode: string) => {
-    setSelectedMode(mode);
-  };
-
-  // Handle start game logic when both mode and player count are selected
-  const handleStartGame = () => {
-    if (playerCount && selectedMode) {
-      router.push({
-        pathname: "routes/route-gameplay/GameplayContent",
-        params: { mode: selectedMode, id }, // Pass the selected mode as a parameter
-      });
-    } else {
-      // Show an alert if either the player count or mode is not selected
-      alert("Please select both player count and mode to start the game");
+  // Handle game start with mode and player count
+  const handleGameStart = (mode: string) => {
+    if (!playerCount) {
+      alert("Please select the number of players.");
+      return;
     }
+
+    initializePlayers(playerCount); // Set the number of players in the context
+    router.push({
+      pathname: "routes/route-gameplay/GameplayContent",
+      params: { mode, id }, // Pass mode and other parameters
+    });
   };
+
+  // Update player count when selected
+  const handlePlayerCount = (count: number) => setPlayerCount(count);
 
   return (
     <SafeAreaView>
@@ -45,48 +37,11 @@ const PlayersSelectContent: React.FC = () => {
 
       {/* Player Selection */}
       <Styled.PlayersWrapper>
-        <PlayersSelect onStartClick={handlePlayerCount} />
+        <PlayersSelect
+          onStartClick={handlePlayerCount}
+          onGameStart={handleGameStart} // Pass single game start handler
+        />
       </Styled.PlayersWrapper>
-
-      {/* Mode Selection */}
-      <View>
-        <Styled.Title>Select Your Mode</Styled.Title>
-        <TouchableOpacity
-          style={{
-            backgroundColor: selectedMode === "blitz" ? "lightblue" : "white",
-            padding: 10,
-            marginVertical: 10,
-          }}
-          onPress={() => handleModeSelect("blitz")}
-        >
-          <Text style={{ fontSize: 30 }}>Blitz Mode (Timed)</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            backgroundColor: selectedMode === "chill" ? "lightblue" : "white",
-            padding: 10,
-            marginVertical: 10,
-          }}
-          onPress={() => handleModeSelect("chill")}
-        >
-          <Text style={{ fontSize: 30 }}>Chill Mode (Untimed)</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Start Button */}
-      <TouchableOpacity
-        style={{
-          backgroundColor: "green",
-          padding: 20,
-          marginTop: 20,
-          borderRadius: 10,
-        }}
-        onPress={handleStartGame}
-      >
-        <Text style={{ fontSize: 30, color: "white", textAlign: "center" }}>
-          Start Game
-        </Text>
-      </TouchableOpacity>
     </SafeAreaView>
   );
 };

@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { View } from "react-native";
-import Svg, { G, Circle, Path, Text } from "react-native-svg";
+import Svg, { G, Path, Text } from "react-native-svg";
 import * as d3 from "d3-shape";
 
 const radius = 185; // Radius of the outer circle
 
-export const PlayersSelect: React.FC<any> = ({ onStartClick }) => {
+export const PlayersSelect: React.FC<any> = ({ onGameStart, onStartClick }) => {
+  const [counter, setCounter] = useState(0); // Counter for clicked slices
+  const [sliceValues, setSliceValues] = useState<Record<number, number>>({}); // Map of slice index to its value
   const sections = Array.from({ length: 12 }, (_, i) => i + 1); // Create 12 sections
 
   // Generate arc paths using D3
@@ -14,58 +16,105 @@ export const PlayersSelect: React.FC<any> = ({ onStartClick }) => {
 
   const arcs = pieGenerator(sections);
 
+  const handlePress = (index: number) => {
+    if (!sliceValues[index]) {
+      // Increment the counter and assign the value to the slice
+      setCounter((prev) => prev + 1);
+      setSliceValues((prev) => ({ ...prev, [index]: counter + 1 }));
+    }
+  };
+
   return (
     <View style={{ justifyContent: "center", alignItems: "center" }}>
       <Svg width={radius * 2} height={radius * 2}>
         <G x={radius} y={radius}>
           {/* Render each arc */}
           {arcs.map((arc, index) => {
-            const path = arcGenerator(arc) || "";
-            const [labelX, labelY] = arcGenerator.centroid(arc);
-            const offsetFactor = 0.9;
+            const path = arcGenerator(arc as any) || "";
+            const [labelX, labelY] = arcGenerator.centroid(arc as any);
+            const offsetFactor = 0.9; // Adjust label position
             const adjustedX = labelX * offsetFactor;
             const adjustedY = labelY * offsetFactor;
+
             return (
               <G key={index}>
+                {/* Touchable arc */}
                 <Path
                   d={path}
                   fill={`hsl(${(index / sections.length) * 360}, 80%, 70%)`}
                   stroke="#000"
                   strokeWidth={3}
+                  onPress={() => handlePress(index)} // Handle arc press
                 />
-                <Text
-                  x={adjustedX}
-                  y={adjustedY}
-                  fontSize={16}
-                  fill="#000"
-                  textAnchor="middle"
-                  alignmentBaseline="middle"
-                >
-                  {index + 1}
-                </Text>
+                {/* Display the assigned value if the slice has been clicked */}
+                {sliceValues[index] && (
+                  <Text
+                    x={adjustedX}
+                    y={adjustedY}
+                    fontSize={16}
+                    fill="#000"
+                    textAnchor="middle"
+                    alignmentBaseline="middle"
+                  >
+                    {sliceValues[index]}
+                  </Text>
+                )}
               </G>
             );
           })}
-          {/* Add center circle */}
-          <Circle cx={0} cy={0} r={60} fill="#29b6f6" />
-          <Circle
-            cx={0}
-            cy={0}
-            r={100}
+
+          {/* Add split middle circle */}
+          <Path
+            d={
+              d3.arc()({
+                innerRadius: 0,
+                outerRadius: 60,
+                startAngle: 0,
+                endAngle: Math.PI,
+              }) || ""
+            }
+            fill="#FFD700"
             stroke="#000"
-            strokeWidth={2}
-            fill="none"
+            strokeWidth={3}
+            onPress={() => onGameStart("blitz")} // Start Blitz Mode
+          />
+          <Path
+            d={
+              d3.arc()({
+                innerRadius: 0,
+                outerRadius: 60,
+                startAngle: Math.PI,
+                endAngle: 2 * Math.PI,
+              }) || ""
+            }
+            fill="#1E90FF"
+            stroke="#000"
+            strokeWidth={3}
+            onPress={() => onGameStart("chill")} // Start Chill Mode
           />
 
+          {/* Add Blitz text */}
           <Text
-            x={0}
+            x={-30} // Position to the left
             y={0}
             fontSize={14}
-            fill="#fff"
+            fill="#000"
             textAnchor="middle"
             alignmentBaseline="middle"
           >
-            Select Players
+            Blitz
+          </Text>
+
+          {/* Add Chill text */}
+          <Text
+            x={30} // Position to the right
+            y={0}
+            fontSize={14}
+            fill="#000"
+            textAnchor="middle"
+            alignmentBaseline="middle"
+          >
+            Chill
           </Text>
         </G>
       </Svg>
