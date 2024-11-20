@@ -9,16 +9,14 @@ const PlayersSelectContent: React.FC = () => {
   const { title, id } = useGlobalSearchParams();
   const router = useRouter();
   const { initializePlayers } = useGameplay();
-  const [playerCount, setPlayerCount] = useState<number | null>(null);
 
   // Handle game start with mode and player count
-  const handleGameStart = (mode: string) => {
-    if (!playerCount) {
+  const handleGameStart = (mode: string, count: number) => {
+    if (!count) {
       alert("Please select the number of players.");
       return;
-    }
+    } else initializePlayers(count);
 
-    initializePlayers(playerCount); // Set the number of players in the context
     router.push({
       pathname: "routes/route-gameplay/GameplayContent",
       params: { mode, id }, // Pass mode and other parameters
@@ -26,7 +24,6 @@ const PlayersSelectContent: React.FC = () => {
   };
 
   // Update player count when selected
-  const handlePlayerCount = (count: number) => setPlayerCount(count);
 
   return (
     <SafeAreaView>
@@ -38,7 +35,6 @@ const PlayersSelectContent: React.FC = () => {
       {/* Player Selection */}
       <Styled.PlayersWrapper>
         <PlayersSelect
-          onStartClick={handlePlayerCount}
           onGameStart={handleGameStart} // Pass single game start handler
         />
       </Styled.PlayersWrapper>

@@ -5,9 +5,10 @@ import * as d3 from "d3-shape";
 
 const radius = 185; // Radius of the outer circle
 
-export const PlayersSelect: React.FC<any> = ({ onGameStart, onStartClick }) => {
-  const [counter, setCounter] = useState(0); // Counter for clicked slices
+export const PlayersSelect: React.FC<any> = ({ onGameStart }) => {
+  const [counter, setCounter] = useState(0); // Counter for the next number to assign
   const [sliceValues, setSliceValues] = useState<Record<number, number>>({}); // Map of slice index to its value
+
   const sections = Array.from({ length: 12 }, (_, i) => i + 1); // Create 12 sections
 
   // Generate arc paths using D3
@@ -17,15 +18,26 @@ export const PlayersSelect: React.FC<any> = ({ onGameStart, onStartClick }) => {
   const arcs = pieGenerator(sections);
 
   const handlePress = (index: number) => {
-    if (!sliceValues[index]) {
-      // Increment the counter and assign the value to the slice
-      setCounter((prev) => prev + 1);
-      setSliceValues((prev) => ({ ...prev, [index]: counter + 1 }));
-    }
+    setSliceValues((prev) => {
+      const updatedValues = { ...prev };
+
+      if (updatedValues[index] === counter) {
+        // If the slice has the latest number, remove it
+        delete updatedValues[index];
+        setCounter((prev) => prev - 1);
+      } else if (!updatedValues[index]) {
+        // If the slice is unselected, assign the next number
+        setCounter((prev) => prev + 1);
+        updatedValues[index] = counter + 1;
+      }
+
+      return updatedValues;
+    });
   };
 
   return (
     <View style={{ justifyContent: "center", alignItems: "center" }}>
+      <pre>{counter}</pre>
       <Svg width={radius * 2} height={radius * 2}>
         <G x={radius} y={radius}>
           {/* Render each arc */}
@@ -76,7 +88,7 @@ export const PlayersSelect: React.FC<any> = ({ onGameStart, onStartClick }) => {
             fill="#FFD700"
             stroke="#000"
             strokeWidth={3}
-            onPress={() => onGameStart("blitz")} // Start Blitz Mode
+            onPress={() => onGameStart("chill", counter)} // Start Chill Mode
           />
           <Path
             d={
@@ -90,7 +102,7 @@ export const PlayersSelect: React.FC<any> = ({ onGameStart, onStartClick }) => {
             fill="#1E90FF"
             stroke="#000"
             strokeWidth={3}
-            onPress={() => onGameStart("chill")} // Start Chill Mode
+            onPress={() => onGameStart("blitz", counter)} // Start Blitz Mode
           />
 
           {/* Add Blitz text */}
