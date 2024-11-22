@@ -16,38 +16,32 @@ const PackLibrary: React.FC = () => {
     });
   };
 
-  const half = Math.ceil(blitzPacks.length / 2);
-  const firstRow = blitzPacks.slice(0, half);
-  const secondRow = blitzPacks.slice(half);
+  // Group packs into rows of 3
+  const rows = [];
+  for (let i = 0; i < blitzPacks.length; i += 3) {
+    rows.push(blitzPacks.slice(i, i + 3));
+  }
 
   return (
     <>
       <Styled.Title>Blitz Packs</Styled.Title>
       <Styled.ScrollContainer
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        directionalLockEnabled
-        alwaysBounceVertical={false}
+        horizontal={false} // Enable vertical scrolling
+        showsVerticalScrollIndicator={true} // Show vertical scroll indicator
       >
         <Styled.ContentContainer>
-          <Styled.Row>
-            {firstRow.map((pack, index) => (
-              <BlitzPack
-                title={pack.title}
-                onPress={() => handlePackPress(pack.title, pack.id)}
-                index={index}
-              />
-            ))}
-          </Styled.Row>
-          <Styled.Row>
-            {secondRow.map((pack, index) => (
-              <BlitzPack
-                title={pack.title}
-                onPress={() => handlePackPress(pack.title, pack.id)}
-                index={index + 1}
-              />
-            ))}
-          </Styled.Row>
+          {rows.map((row, rowIndex) => (
+            <Styled.Row key={rowIndex}>
+              {row.map((pack, index) => (
+                <BlitzPack
+                  key={pack.id} // Add unique key for each pack
+                  title={pack.title}
+                  onPress={() => handlePackPress(pack.title, pack.id)}
+                  index={rowIndex * 3 + index} // Calculate global index
+                />
+              ))}
+            </Styled.Row>
+          ))}
         </Styled.ContentContainer>
       </Styled.ScrollContainer>
     </>

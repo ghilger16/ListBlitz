@@ -4,6 +4,7 @@ import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
 import * as Styled from "./PlayerSelectContent.styled";
 import { PlayersSelect } from "@Components/players-select";
 import { useGameplay } from "app/context/game-context/GameContext";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const PlayersSelectContent: React.FC = () => {
   const { title, id } = useGlobalSearchParams();

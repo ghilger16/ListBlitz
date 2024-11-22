@@ -1,3 +1,4 @@
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import styled from "styled-components/native";
 
 export const Title = styled.Text`
@@ -5,7 +6,7 @@ export const Title = styled.Text`
   justify-content: center;
 `;
 
-export const PlayersWrapper = styled.View`
+export const PlayersWrapper = styled(GestureHandlerRootView)`
   margin-top: 100px;
   align-items: center;
 `;

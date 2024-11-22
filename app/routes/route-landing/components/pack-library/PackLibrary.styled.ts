@@ -2,7 +2,8 @@ import styled from "styled-components/native";
 
 export const ScrollContainer = styled.ScrollView.attrs({
   contentContainerStyle: {
-    paddingHorizontal: 10,
+    justifyContent: "center",
+    alignItems: "center",
   },
 })`
   flex-grow: 0;
@@ -24,6 +25,5 @@ export const ContentContainer = styled.View`
 
 export const Row = styled.View`
   flex-direction: row;
-  justify-content: space-between;
   margin-bottom: 10px;
 `;

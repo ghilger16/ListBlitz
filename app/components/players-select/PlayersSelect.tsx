@@ -1,11 +1,17 @@
 import React, { useState } from "react";
 import { View } from "react-native";
-import Svg, { Defs, G, LinearGradient, Path, Stop, Text } from "react-native-svg";
+import Svg, {
+  Defs,
+  G,
+  LinearGradient,
+  Path,
+  Stop,
+  Text,
+} from "react-native-svg";
 import * as d3 from "d3-shape";
 import { COLORS } from "@Components/constants";
 
 const radius = 185; // Radius of the outer circle
-
 const outerCircleRadius = 100; // Radius of the new outer circle
 
 export const PlayersSelect: React.FC<any> = ({ onGameStart }) => {
@@ -16,12 +22,16 @@ export const PlayersSelect: React.FC<any> = ({ onGameStart }) => {
 
   // Generate arc paths using D3
   const arcGenerator = d3.arc().outerRadius(radius).innerRadius(0); // Define arc size
-  const outerArcGenerator = d3.arc().outerRadius(outerCircleRadius).innerRadius(radius); // Define the outer circle size
+  const outerArcGenerator = d3
+    .arc()
+    .outerRadius(outerCircleRadius)
+    .innerRadius(radius); // Define the outer circle size
   const pieGenerator = d3.pie<number>().sort(null).value(1); // Equal spacing for 12 sections
 
   const arcs = pieGenerator(sections);
 
   const handlePress = (index: number) => {
+    console.log(`Tapped slice: ${index}`);
     setSliceValues((prev) => {
       const updatedValues = { ...prev };
 
@@ -41,7 +51,6 @@ export const PlayersSelect: React.FC<any> = ({ onGameStart }) => {
 
   return (
     <View style={{ justifyContent: "center", alignItems: "center" }}>
-      <pre>{counter}</pre>
       <Svg width={radius * 2} height={radius * 2}>
         <Defs>
           {/* Create gradient definitions for each color pair */}
@@ -71,14 +80,15 @@ export const PlayersSelect: React.FC<any> = ({ onGameStart }) => {
 
             return (
               <G key={index}>
-                {/* Touchable arc */}
+                {/* Visible arc */}
                 <Path
                   d={path}
                   fill={`url(#grad-${index % COLORS.length})`} // Apply gradient fill
                   stroke="#000"
                   strokeWidth={3}
-                  onPress={() => handlePress(index)} // Handle arc press
+                  onPress={() => handlePress(index)}
                 />
+
                 {/* Display the assigned value if the slice has been clicked */}
                 {sliceValues[index] && (
                   <Text
@@ -105,7 +115,7 @@ export const PlayersSelect: React.FC<any> = ({ onGameStart }) => {
                 endAngle: 2 * Math.PI, // Full circle
               }) || ""
             }
-            fill="none" // Transparent fill
+            fill="none" // Transparent fillr
             stroke="#000" // Outer circle stroke
             strokeWidth={3}
           />
