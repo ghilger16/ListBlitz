@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { View } from "react-native";
-import Svg, { G, Path, Text } from "react-native-svg";
+import Svg, { Defs, G, LinearGradient, Path, Stop, Text } from "react-native-svg";
 import * as d3 from "d3-shape";
+import { COLORS } from "@Components/constants";
 
 const radius = 185; // Radius of the outer circle
+
+const outerCircleRadius = 100; // Radius of the new outer circle
 
 export const PlayersSelect: React.FC<any> = ({ onGameStart }) => {
   const [counter, setCounter] = useState(0); // Counter for the next number to assign
@@ -13,6 +16,7 @@ export const PlayersSelect: React.FC<any> = ({ onGameStart }) => {
 
   // Generate arc paths using D3
   const arcGenerator = d3.arc().outerRadius(radius).innerRadius(0); // Define arc size
+  const outerArcGenerator = d3.arc().outerRadius(outerCircleRadius).innerRadius(radius); // Define the outer circle size
   const pieGenerator = d3.pie<number>().sort(null).value(1); // Equal spacing for 12 sections
 
   const arcs = pieGenerator(sections);
@@ -39,6 +43,23 @@ export const PlayersSelect: React.FC<any> = ({ onGameStart }) => {
     <View style={{ justifyContent: "center", alignItems: "center" }}>
       <pre>{counter}</pre>
       <Svg width={radius * 2} height={radius * 2}>
+        <Defs>
+          {/* Create gradient definitions for each color pair */}
+          {COLORS.map(([startColor, endColor], index) => (
+            <LinearGradient
+              key={`grad-${index}`}
+              id={`grad-${index}`}
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="0%"
+            >
+              <Stop offset="0%" stopColor={startColor} />
+              <Stop offset="100%" stopColor={endColor} />
+            </LinearGradient>
+          ))}
+        </Defs>
+
         <G x={radius} y={radius}>
           {/* Render each arc */}
           {arcs.map((arc, index) => {
@@ -53,7 +74,7 @@ export const PlayersSelect: React.FC<any> = ({ onGameStart }) => {
                 {/* Touchable arc */}
                 <Path
                   d={path}
-                  fill={`hsl(${(index / sections.length) * 360}, 80%, 70%)`}
+                  fill={`url(#grad-${index % COLORS.length})`} // Apply gradient fill
                   stroke="#000"
                   strokeWidth={3}
                   onPress={() => handlePress(index)} // Handle arc press
@@ -74,6 +95,20 @@ export const PlayersSelect: React.FC<any> = ({ onGameStart }) => {
               </G>
             );
           })}
+
+          <Path
+            d={
+              outerArcGenerator({
+                innerRadius: radius,
+                outerRadius: outerCircleRadius, // Define inner and outer radius
+                startAngle: 0,
+                endAngle: 2 * Math.PI, // Full circle
+              }) || ""
+            }
+            fill="none" // Transparent fill
+            stroke="#000" // Outer circle stroke
+            strokeWidth={3}
+          />
 
           {/* Add split middle circle */}
           <Path
