@@ -1,17 +1,15 @@
 import React, { useState } from "react";
 import { useGlobalSearchParams, Stack, useRouter } from "expo-router";
-import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
+import { View, SafeAreaView } from "react-native";
 import * as Styled from "./PlayerSelectContent.styled";
 import { PlayersSelect } from "@Components/players-select";
 import { useGameplay } from "app/context/game-context/GameContext";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const PlayersSelectContent: React.FC = () => {
   const { title, id } = useGlobalSearchParams();
   const router = useRouter();
   const { initializePlayers } = useGameplay();
 
-  // Handle game start with mode and player count
   const handleGameStart = (mode: string, count: number) => {
     if (!count) {
       alert("Please select the number of players.");
@@ -20,26 +18,19 @@ const PlayersSelectContent: React.FC = () => {
 
     router.push({
       pathname: "routes/route-gameplay/GameplayContent",
-      params: { mode, id }, // Pass mode and other parameters
+      params: { mode, id },
     });
   };
 
-  // Update player count when selected
-
   return (
-    <SafeAreaView>
+    <Styled.SafeAreaWrapper>
       <Stack.Screen options={{ headerShown: false }} />
-      <View>
-        <Styled.Title>Gameplay for {title}</Styled.Title>
-      </View>
-
-      {/* Player Selection */}
+      <Styled.Title>{title}</Styled.Title>
       <Styled.PlayersWrapper>
-        <PlayersSelect
-          onGameStart={handleGameStart} // Pass single game start handler
-        />
+        <Styled.WheelTitle>Select Players</Styled.WheelTitle>
+        <PlayersSelect onGameStart={handleGameStart} />
       </Styled.PlayersWrapper>
-    </SafeAreaView>
+    </Styled.SafeAreaWrapper>
   );
 };
 

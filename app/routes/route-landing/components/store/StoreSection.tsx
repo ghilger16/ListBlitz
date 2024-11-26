@@ -1,3 +1,4 @@
+import React from "react";
 import * as Styled from "./StoreSection.styled";
 
 export const StoreSection: React.FC = () => {

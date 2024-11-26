@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Svg, {
+  Circle,
   Defs,
   G,
   LinearGradient,
@@ -11,170 +13,197 @@ import Svg, {
 import * as d3 from "d3-shape";
 import { COLORS } from "@Components/constants";
 
-const radius = 185; // Radius of the outer circle
-const outerCircleRadius = 100; // Radius of the new outer circle
+// Constants
+const RADIUS = 185;
+const OUTER_CIRCLE_RADIUS = 100;
+const INNER_CIRCLE_RADIUS = 60;
+const SECTIONS_COUNT = 12;
 
-export const PlayersSelect: React.FC<any> = ({ onGameStart }) => {
-  const [counter, setCounter] = useState(0); // Counter for the next number to assign
-  const [sliceValues, setSliceValues] = useState<Record<number, number>>({}); // Map of slice index to its value
+// Utility function to calculate the pie slice index based on touch coordinates
+const calculateSliceIndex = (
+  x: number,
+  y: number,
+  radius: number,
+  sectionsCount: number
+): number => {
+  const touchX = x - radius;
+  const touchY = y - radius;
+  const angle = Math.atan2(touchY, touchX);
+  const normalizedAngle = angle >= 0 ? angle : 2 * Math.PI + angle;
 
-  const sections = Array.from({ length: 12 }, (_, i) => i + 1); // Create 12 sections
+  const adjustedAngle = (normalizedAngle + Math.PI) % (2 * Math.PI);
+  return Math.floor((adjustedAngle / (2 * Math.PI)) * sectionsCount);
+};
 
-  // Generate arc paths using D3
-  const arcGenerator = d3.arc().outerRadius(radius).innerRadius(0); // Define arc size
-  const outerArcGenerator = d3
-    .arc()
-    .outerRadius(outerCircleRadius)
-    .innerRadius(radius); // Define the outer circle size
-  const pieGenerator = d3.pie<number>().sort(null).value(1); // Equal spacing for 12 sections
+interface IPlayersSelectProps {
+  onGameStart: (mode: string, counter: number) => void;
+}
 
-  const arcs = pieGenerator(sections);
+export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
+  onGameStart,
+}) => {
+  const [selectedSlices, setSelectedSlices] = useState<Set<number>>(
+    new Set([0]) // Slice 1 (index 0) is always selected
+  );
+  const currentSliceRef = useRef<number | null>(null); // Track current slice during gestures
+  const sliceRefs = useRef<(Path | null)[]>([]);
 
-  const handlePress = (index: number) => {
-    console.log(`Tapped slice: ${index}`);
-    setSliceValues((prev) => {
-      const updatedValues = { ...prev };
+  // Create arc generators
+  const arcGenerator = d3.arc().outerRadius(RADIUS).innerRadius(0);
+  const pieGenerator = d3
+    .pie<number>()
+    .sort(null)
+    .value(1)
+    .startAngle(-Math.PI / 2); // Start at the top (12 o'clock)
 
-      if (updatedValues[index] === counter) {
-        // If the slice has the latest number, remove it
-        delete updatedValues[index];
-        setCounter((prev) => prev - 1);
-      } else if (!updatedValues[index]) {
-        // If the slice is unselected, assign the next number
-        setCounter((prev) => prev + 1);
-        updatedValues[index] = counter + 1;
-      }
+  const arcs = pieGenerator(
+    Array.from({ length: SECTIONS_COUNT }, (_, i) => i + 1)
+  );
 
-      return updatedValues;
-    });
+  // Handle slice selection to highlight slices from 1 to the tapped/dragged slice
+  const handleRangeSelection = (endIndex: number) => {
+    const newSelection = new Set<number>([0]); // Always include slice 1 (index 0)
+    for (let i = 0; i <= endIndex; i++) {
+      newSelection.add(i);
+    }
+    setSelectedSlices(newSelection);
   };
 
+  // Gesture handlers
+  const panGesture = Gesture.Pan()
+    .onBegin((event) => {
+      const sliceIndex = calculateSliceIndex(
+        event.x,
+        event.y,
+        RADIUS,
+        SECTIONS_COUNT
+      );
+      currentSliceRef.current = sliceIndex;
+      handleRangeSelection(sliceIndex);
+    })
+    .onUpdate((event) => {
+      const sliceIndex = calculateSliceIndex(
+        event.x,
+        event.y,
+        RADIUS,
+        SECTIONS_COUNT
+      );
+      if (currentSliceRef.current !== sliceIndex) {
+        currentSliceRef.current = sliceIndex;
+        handleRangeSelection(sliceIndex);
+      }
+    })
+    .onEnd(() => {
+      currentSliceRef.current = null;
+    });
+
+  const renderSlice = (arc: any, index: number) => {
+    const path = arcGenerator(arc) || "";
+    const [labelX, labelY] = arcGenerator.centroid(arc);
+    const isSelected = selectedSlices.has(index);
+
+    return (
+      <G key={`arc-${index}`}>
+        <Path
+          ref={(el) => (sliceRefs.current[index] = el)}
+          d={path}
+          fill={`url(#grad-${index % COLORS.length})`}
+          stroke={isSelected ? "#FFF" : "#000"}
+          strokeWidth={2}
+        />
+        <Text
+          x={labelX * 0.9}
+          y={labelY * 0.9}
+          fontSize={16}
+          fill={isSelected ? "#FFF" : "#000"}
+          textAnchor="middle"
+          alignmentBaseline="middle"
+        >
+          {index + 1}
+        </Text>
+      </G>
+    );
+  };
+
+  const renderCenterOptions = () => (
+    <>
+      <Circle
+        cx={0}
+        cy={0}
+        r={OUTER_CIRCLE_RADIUS}
+        stroke="#000"
+        strokeWidth={2}
+        fill="none"
+      />
+      <Path
+        d={
+          d3.arc()({
+            innerRadius: 0,
+            outerRadius: INNER_CIRCLE_RADIUS,
+            startAngle: 0,
+            endAngle: Math.PI,
+          }) || ""
+        }
+        fill="#FFD700"
+        stroke="#000"
+        strokeWidth={2}
+        onPress={() => onGameStart("chill", selectedSlices.size)}
+      />
+      <Path
+        d={
+          d3.arc()({
+            innerRadius: 0,
+            outerRadius: INNER_CIRCLE_RADIUS,
+            startAngle: Math.PI,
+            endAngle: 2 * Math.PI,
+          }) || ""
+        }
+        fill="#1E90FF"
+        stroke="#000"
+        strokeWidth={2}
+        onPress={() => onGameStart("blitz", selectedSlices.size)}
+      />
+      <Text
+        x={-30}
+        y={0}
+        fontSize={14}
+        fill="#000"
+        textAnchor="middle"
+        alignmentBaseline="middle"
+      >
+        Blitz
+      </Text>
+      <Text
+        x={30}
+        y={0}
+        fontSize={14}
+        fill="#000"
+        textAnchor="middle"
+        alignmentBaseline="middle"
+      >
+        Chill
+      </Text>
+    </>
+  );
+
   return (
-    <View style={{ justifyContent: "center", alignItems: "center" }}>
-      <Svg width={radius * 2} height={radius * 2}>
-        <Defs>
-          {/* Create gradient definitions for each color pair */}
-          {COLORS.map(([startColor, endColor], index) => (
-            <LinearGradient
-              key={`grad-${index}`}
-              id={`grad-${index}`}
-              x1="0%"
-              y1="0%"
-              x2="100%"
-              y2="0%"
-            >
-              <Stop offset="0%" stopColor={startColor} />
-              <Stop offset="100%" stopColor={endColor} />
-            </LinearGradient>
-          ))}
-        </Defs>
-
-        <G x={radius} y={radius}>
-          {/* Render each arc */}
-          {arcs.map((arc, index) => {
-            const path = arcGenerator(arc as any) || "";
-            const [labelX, labelY] = arcGenerator.centroid(arc as any);
-            const offsetFactor = 0.9; // Adjust label position
-            const adjustedX = labelX * offsetFactor;
-            const adjustedY = labelY * offsetFactor;
-
-            return (
-              <G key={index}>
-                {/* Visible arc */}
-                <Path
-                  d={path}
-                  fill={`url(#grad-${index % COLORS.length})`} // Apply gradient fill
-                  stroke="#000"
-                  strokeWidth={3}
-                  onPress={() => handlePress(index)}
-                />
-
-                {/* Display the assigned value if the slice has been clicked */}
-                {sliceValues[index] && (
-                  <Text
-                    x={adjustedX}
-                    y={adjustedY}
-                    fontSize={16}
-                    fill="#000"
-                    textAnchor="middle"
-                    alignmentBaseline="middle"
-                  >
-                    {sliceValues[index]}
-                  </Text>
-                )}
-              </G>
-            );
-          })}
-
-          <Path
-            d={
-              outerArcGenerator({
-                innerRadius: radius,
-                outerRadius: outerCircleRadius, // Define inner and outer radius
-                startAngle: 0,
-                endAngle: 2 * Math.PI, // Full circle
-              }) || ""
-            }
-            fill="none" // Transparent fillr
-            stroke="#000" // Outer circle stroke
-            strokeWidth={3}
-          />
-
-          {/* Add split middle circle */}
-          <Path
-            d={
-              d3.arc()({
-                innerRadius: 0,
-                outerRadius: 60,
-                startAngle: 0,
-                endAngle: Math.PI,
-              }) || ""
-            }
-            fill="#FFD700"
-            stroke="#000"
-            strokeWidth={3}
-            onPress={() => onGameStart("chill", counter)} // Start Chill Mode
-          />
-          <Path
-            d={
-              d3.arc()({
-                innerRadius: 0,
-                outerRadius: 60,
-                startAngle: Math.PI,
-                endAngle: 2 * Math.PI,
-              }) || ""
-            }
-            fill="#1E90FF"
-            stroke="#000"
-            strokeWidth={3}
-            onPress={() => onGameStart("blitz", counter)} // Start Blitz Mode
-          />
-
-          {/* Add Blitz text */}
-          <Text
-            x={-30} // Position to the left
-            y={0}
-            fontSize={14}
-            fill="#000"
-            textAnchor="middle"
-            alignmentBaseline="middle"
-          >
-            Blitz
-          </Text>
-
-          {/* Add Chill text */}
-          <Text
-            x={30} // Position to the right
-            y={0}
-            fontSize={14}
-            fill="#000"
-            textAnchor="middle"
-            alignmentBaseline="middle"
-          >
-            Chill
-          </Text>
-        </G>
-      </Svg>
+    <View>
+      <GestureDetector gesture={panGesture}>
+        <Svg width={RADIUS * 2} height={RADIUS * 2}>
+          <Defs>
+            {COLORS.map(([startColor, endColor], index) => (
+              <LinearGradient key={`grad-${index}`} id={`grad-${index}`}>
+                <Stop offset="0%" stopColor={startColor} />
+                <Stop offset="100%" stopColor={endColor} />
+              </LinearGradient>
+            ))}
+          </Defs>
+          <G x={RADIUS} y={RADIUS}>
+            {arcs.map(renderSlice)}
+            {renderCenterOptions()}
+          </G>
+        </Svg>
+      </GestureDetector>
     </View>
   );
 };
