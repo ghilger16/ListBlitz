@@ -4,6 +4,7 @@ import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
 import * as Styled from "./GameplayContent.styled";
 import { useGameplay } from "app/context/game-context/GameContext";
 import { useGetPromptsByBlitzPack } from "app/services";
+import { PromptDisplay } from "@Components/prompt-display";
 
 const GameplayContent: React.FC = () => {
   const { title, mode, id } = useGlobalSearchParams();
@@ -97,7 +98,7 @@ const GameplayContent: React.FC = () => {
       </View>
       <Styled.PlayersWrapper>
         <Text>Current Player: {players[currentPlayer - 1]?.name}</Text>
-        <Text>Prompt: {currentPrompt}</Text>
+        <PromptDisplay prompt={currentPrompt} />
         {mode === "blitz" && <Text>Time Remaining: {timer}s</Text>}
         <Text>Score: {score}</Text>
         <TouchableOpacity

@@ -25,9 +25,18 @@ const calculateSliceIndex = (
   y: number,
   radius: number,
   sectionsCount: number
-): number => {
+): number | null => {
   const touchX = x - radius;
   const touchY = y - radius;
+
+  // Calculate the distance from the center
+  const distance = Math.sqrt(touchX * touchX + touchY * touchY);
+
+  // Exclude interactions within the gameStart buttons area
+  if (distance < OUTER_CIRCLE_RADIUS) {
+    return null; // Touch is within the excluded radius
+  }
+
   const angle = Math.atan2(touchY, touchX);
   const normalizedAngle = angle >= 0 ? angle : 2 * Math.PI + angle;
 
@@ -90,6 +99,7 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
         RADIUS,
         SECTIONS_COUNT
       );
+      if (sliceIndex === null) return; // Ignore invalid touches
       currentSliceRef.current = sliceIndex;
       handleRangeSelection(sliceIndex);
     })
@@ -100,10 +110,9 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
         RADIUS,
         SECTIONS_COUNT
       );
-      if (currentSliceRef.current !== sliceIndex) {
-        currentSliceRef.current = sliceIndex;
-        handleRangeSelection(sliceIndex);
-      }
+      if (sliceIndex === null || currentSliceRef.current === sliceIndex) return;
+      currentSliceRef.current = sliceIndex;
+      handleRangeSelection(sliceIndex);
     })
     .onEnd(() => {
       currentSliceRef.current = null;
