@@ -60,6 +60,18 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
     Array.from({ length: SECTIONS_COUNT }, (_, i) => i + 1)
   );
 
+  const highlightArcs = arcs.map((arc, index) => {
+    if (selectedSlices.has(index)) {
+      // Reduce the arc to only cover the right side
+      // const midAngle = (arc.startAngle + arc.endAngle) / 2;
+      return {
+        ...arc,
+        // Only keep the right half of the slice
+      };
+    }
+    return null;
+  });
+
   // Handle slice selection to highlight slices from 1 to the tapped/dragged slice
   const handleRangeSelection = (endIndex: number) => {
     const newSelection = new Set<number>([0]); // Always include slice 1 (index 0)
@@ -200,6 +212,17 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
           </Defs>
           <G x={RADIUS} y={RADIUS}>
             {arcs.map(renderSlice)}
+            {highlightArcs.map((arc, index) =>
+              arc ? (
+                <Path
+                  key={`highlight-${index}`}
+                  d={arcGenerator(arc as any) || ""}
+                  fill="none"
+                  stroke="#FFF" // Highlight color
+                  strokeWidth={3} // Thicker stroke for highlight
+                />
+              ) : null
+            )}
             {renderCenterOptions()}
           </G>
         </Svg>
