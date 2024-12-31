@@ -5,10 +5,10 @@ import { getPromptsByBlitzPack } from "./prompt-service";
 
 export const useGetPromptsByBlitzPack = (
   blitzPackId: number,
-  limit = 10
+  limit: number
 ): UseQueryResult<Prompt[], Error> => {
   return useQuery<Prompt[], Error>({
-    queryKey: ["prompts", blitzPackId],
+    queryKey: ["prompts", blitzPackId, limit],
     queryFn: () => getPromptsByBlitzPack(blitzPackId, limit),
     refetchOnWindowFocus: false,
   });

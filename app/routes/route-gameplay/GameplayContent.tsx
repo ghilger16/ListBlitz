@@ -3,20 +3,25 @@ import { useGlobalSearchParams, Stack, useRouter } from "expo-router";
 import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
 import * as Styled from "./GameplayContent.styled";
 import { useGameplay } from "app/context/game-context/GameContext";
-import { useGetPromptsByBlitzPack } from "app/services";
+import { Prompt, useGetPromptsByBlitzPack } from "app/services";
 import { PromptDisplay } from "@Components/prompt-display";
+import { GameplayCounter } from "@Components/gameplay-counter";
 
 const GameplayContent: React.FC = () => {
   const { title, mode, id } = useGlobalSearchParams();
   const router = useRouter();
   const { players, updatePlayerScore } = useGameplay();
+  const PROMPT_LIMIT = 10;
 
+  // Fetch prompts
   const {
-    data: prompts = [], // Default to an empty array if prompts is undefined
+    data: prompts = [],
     error,
     isLoading,
-  } = useGetPromptsByBlitzPack(Number(id));
+    refetch, // Add refetch to fetch more prompts dynamically
+  } = useGetPromptsByBlitzPack(Number(id), PROMPT_LIMIT);
 
+  // State variables
   const playerCount = players.length;
   const TIMER_DURATION = 10;
   const [currentPlayer, setCurrentPlayer] = useState(1);
@@ -26,8 +31,13 @@ const GameplayContent: React.FC = () => {
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(false);
 
+  // Track used prompts to avoid repeats within a session
+  const [usedPrompts, setUsedPrompts] = useState(new Set());
+  const [availablePrompts, setAvailablePrompts] = useState<Prompt[]>([]);
+
   // Update prompt on index change
-  const currentPrompt = prompts[currentPromptIndex]?.promptText || "Loading...";
+  const currentPrompt =
+    availablePrompts[currentPromptIndex]?.promptText || "Loading...";
 
   // Timer effect for Blitz Mode
   useEffect(() => {
@@ -40,6 +50,30 @@ const GameplayContent: React.FC = () => {
     }
   }, [isGameStarted, timer, mode]);
 
+  // Filter prompts to remove repeats and add new prompts to available list
+  useEffect(() => {
+    if (prompts && prompts.length > 0) {
+      const newPrompts = prompts.filter(
+        (prompt) => !usedPrompts.has(prompt.id) // Filter out repeats
+      );
+
+      setAvailablePrompts((prev) => [...prev, ...newPrompts]);
+
+      // Add used prompts to the set
+      const updatedUsedPrompts = new Set(usedPrompts);
+      newPrompts.forEach((prompt) => updatedUsedPrompts.add(prompt.id));
+      setUsedPrompts(updatedUsedPrompts);
+    }
+  }, [prompts]);
+
+  // Fetch more prompts dynamically when running low
+  useEffect(() => {
+    if (currentPromptIndex >= availablePrompts.length - 1) {
+      refetch(); // Fetch more prompts when nearing the end
+    }
+  }, [currentPromptIndex, availablePrompts.length, refetch]);
+
+  // Score Increment
   const handleScoreIncrement = () => {
     if (isGameStarted) {
       setScore((prevScore) => prevScore + 1);
@@ -48,6 +82,10 @@ const GameplayContent: React.FC = () => {
   };
 
   const handleGameStart = () => {
+    if (availablePrompts.length === 0) {
+      alert("No prompts available. Please try again later.");
+      return;
+    }
     setIsGameStarted(true);
   };
 
@@ -61,8 +99,10 @@ const GameplayContent: React.FC = () => {
       setScore(0);
       setAnswersCount(0);
 
-      // Calculate the next prompt index, cycling back to the start if at the end
-      setCurrentPromptIndex((prevIndex) => (prevIndex + 1) % prompts.length);
+      // Move to the next prompt, cycling back if needed
+      setCurrentPromptIndex((prevIndex) =>
+        prevIndex + 1 < availablePrompts.length ? prevIndex + 1 : 0
+      );
     } else {
       if (mode === "chill") {
         router.push("/");
@@ -77,6 +117,7 @@ const GameplayContent: React.FC = () => {
     }
   };
 
+  // Auto-advance for Chill Mode
   useEffect(() => {
     if (mode === "chill" && answersCount >= 5) {
       handleNextPlayer();
@@ -101,11 +142,11 @@ const GameplayContent: React.FC = () => {
         <PromptDisplay prompt={currentPrompt} />
         {mode === "blitz" && <Text>Time Remaining: {timer}s</Text>}
         <Text>Score: {score}</Text>
-        <TouchableOpacity
-          onPress={isGameStarted ? handleScoreIncrement : handleGameStart}
-        >
-          <Text style={{ fontSize: 40 }}>{isGameStarted ? "✔️" : "Start"}</Text>
-        </TouchableOpacity>
+        <GameplayCounter
+          isGameStarted={isGameStarted}
+          onIncrement={handleScoreIncrement}
+          onStart={handleGameStart}
+        />
         <Text>
           {isGameStarted
             ? mode === "blitz"
