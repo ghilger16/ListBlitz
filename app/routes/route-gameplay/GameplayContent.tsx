@@ -146,6 +146,7 @@ const GameplayContent: React.FC = () => {
           isGameStarted={isGameStarted}
           onIncrement={handleScoreIncrement}
           onStart={handleGameStart}
+          score={score}
         />
         <Text>
           {isGameStarted
@@ -175,7 +176,7 @@ const GameplayContent: React.FC = () => {
         )}
       </Styled.PlayersWrapper>
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={{
           backgroundColor: "red",
           padding: 15,
@@ -187,7 +188,7 @@ const GameplayContent: React.FC = () => {
         onPress={handleReturnToLanding}
       >
         <Text style={{ color: "white", fontSize: 18 }}>Return to Home</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </SafeAreaView>
   );
 };
