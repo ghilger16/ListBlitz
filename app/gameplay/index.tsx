@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useGlobalSearchParams, Stack, useRouter } from "expo-router";
 import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
-import * as Styled from "./GameplayContent.styled";
-import { useGameplay } from "app/context/game-context/GameContext";
-import { Prompt, useGetPromptsByBlitzPack } from "app/services";
-import { PromptDisplay } from "@Components/prompt-display";
-import { GameplayCounter } from "@Components/gameplay-counter";
+import * as Styled from "@Styles";
 
-const GameplayContent: React.FC = () => {
+import { Prompt, useGetPromptsByBlitzPack } from "services";
+import { useGameplay } from "@Context";
+import { GameplayCounter, PromptDisplay } from "@Components";
+
+const Gameplay: React.FC = () => {
   const { title, mode, id } = useGlobalSearchParams();
   const router = useRouter();
   const { players, updatePlayerScore } = useGameplay();
@@ -108,7 +108,7 @@ const GameplayContent: React.FC = () => {
         router.push("/");
       } else {
         router.push({
-          pathname: "routes/route-results/ResultsContent",
+          pathname: "/results",
           params: {
             scores: JSON.stringify(players.map((player) => player.score)),
           },
@@ -125,7 +125,7 @@ const GameplayContent: React.FC = () => {
   }, [answersCount, mode]);
 
   const handleReturnToLanding = () => {
-    router.push("/");
+    router.push("/landing");
   };
 
   if (isLoading) return <Text>Loading...</Text>;
@@ -134,10 +134,7 @@ const GameplayContent: React.FC = () => {
   return (
     <SafeAreaView>
       <Stack.Screen options={{ headerShown: false }} />
-      <View>
-        <Styled.Title>Gameplay for {title}</Styled.Title>
-      </View>
-      <Styled.PlayersWrapper>
+      <Styled.Wrapper>
         <Text>Current Player: {players[currentPlayer - 1]?.name}</Text>
         <PromptDisplay prompt={currentPrompt} />
         {mode === "blitz" && <Text>Time Remaining: {timer}s</Text>}
@@ -174,7 +171,7 @@ const GameplayContent: React.FC = () => {
             </Text>
           </TouchableOpacity>
         )}
-      </Styled.PlayersWrapper>
+      </Styled.Wrapper>
 
       {/* <TouchableOpacity
         style={{
@@ -193,4 +190,4 @@ const GameplayContent: React.FC = () => {
   );
 };
 
-export default GameplayContent;
+export default Gameplay;

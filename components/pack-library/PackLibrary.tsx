@@ -1,9 +1,10 @@
 import React from "react";
-import { BlitzPack } from "@Components/blitz-packs";
+
 import { useRouter } from "expo-router";
-import { useGetBlitzPacks } from "app/services";
+import { useGetBlitzPacks } from "services";
 
 import * as Styled from "./PackLibrary.styled";
+import { BlitzPack } from "../blitz-packs";
 
 const PackLibrary: React.FC = () => {
   const router = useRouter();
@@ -11,7 +12,7 @@ const PackLibrary: React.FC = () => {
 
   const handlePackPress = (title: string, id: number) => {
     router.push({
-      pathname: `routes/route-player-select/PlayerSelectContent`,
+      pathname: `/player-select`,
       params: { title, id },
     });
   };

@@ -1,8 +1,8 @@
 import React from "react";
-import { LandingContent } from "./routes/route-landing";
+import Landing from "./landing";
 
 const Home: React.FC = () => {
-  return <LandingContent />;
+  return <Landing />;
 };
 
 export default Home;

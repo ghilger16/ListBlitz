@@ -3,15 +3,15 @@ import { Text, ScrollView, ActivityIndicator } from "react-native";
 
 import { Stack } from "expo-router";
 
-import { useGetBlitzPacks } from "app/services";
+import { useGetBlitzPacks } from "services";
 
-import * as Styled from "./LandingContent.styled";
+import * as Styled from "../../styles/Landing.styled";
 
-import CustomHeader from "./components/custom-header/CustomHeader";
-import { PackLibrary } from "./components/pack-library";
-import { AlphaBlitzSection } from "./components/alpha-blitz";
+import CustomHeader from "../../components/custom-header/CustomHeader";
+import { PackLibrary } from "../../components/pack-library";
+import { AlphaBlitzSection } from "../../components/alpha-blitz";
 
-const LandingContent: React.FC = () => {
+const Landing: React.FC = () => {
   const { data: blitzPacks = [], isLoading, error } = useGetBlitzPacks();
 
   // Display a loading spinner while data is being fetched
@@ -49,4 +49,4 @@ const LandingContent: React.FC = () => {
   );
 };
 
-export default LandingContent;
+export default Landing;

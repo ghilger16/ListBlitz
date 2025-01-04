@@ -11,7 +11,9 @@ import Svg, {
   Text,
 } from "react-native-svg";
 import * as d3 from "d3-shape";
-import { COLORS } from "@Components/constants";
+
+import { ModeSelect } from "./mode-select";
+import { COLORS } from "../constants";
 
 // Constants
 const RADIUS = 185;
@@ -142,6 +144,14 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
         >
           {index + 1}
         </Text>
+        <Circle
+          cx={0}
+          cy={0}
+          r={OUTER_CIRCLE_RADIUS}
+          stroke="#000"
+          strokeWidth={2}
+          fill="none"
+        />
       </G>
     );
   };
@@ -232,8 +242,19 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
                 />
               ) : null
             )}
-            {renderCenterOptions()}
           </G>
+          <View
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              transform: [{ translateX: -60 }, { translateY: -60 }],
+            }}
+          >
+            <ModeSelect
+              onModeChange={(mode) => onGameStart(mode, selectedSlices.size)}
+            />
+          </View>
         </Svg>
       </GestureDetector>
     </View>

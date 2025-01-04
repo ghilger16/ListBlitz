@@ -1,8 +1,8 @@
 import React from "react";
-import { useGameplay } from "app/context/game-context/GameContext";
+import { useGameplay } from "@Context/GameContext";
 import { SafeAreaView, View, Text } from "react-native";
 
-const ResultsContent: React.FC = () => {
+const Results: React.FC = () => {
   const { players } = useGameplay();
 
   return (
@@ -18,4 +18,4 @@ const ResultsContent: React.FC = () => {
   );
 };
 
-export default ResultsContent;
+export default Results;

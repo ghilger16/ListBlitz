@@ -9,9 +9,21 @@
     "skipLibCheck": true,
     "baseUrl": "./",
     "paths": {
-      "@Components/*": ["app/components/*"]
+      "@Components": ["components"],
+      "@Services": ["services"],
+      "@Context": ["context"],
+      "@Assets": ["assets"],
+      "@Styles": ["styles"]
     }
   },
-  "include": ["app/**/*"],
+  "include": [
+    "app/**/*",
+    "components/**/*",
+    "services/**/*",
+    "context/**/*",
+    "styles/Gameplay.styled.ts",
+    "styles/Landing.styled.ts",
+    "styles/PlayerSelect.styled.ts"
+  ],
   "extends": "expo/tsconfig.base"
 }

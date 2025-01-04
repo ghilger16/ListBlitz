@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { useGlobalSearchParams, Stack, useRouter } from "expo-router";
-import { View, SafeAreaView } from "react-native";
-import * as Styled from "./PlayerSelectContent.styled";
-import { PlayersSelect } from "@Components/players-select";
-import { useGameplay } from "app/context/game-context/GameContext";
 
-const PlayersSelectContent: React.FC = () => {
+import * as Styled from "@Styles";
+
+import { useGameplay } from "@Context";
+import { PlayersSelect } from "@Components";
+
+const PlayerSelect: React.FC = () => {
   const { title, id } = useGlobalSearchParams();
   const router = useRouter();
   const { initializePlayers } = useGameplay();
@@ -34,4 +35,4 @@ const PlayersSelectContent: React.FC = () => {
   );
 };
 
-export default PlayersSelectContent;
+export default PlayerSelect;
