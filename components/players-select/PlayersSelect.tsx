@@ -48,10 +48,12 @@ const calculateSliceIndex = (
 
 interface IPlayersSelectProps {
   onGameStart: (mode: string, counter: number) => void;
+  mode: number;
 }
 
 export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
   onGameStart,
+  mode,
 }) => {
   const [selectedSlices, setSelectedSlices] = useState<Set<number>>(
     new Set([0]) // Slice 1 (index 0) is always selected
@@ -243,20 +245,12 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
               ) : null
             )}
           </G>
-          <View
-            style={{
-              position: "absolute",
-              left: "50%",
-              top: "50%",
-              transform: [{ translateX: -60 }, { translateY: -60 }],
-            }}
-          >
-            <ModeSelect
-              onModeChange={(mode) => onGameStart(mode, selectedSlices.size)}
-            />
-          </View>
         </Svg>
       </GestureDetector>
+      <ModeSelect
+        mode={mode}
+        onModeChange={(mode) => onGameStart(mode, selectedSlices.size)}
+      />
     </View>
   );
 };
