@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import * as Styled from "./ModeSelect.styled"; // Import the styled components
 
-const INNER_CIRCLE_RADIUS = 60; // Size of center button
 const MODES = ["Chill", "Blitz"]; // Available modes
 
 interface CenterOptionsProps {
@@ -16,76 +15,29 @@ const ModeSelect: React.FC<CenterOptionsProps> = ({ onModeChange, mode }) => {
   };
 
   return (
-    <TouchableOpacity
-      style={styles.fullScreen} // Make the entire area tappable
+    <Styled.FullScreen
       activeOpacity={1} // Prevent fade animation
       onPress={handleModeChange} // Handle taps anywhere
     >
-      <View style={styles.container}>
+      <Styled.Container>
         {/* Center Circle */}
-        <View
-          style={[
-            styles.circle,
-            { backgroundColor: mode === 0 ? "#FFD700" : "#1E90FF" },
-          ]}
-        >
-          <Text style={styles.modeText}>{MODES[mode]}</Text>
-        </View>
+        <Styled.Circle isActive={mode === 0}>
+          <Styled.ModeText>{MODES[mode]}</Styled.ModeText>
+        </Styled.Circle>
 
         {/* Tabs Below the Wheel */}
-        <View style={styles.indicatorContainer}>
+        <Styled.IndicatorContainer>
           {MODES.map((_, index) => (
-            <TouchableOpacity
+            <Styled.Indicator
               key={index}
-              style={[
-                styles.indicator,
-                {
-                  backgroundColor: mode === index ? "#FFD700" : "#D3D3D3",
-                },
-              ]}
+              isActive={mode === index}
+              onPress={() => onModeChange(MODES[index].toLowerCase())}
             />
           ))}
-        </View>
-      </View>
-    </TouchableOpacity>
+        </Styled.IndicatorContainer>
+      </Styled.Container>
+    </Styled.FullScreen>
   );
 };
-
-// Styles
-const styles = StyleSheet.create({
-  fullScreen: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  container: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: -255,
-  },
-  circle: {
-    width: INNER_CIRCLE_RADIUS * 2,
-    height: INNER_CIRCLE_RADIUS * 2,
-    borderRadius: INNER_CIRCLE_RADIUS,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#000",
-  },
-  modeText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#000",
-  },
-  indicatorContainer: {
-    flexDirection: "row",
-    marginTop: 175,
-  },
-  indicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginHorizontal: 5,
-  },
-});
 
 export default ModeSelect;

@@ -18,7 +18,6 @@ import { COLORS } from "../constants";
 // Constants
 const RADIUS = 185;
 const OUTER_CIRCLE_RADIUS = 100;
-const INNER_CIRCLE_RADIUS = 60;
 const SECTIONS_COUNT = 12;
 
 // Utility function to calculate the pie slice index based on touch coordinates
@@ -146,78 +145,9 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
         >
           {index + 1}
         </Text>
-        <Circle
-          cx={0}
-          cy={0}
-          r={OUTER_CIRCLE_RADIUS}
-          stroke="#000"
-          strokeWidth={2}
-          fill="none"
-        />
       </G>
     );
   };
-
-  const renderCenterOptions = () => (
-    <>
-      <Circle
-        cx={0}
-        cy={0}
-        r={OUTER_CIRCLE_RADIUS}
-        stroke="#000"
-        strokeWidth={2}
-        fill="none"
-      />
-      <Path
-        d={
-          d3.arc()({
-            innerRadius: 0,
-            outerRadius: INNER_CIRCLE_RADIUS,
-            startAngle: 0,
-            endAngle: Math.PI,
-          }) || ""
-        }
-        fill="#FFD700"
-        stroke="#000"
-        strokeWidth={2}
-        onPress={() => onGameStart("chill", selectedSlices.size)}
-      />
-      <Path
-        d={
-          d3.arc()({
-            innerRadius: 0,
-            outerRadius: INNER_CIRCLE_RADIUS,
-            startAngle: Math.PI,
-            endAngle: 2 * Math.PI,
-          }) || ""
-        }
-        fill="#1E90FF"
-        stroke="#000"
-        strokeWidth={2}
-        onPress={() => onGameStart("blitz", selectedSlices.size)}
-      />
-      <Text
-        x={-30}
-        y={0}
-        fontSize={14}
-        fill="#000"
-        textAnchor="middle"
-        alignmentBaseline="middle"
-      >
-        Blitz
-      </Text>
-      <Text
-        x={30}
-        y={0}
-        fontSize={14}
-        fill="#000"
-        textAnchor="middle"
-        alignmentBaseline="middle"
-      >
-        Chill
-      </Text>
-    </>
-  );
 
   return (
     <View>
@@ -244,6 +174,14 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
                 />
               ) : null
             )}
+            <Circle
+              cx={0}
+              cy={0}
+              r={OUTER_CIRCLE_RADIUS}
+              stroke="#000"
+              strokeWidth={2}
+              fill="none"
+            />
           </G>
         </Svg>
       </GestureDetector>

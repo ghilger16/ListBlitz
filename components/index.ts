@@ -2,7 +2,7 @@ export * from "./alpha-blitz";
 export * from "./blitz-packs";
 export * from "./constants";
 export * from "./custom-header";
-export * from "./gameplay-counter";
+export * from "./chill-counter";
 export * from "./pack-library";
 export * from "./prompt-display";
 export * from "./players-select";

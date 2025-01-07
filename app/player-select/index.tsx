@@ -29,11 +29,14 @@ const PlayerSelect: React.FC = () => {
 
   const swipeGesture = Gesture.Pan()
     .onEnd((event) => {
-      const direction = event.translationX > 0 ? 1 : -1; // Swipe direction
-      const newIndex = (selectedMode + direction + MODES.length) % MODES.length; // Cycle modes
-      setSelectedMode(newIndex);
+      const direction = event.translationX > 0 ? -1 : 1;
+      const newIndex = selectedMode + direction;
+
+      if (newIndex >= 0 && newIndex < MODES.length) {
+        setSelectedMode(newIndex);
+      }
     })
-    .activeOffsetX([-10, 10]);
+    .activeOffsetX([-20, 20]);
 
   return (
     <GestureDetector gesture={swipeGesture}>

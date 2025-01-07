@@ -5,7 +5,7 @@ import * as Styled from "@Styles";
 
 import { Prompt, useGetPromptsByBlitzPack } from "services";
 import { useGameplay } from "@Context";
-import { GameplayCounter, PromptDisplay } from "@Components";
+import { ChillCounter, PromptDisplay } from "@Components";
 
 const Gameplay: React.FC = () => {
   const { title, mode, id } = useGlobalSearchParams();
@@ -139,7 +139,7 @@ const Gameplay: React.FC = () => {
         <PromptDisplay prompt={currentPrompt} />
         {mode === "blitz" && <Text>Time Remaining: {timer}s</Text>}
         <Text>Score: {score}</Text>
-        <GameplayCounter
+        <ChillCounter
           isGameStarted={isGameStarted}
           onIncrement={handleScoreIncrement}
           onStart={handleGameStart}
