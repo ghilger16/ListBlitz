@@ -4,6 +4,7 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Svg, {
   Circle,
   Defs,
+  ForeignObject,
   G,
   LinearGradient,
   Path,
@@ -11,6 +12,12 @@ import Svg, {
   Text,
 } from "react-native-svg";
 import * as d3 from "d3-shape";
+import LottieView from "lottie-react-native";
+
+// Import Lottie icons
+import cameraIcon from "@Assets/icons/camera.json";
+import reelIcon from "@Assets/icons/reel.json";
+import ticketIcon from "@Assets/icons/ticket.json";
 
 import { ModeSelect } from "./mode-select";
 import { COLORS } from "../constants";
@@ -19,8 +26,8 @@ import { COLORS } from "../constants";
 const RADIUS = 185;
 const OUTER_CIRCLE_RADIUS = 100;
 const SECTIONS_COUNT = 12;
+const ICONS = [cameraIcon, reelIcon, ticketIcon];
 
-// Utility function to calculate the pie slice index based on touch coordinates
 const calculateSliceIndex = (
   x: number,
   y: number,
@@ -30,17 +37,13 @@ const calculateSliceIndex = (
   const touchX = x - radius;
   const touchY = y - radius;
 
-  // Calculate the distance from the center
   const distance = Math.sqrt(touchX * touchX + touchY * touchY);
-
-  // Exclude interactions within the gameStart buttons area
   if (distance < OUTER_CIRCLE_RADIUS) {
-    return null; // Touch is within the excluded radius
+    return null;
   }
 
   const angle = Math.atan2(touchY, touchX);
   const normalizedAngle = angle >= 0 ? angle : 2 * Math.PI + angle;
-
   const adjustedAngle = (normalizedAngle + Math.PI) % (2 * Math.PI);
   return Math.floor((adjustedAngle / (2 * Math.PI)) * sectionsCount);
 };
@@ -55,18 +58,17 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
   mode,
 }) => {
   const [selectedSlices, setSelectedSlices] = useState<Set<number>>(
-    new Set([0]) // Slice 1 (index 0) is always selected
+    new Set([0])
   );
-  const currentSliceRef = useRef<number | null>(null); // Track current slice during gestures
+  const currentSliceRef = useRef<number | null>(null);
   const sliceRefs = useRef<(Path | null)[]>([]);
 
-  // Create arc generators
   const arcGenerator = d3.arc().outerRadius(RADIUS).innerRadius(0);
   const pieGenerator = d3
     .pie<number>()
     .sort(null)
     .value(1)
-    .startAngle(-Math.PI / 2); // Start at the top (12 o'clock)
+    .startAngle(-Math.PI / 2);
 
   const arcs = pieGenerator(
     Array.from({ length: SECTIONS_COUNT }, (_, i) => i + 1)
@@ -74,26 +76,19 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
 
   const highlightArcs = arcs.map((arc, index) => {
     if (selectedSlices.has(index)) {
-      // Reduce the arc to only cover the right side
-      // const midAngle = (arc.startAngle + arc.endAngle) / 2;
-      return {
-        ...arc,
-        // Only keep the right half of the slice
-      };
+      return { ...arc };
     }
     return null;
   });
 
-  // Handle slice selection to highlight slices from 1 to the tapped/dragged slice
   const handleRangeSelection = (endIndex: number) => {
-    const newSelection = new Set<number>([0]); // Always include slice 1 (index 0)
+    const newSelection = new Set<number>([0]);
     for (let i = 0; i <= endIndex; i++) {
       newSelection.add(i);
     }
     setSelectedSlices(newSelection);
   };
 
-  // Gesture handlers
   const panGesture = Gesture.Pan()
     .onBegin((event) => {
       const sliceIndex = calculateSliceIndex(
@@ -102,7 +97,7 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
         RADIUS,
         SECTIONS_COUNT
       );
-      if (sliceIndex === null) return; // Ignore invalid touches
+      if (sliceIndex === null) return;
       currentSliceRef.current = sliceIndex;
       handleRangeSelection(sliceIndex);
     })
@@ -121,33 +116,68 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
       currentSliceRef.current = null;
     });
 
+  const transformToSVGCoordinates = (labelX: number, labelY: number) => {
+    return {
+      x: RADIUS + labelX * 1.5, // Move right from center
+      y: RADIUS + labelY * 1.5, // Move down from center
+    };
+  };
+
   const renderSlice = (arc: any, index: number) => {
     const path = arcGenerator(arc) || "";
-    const [labelX, labelY] = arcGenerator.centroid(arc);
+    const [labelX, labelY] = arcGenerator.centroid(arc); // Get centroid
+    const { x, y } = transformToSVGCoordinates(labelX, labelY); // Convert to absolute coordinates
     const isSelected = selectedSlices.has(index);
+    const iconSource = ICONS[index % ICONS.length];
 
     return (
       <G key={`arc-${index}`}>
+        {/* Slice Path with opacity control */}
         <Path
-          ref={(el) => (sliceRefs.current[index] = el)}
           d={path}
           fill={`url(#grad-${index % COLORS.length})`}
           stroke={isSelected ? "#FFF" : "#000"}
           strokeWidth={2}
+          opacity={isSelected ? 1 : 0.5} // Dim unselected slices
         />
+
+        {/* Render Number Inside the Slice when Selected */}
+
         <Text
           x={labelX * 0.9}
           y={labelY * 0.9}
-          fontSize={16}
-          fill={isSelected ? "#FFF" : "#000"}
+          fontSize={18}
+          fontWeight={isSelected ? "bold" : "normal"}
+          fill={isSelected ? "#FFF" : "#000"} // White for selected, Black for unselected
           textAnchor="middle"
           alignmentBaseline="middle"
         >
           {index + 1}
         </Text>
+
+        {/* LottieView Icon - Show but only animate when selected */}
+        <View
+          style={{
+            position: "absolute",
+            left: x - 30, // Adjust for icon size
+            top: y - 35, // Adjust for icon size
+            justifyContent: "center",
+            alignItems: "center",
+            opacity: isSelected ? 1 : 0.5, // Dim unselected icons
+          }}
+        >
+          <LottieView
+            source={iconSource}
+            autoPlay={isSelected}
+            loop={isSelected}
+            style={{ width: 60, height: 60 }}
+          />
+        </View>
       </G>
     );
   };
+
+  const isSelectionAboveThreshold = selectedSlices.size > 8;
 
   return (
     <View>
@@ -169,8 +199,8 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
                   key={`highlight-${index}`}
                   d={arcGenerator(arc as any) || ""}
                   fill="none"
-                  stroke="#FFF" // Highlight color
-                  strokeWidth={3} // Thicker stroke for highlight
+                  stroke="#FFF"
+                  strokeWidth={4}
                 />
               ) : null
             )}
@@ -188,6 +218,7 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
       <ModeSelect
         mode={mode}
         onModeChange={(mode) => onGameStart(mode, selectedSlices.size)}
+        disableTapToStart={isSelectionAboveThreshold}
       />
     </View>
   );

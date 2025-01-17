@@ -8,7 +8,7 @@ export const FullScreen = styled.TouchableOpacity`
 export const Container = styled.View`
   align-items: center;
   justify-content: center;
-  margin-top: -255px;
+  margin-top: -250px;
 `;
 
 export const Circle = styled.View<{ isActive: boolean }>`
@@ -19,7 +19,7 @@ export const Circle = styled.View<{ isActive: boolean }>`
   align-items: center;
   border-width: 2px;
   border-color: #000;
-  background-color: ${(props) => (props.isActive ? "#FFD700" : "#1E90FF")};
+  background-color: ${(props) => (props.isActive ? "#FFD700" : "#87CEFA")};
 `;
 
 export const ModeText = styled.Text`
@@ -34,9 +34,9 @@ export const IndicatorContainer = styled.View`
 `;
 
 export const Indicator = styled.TouchableOpacity<{ isActive: boolean }>`
-  width: 15px;
-  height: 15px;
-  border-radius: 10px;
+  width: 25px;
+  height: 25px;
+  border-radius: 100px;
   margin: 0 5px;
-  background-color: ${(props) => (props.isActive ? "yellow" : "white")};
+  background-color: ${(props) => (props.isActive ? "#FFD700" : "grey")};
 `;
