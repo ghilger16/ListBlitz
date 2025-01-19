@@ -1,7 +1,7 @@
 import React from "react";
 
 import * as Styled from "./BlitzPack.styled";
-import { COLORS } from "../constants";
+import { COLORS } from "../../context/constants";
 
 interface IBlitzPackProps {
   title: string;
@@ -9,7 +9,11 @@ interface IBlitzPackProps {
   index: number;
 }
 
-const BlitzPack: React.FC<IBlitzPackProps> = ({ title, onPress, index }) => {
+export const BlitzPack: React.FC<IBlitzPackProps> = ({
+  title,
+  onPress,
+  index,
+}) => {
   const assignedColor = COLORS[index % COLORS.length];
   return (
     <Styled.CardContainer onPress={onPress}>
@@ -18,5 +22,3 @@ const BlitzPack: React.FC<IBlitzPackProps> = ({ title, onPress, index }) => {
     </Styled.CardContainer>
   );
 };
-
-export default BlitzPack;

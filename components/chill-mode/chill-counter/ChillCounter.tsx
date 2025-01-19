@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 import Svg, { G, Path } from "react-native-svg";
 import * as d3 from "d3-shape";
 import LottieView from "lottie-react-native";
+import * as Styled from "./ChillCounter.styled";
 
 // Constants
 const RADIUS = 160;
@@ -29,7 +30,7 @@ interface IGameplayCounterProps {
   onStart: () => void;
 }
 
-export const ChillCounter: React.FC<IGameplayCounterProps> = ({
+const ChillCounter: React.FC<IGameplayCounterProps> = ({
   isGameStarted,
   score,
   currentPlayerIndex,
@@ -37,6 +38,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   onStart,
 }) => {
   const [fillAngle, setFillAngle] = useState(0);
+  const [isPlayerStartVisible, setIsPlayerStartVisible] = useState(true); // State to control text visibility
   const lottieRef = useRef<LottieView>(null); // Ref for Lottie animation
 
   // Ensure we always get a valid icon index (cycling within available icons)
@@ -72,6 +74,12 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
     onIncrement();
   };
 
+  // Hide "Player Start" text when game is started
+  const handleStartGame = () => {
+    setIsPlayerStartVisible(false); // Hide the player start text
+    onStart();
+  };
+
   return (
     <View style={{ alignItems: "center", justifyContent: "center" }}>
       {/* SVG Donut */}
@@ -91,7 +99,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
 
       {/* Tapable Circle Button (Lottie replaces button) */}
       <TouchableOpacity
-        onPress={isGameStarted ? handleIncrement : onStart}
+        onPress={isGameStarted ? handleIncrement : handleStartGame} // Start game or increment score
         style={{
           position: "absolute",
           width: CENTER_RADIUS * 2,
@@ -118,7 +126,16 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
             height: CENTER_RADIUS * 2,
           }}
         />
+        {!isPlayerStartVisible && (
+          <Styled.PromptText>
+            {"Player " + (currentPlayerIndex + 1) + " Start"}
+          </Styled.PromptText>
+        )}
       </TouchableOpacity>
+
+      {/* Styled Player Start Text */}
     </View>
   );
 };
+
+export default ChillCounter;

@@ -1,32 +1,48 @@
 import React, { createContext, useState, useContext, ReactNode } from "react";
+import { useRouter } from "expo-router";
+import { GameMode, GameSettings } from "./constants"; // Ensure this contains GameMode enums
 
+// Player Interface
 interface Player {
   id: number;
   name: string;
   score: number;
 }
 
+// Game Settings Interface
+
+// Context Type
 interface GameContextType {
   players: Player[];
+  gameSettings: GameSettings;
   initializePlayers: (playerCount: number) => void;
-  updatePlayerScore: (id: number, score: number) => void; // New method to update player score
+  updatePlayerScore: (id: number, score: number) => void;
+  setGameSettings: (settings: Partial<GameSettings>) => void;
+  onGameStart: (counter: number) => void; // No need to pass mode explicitly
 }
 
+// Create Context
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
+// Provider Component
 export const GameProvider = ({ children }: { children: ReactNode }) => {
+  const router = useRouter();
   const [players, setPlayers] = useState<Player[]>([]);
+  const [gameSettings, setGameSettingsState] = useState<GameSettings>({
+    mode: GameMode.CHILL, // Default mode
+  });
 
+  // Initialize Players
   const initializePlayers = (playerCount: number) => {
     const newPlayers = Array.from({ length: playerCount }, (_, index) => ({
       id: index + 1,
-      name: `Player ${index + 1}`, // Default player names
+      name: `Player ${index + 1}`,
       score: 0,
     }));
     setPlayers(newPlayers);
   };
 
-  // Function to update the score of a specific player
+  // Update Player Score
   const updatePlayerScore = (id: number, score: number) => {
     setPlayers((prevPlayers) =>
       prevPlayers.map((player) =>
@@ -35,19 +51,48 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
+  // Set Game Settings (Partial Update)
+  const setGameSettings = (settings: Partial<GameSettings>) => {
+    setGameSettingsState((prev) => ({ ...prev, ...settings }));
+  };
+
+  // Start Game
+  const onGameStart = (counter: number) => {
+    if (!counter) {
+      alert("Please select the number of players.");
+      return;
+    }
+    initializePlayers(counter);
+
+    if (!gameSettings.mode) {
+      alert("Please select a game mode.");
+      return;
+    }
+
+    router.push("/gameplay");
+  };
+
   return (
     <GameContext.Provider
-      value={{ players, initializePlayers, updatePlayerScore }}
+      value={{
+        players,
+        gameSettings,
+        initializePlayers,
+        updatePlayerScore,
+        setGameSettings,
+        onGameStart,
+      }}
     >
       {children}
     </GameContext.Provider>
   );
 };
 
+// Custom Hook
 export const useGameplay = () => {
   const context = useContext(GameContext);
   if (!context) {
-    throw new Error("useGameplay must be used within a GameplayProvider");
+    throw new Error("useGameplay must be used within a GameProvider");
   }
   return context;
 };

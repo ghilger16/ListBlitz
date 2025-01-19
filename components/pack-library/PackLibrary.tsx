@@ -1,20 +1,23 @@
 import React from "react";
-
 import { useRouter } from "expo-router";
-import { useGetBlitzPacks } from "services";
+import { useGetBlitzPacks } from "@Services";
+import { useGameplay } from "@Context"; // Import GameContext
 
 import * as Styled from "./PackLibrary.styled";
 import { BlitzPack } from "../blitz-packs";
 
 const PackLibrary: React.FC = () => {
   const router = useRouter();
+  const { setGameSettings } = useGameplay(); // Access context
   const { data: blitzPacks = [] } = useGetBlitzPacks();
 
   const handlePackPress = (title: string, id: number) => {
-    router.push({
-      pathname: `/player-select`,
-      params: { title, id },
+    setGameSettings({
+      blitzPackId: id,
+      blitzPackTitle: title,
     });
+
+    router.push("/player-select");
   };
 
   // Group packs into rows of 3

@@ -29,4 +29,5 @@ export const WheelTitle = styled.Text`
 export const PlayersWrapper = styled.View`
   margin-top: 140px;
   align-items: center;
+  pointer-events: box-none;
 `;

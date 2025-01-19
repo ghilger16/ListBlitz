@@ -1,14 +1,9 @@
 import styled from "styled-components/native";
 
-export const FullScreen = styled.TouchableOpacity`
-  justify-content: center;
-  align-items: center;
-`;
-
 export const Container = styled.View`
   align-items: center;
   justify-content: center;
-  margin-top: -250px;
+  margin-top: -245px;
 `;
 
 export const Circle = styled.View<{ isActive: boolean }>`

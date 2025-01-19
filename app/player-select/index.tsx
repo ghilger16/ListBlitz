@@ -1,51 +1,46 @@
 import React, { useState } from "react";
-import { useGlobalSearchParams, Stack, useRouter } from "expo-router";
+import { useGlobalSearchParams, Stack } from "expo-router";
+import {
+  Gesture,
+  GestureDetector,
+  TouchableWithoutFeedback,
+} from "react-native-gesture-handler";
 
 import * as Styled from "@Styles";
 
-import { useGameplay } from "@Context";
+import { useGameplay, GameMode } from "@Context";
 import { PlayersSelect } from "@Components";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { ModeSelect } from "components/players-select/mode-select";
 
-const MODES = ["Chill Mode", "Blitz Mode"];
+const MODES = [GameMode.CHILL, GameMode.BLITZ]; // Use enum instead of strings
 
 const PlayerSelect: React.FC = () => {
-  const { title, id } = useGlobalSearchParams();
-  const router = useRouter();
-  const { initializePlayers } = useGameplay();
-  const [selectedMode, setSelectedMode] = useState(0);
+  const { setGameSettings, gameSettings } = useGameplay();
 
-  const handleGameStart = (mode: string, count: number) => {
-    if (!count) {
-      alert("Please select the number of players.");
-      return;
-    } else initializePlayers(count);
-
-    router.push({
-      pathname: "/gameplay",
-      params: { mode, id },
-    });
-  };
+  const [selectedMode, setSelectedMode] = useState<GameMode>(GameMode.CHILL);
 
   const swipeGesture = Gesture.Pan()
     .onEnd((event) => {
       const direction = event.translationX > 0 ? -1 : 1;
-      const newIndex = selectedMode + direction;
+      const newIndex = MODES.indexOf(selectedMode) + direction;
 
       if (newIndex >= 0 && newIndex < MODES.length) {
-        setSelectedMode(newIndex);
+        setSelectedMode(MODES[newIndex]);
+        setGameSettings({ mode: MODES[newIndex] });
       }
     })
-    .activeOffsetX([-20, 20]);
+    .activeOffsetX([20, 20]);
 
   return (
     <GestureDetector gesture={swipeGesture}>
       <Styled.SafeAreaWrapper>
         <Stack.Screen options={{ headerShown: false }} />
-        <Styled.Title>{title}</Styled.Title>
+        <Styled.Title>{gameSettings.blitzPackTitle}</Styled.Title>
+        <Styled.Title>{gameSettings.mode}</Styled.Title>
         <Styled.PlayersWrapper>
           <Styled.WheelTitle>Select Players</Styled.WheelTitle>
-          <PlayersSelect onGameStart={handleGameStart} mode={selectedMode} />
+          <PlayersSelect />
+          <ModeSelect />
         </Styled.PlayersWrapper>
       </Styled.SafeAreaWrapper>
     </GestureDetector>

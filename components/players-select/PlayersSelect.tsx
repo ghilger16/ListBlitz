@@ -4,7 +4,6 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Svg, {
   Circle,
   Defs,
-  ForeignObject,
   G,
   LinearGradient,
   Path,
@@ -15,18 +14,17 @@ import * as d3 from "d3-shape";
 import LottieView from "lottie-react-native";
 
 // Import Lottie icons
-import cameraIcon from "@Assets/icons/camera.json";
-import reelIcon from "@Assets/icons/reel.json";
-import ticketIcon from "@Assets/icons/ticket.json";
+import { camera, reel, ticket } from "@Assets";
 
 import { ModeSelect } from "./mode-select";
-import { COLORS } from "../constants";
+import { COLORS } from "../../context/constants";
+import { GameMode, useGameplay } from "@Context"; // Import Enum
 
 // Constants
 const RADIUS = 185;
 const OUTER_CIRCLE_RADIUS = 100;
 const SECTIONS_COUNT = 12;
-const ICONS = [cameraIcon, reelIcon, ticketIcon];
+const ICONS = [camera, reel, ticket];
 
 const calculateSliceIndex = (
   x: number,
@@ -48,20 +46,12 @@ const calculateSliceIndex = (
   return Math.floor((adjustedAngle / (2 * Math.PI)) * sectionsCount);
 };
 
-interface IPlayersSelectProps {
-  onGameStart: (mode: string, counter: number) => void;
-  mode: number;
-}
-
-export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
-  onGameStart,
-  mode,
-}) => {
+export const PlayersSelect: React.FC = () => {
+  const { initializePlayers } = useGameplay();
   const [selectedSlices, setSelectedSlices] = useState<Set<number>>(
     new Set([0])
   );
   const currentSliceRef = useRef<number | null>(null);
-  const sliceRefs = useRef<(Path | null)[]>([]);
 
   const arcGenerator = d3.arc().outerRadius(RADIUS).innerRadius(0);
   const pieGenerator = d3
@@ -87,6 +77,7 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
       newSelection.add(i);
     }
     setSelectedSlices(newSelection);
+    initializePlayers(newSelection.size);
   };
 
   const panGesture = Gesture.Pan()
@@ -118,52 +109,52 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
 
   const transformToSVGCoordinates = (labelX: number, labelY: number) => {
     return {
-      x: RADIUS + labelX * 1.5, // Move right from center
-      y: RADIUS + labelY * 1.5, // Move down from center
+      x: RADIUS + labelX * 1.5,
+      y: RADIUS + labelY * 1.5,
     };
   };
 
   const renderSlice = (arc: any, index: number) => {
     const path = arcGenerator(arc) || "";
-    const [labelX, labelY] = arcGenerator.centroid(arc); // Get centroid
-    const { x, y } = transformToSVGCoordinates(labelX, labelY); // Convert to absolute coordinates
+    const [labelX, labelY] = arcGenerator.centroid(arc);
+    const { x, y } = transformToSVGCoordinates(labelX, labelY);
     const isSelected = selectedSlices.has(index);
     const iconSource = ICONS[index % ICONS.length];
 
     return (
       <G key={`arc-${index}`}>
-        {/* Slice Path with opacity control */}
         <Path
           d={path}
           fill={`url(#grad-${index % COLORS.length})`}
           stroke={isSelected ? "#FFF" : "#000"}
           strokeWidth={2}
-          opacity={isSelected ? 1 : 0.5} // Dim unselected slices
+          opacity={isSelected ? 1 : 0.5}
         />
 
-        {/* Render Number Inside the Slice when Selected */}
+        {/* Show text only when selected */}
+        {isSelected && (
+          <Text
+            x={labelX * 0.9}
+            y={labelY * 0.9}
+            fontSize={18}
+            fontWeight="bold"
+            fill="#FFF"
+            textAnchor="middle"
+            alignmentBaseline="middle"
+          >
+            {index + 1}
+          </Text>
+        )}
 
-        <Text
-          x={labelX * 0.9}
-          y={labelY * 0.9}
-          fontSize={18}
-          fontWeight={isSelected ? "bold" : "normal"}
-          fill={isSelected ? "#FFF" : "#000"} // White for selected, Black for unselected
-          textAnchor="middle"
-          alignmentBaseline="middle"
-        >
-          {index + 1}
-        </Text>
-
-        {/* LottieView Icon - Show but only animate when selected */}
+        {/* LottieView Icon */}
         <View
           style={{
             position: "absolute",
-            left: x - 30, // Adjust for icon size
-            top: y - 35, // Adjust for icon size
+            left: x - 30,
+            top: y - 35,
             justifyContent: "center",
             alignItems: "center",
-            opacity: isSelected ? 1 : 0.5, // Dim unselected icons
+            opacity: isSelected ? 1 : 0.5,
           }}
         >
           <LottieView
@@ -176,8 +167,6 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
       </G>
     );
   };
-
-  const isSelectionAboveThreshold = selectedSlices.size > 8;
 
   return (
     <View>
@@ -215,11 +204,6 @@ export const PlayersSelect: React.FC<IPlayersSelectProps> = ({
           </G>
         </Svg>
       </GestureDetector>
-      <ModeSelect
-        mode={mode}
-        onModeChange={(mode) => onGameStart(mode, selectedSlices.size)}
-        disableTapToStart={isSelectionAboveThreshold}
-      />
     </View>
   );
 };

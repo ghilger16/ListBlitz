@@ -1,3 +1,15 @@
+export enum GameMode {
+  CHILL = "chill",
+  BLITZ = "blitz",
+}
+
+export interface GameSettings {
+  mode: GameMode;
+  blitzPackId?: number;
+  blitzPackTitle?: string;
+  playerCount?: number;
+}
+
 export const COLORS: ReadonlyArray<[string, string]> = [
   ["#f6c212", "#f4770c"],
   ["#2cddf1", "#298bde"],

@@ -1,1 +1,1 @@
-export { default as BlitzPack } from "./BlitzPack";
+export { BlitzPack } from "./BlitzPack";
