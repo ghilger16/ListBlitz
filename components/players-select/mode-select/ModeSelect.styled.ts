@@ -1,3 +1,4 @@
+import { FlashingText } from "components/flashing-text";
 import styled from "styled-components/native";
 
 export const Container = styled.View`
@@ -21,6 +22,10 @@ export const ModeText = styled.Text`
   font-size: 16px;
   font-weight: bold;
   color: #000;
+`;
+
+export const TextWrapper = styled.View`
+  margin: 6px 0px 0px -75px;
 `;
 
 export const IndicatorContainer = styled.View`

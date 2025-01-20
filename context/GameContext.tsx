@@ -9,8 +9,6 @@ interface Player {
   score: number;
 }
 
-// Game Settings Interface
-
 // Context Type
 interface GameContextType {
   players: Player[];
@@ -18,7 +16,7 @@ interface GameContextType {
   initializePlayers: (playerCount: number) => void;
   updatePlayerScore: (id: number, score: number) => void;
   setGameSettings: (settings: Partial<GameSettings>) => void;
-  onGameStart: (counter: number) => void; // No need to pass mode explicitly
+  onGameStart: () => void; // onGameStart doesn't need to pass players count anymore
 }
 
 // Create Context
@@ -30,6 +28,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [gameSettings, setGameSettingsState] = useState<GameSettings>({
     mode: GameMode.CHILL, // Default mode
+    playerCount: 0, // Initialize playersCount
   });
 
   // Initialize Players
@@ -57,18 +56,20 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Start Game
-  const onGameStart = (counter: number) => {
-    if (!counter) {
+  const onGameStart = () => {
+    const { playerCount = 0 } = gameSettings; // Get playersCount from gameSettings
+
+    if (playerCount === 0) {
       alert("Please select the number of players.");
       return;
     }
-    initializePlayers(counter);
 
     if (!gameSettings.mode) {
       alert("Please select a game mode.");
       return;
     }
 
+    initializePlayers(playerCount); // Initialize players with the count from gameSettings
     router.push("/gameplay");
   };
 

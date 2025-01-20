@@ -1,1 +1,1 @@
-export { default as ChillCounter } from "./ChillCounter";
+export { ChillCounter } from "./ChillCounter";

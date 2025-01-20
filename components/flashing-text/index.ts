@@ -1,0 +1,1 @@
+export { FlashingText } from "./FlashingText";

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 
 import { useGameplay } from "@Context";
 import { ChillCounter } from "./chill-counter";
 import { PromptDisplay } from "components/prompt-display";
+
+import * as Styled from "./ChillMode.styled";
 
 interface ChillModeProps {
   currentPrompt: string;
@@ -18,37 +20,69 @@ export const ChillMode: React.FC<ChillModeProps> = ({
   players,
   currentPlayer,
 }) => {
-  const { updatePlayerScore } = useGameplay();
+  const { gameSettings } = useGameplay();
   const [score, setScore] = useState(0);
-  const [answersCount, setAnswersCount] = useState(0);
+
   const [isGameStarted, setIsGameStarted] = useState(false);
+  const [showNextPlayerBubble, setShowNextPlayerBubble] = useState(false);
 
   const handleScoreIncrement = () => {
-    if (isGameStarted) {
+    if (isGameStarted && score < 5) {
+      // Prevent score from going beyond 5
       setScore((prev) => prev + 1);
-      setAnswersCount((prev) => prev + 1);
     }
   };
 
   useEffect(() => {
-    if (answersCount >= 5) {
-      handleNextPlayer();
+    if (score >= 5) {
+      setShowNextPlayerBubble(true); // Show the bubble when score reaches 5
     }
-  }, [answersCount]);
+  }, [score]);
+
+  const handleNextPlayerClick = () => {
+    handleNextPlayer();
+    setShowNextPlayerBubble(false); // Hide the bubble after clicking
+    setScore(0); // Reset the score when moving to the next player
+  };
 
   return (
-    <View>
-      <Text>Chill Mode</Text>
+    <Styled.Wrapper>
+      <Text style={{ color: "#FFF", fontSize: 30 }}>
+        {score}
+        {gameSettings.playerCount}
+        {gameSettings.mode}
+        {gameSettings.blitzPackId}
+        {gameSettings.blitzPackTitle}
+      </Text>
       <PromptDisplay prompt={currentPrompt} />
-      <Text>Score: {score}</Text>
-      <ChillCounter
-        isGameStarted={isGameStarted}
-        onIncrement={handleScoreIncrement}
-        onStart={() => setIsGameStarted(true)}
-        score={score}
-        currentPlayerIndex={currentPlayer}
-      />
-      <Text>{isGameStarted ? "Give 5 Answers" : "Tap to Start"}</Text>
-    </View>
+      <Styled.CounterWrapper>
+        <ChillCounter
+          isGameStarted={isGameStarted}
+          onIncrement={handleScoreIncrement}
+          onStart={() => setIsGameStarted(true)}
+          score={score}
+          currentPlayerIndex={currentPlayer}
+        />
+      </Styled.CounterWrapper>
+
+      {/* Show the "Next Player" bubble when score reaches 5 */}
+      {showNextPlayerBubble && (
+        <TouchableOpacity onPress={handleNextPlayerClick}>
+          <View
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.8)",
+              padding: 10,
+              borderRadius: 20,
+              alignSelf: "center",
+              marginTop: 20,
+            }}
+          >
+            <Text style={{ color: "#FFF", fontSize: 20 }}>
+              Start Player {currentPlayer}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      )}
+    </Styled.Wrapper>
   );
 };

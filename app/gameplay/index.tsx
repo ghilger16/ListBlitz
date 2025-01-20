@@ -73,9 +73,9 @@ const Gameplay: React.FC = () => {
   if (error) return <Text>Error loading prompts.</Text>;
 
   return (
-    <SafeAreaView>
+    <Styled.Wrapper>
       <Stack.Screen options={{ headerShown: false }} />
-      <Styled.Wrapper>
+      <Styled.ModeView>
         {mode === GameMode.CHILL ? (
           <ChillMode
             currentPrompt={currentPrompt}
@@ -91,8 +91,8 @@ const Gameplay: React.FC = () => {
             currentPlayer={currentPlayer}
           />
         )}
-      </Styled.Wrapper>
-    </SafeAreaView>
+      </Styled.ModeView>
+    </Styled.Wrapper>
   );
 };
 

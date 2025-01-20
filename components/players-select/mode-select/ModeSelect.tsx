@@ -1,78 +1,52 @@
-import React, { useState, useEffect } from "react";
-import { TouchableOpacity, Animated } from "react-native"; // Import animation and touchable
-import * as Styled from "./ModeSelect.styled"; // Import styled components
+import React from "react";
+import { TouchableOpacity } from "react-native"; // Import animation and touchable
 import { GameMode, useGameplay } from "@Context"; // Import game context
+
+import * as Styled from "./ModeSelect.styled"; // Import styled components
+import { FlashingText } from "components/flashing-text";
 
 const MODES = {
   [GameMode.CHILL]: "Chill Mode",
   [GameMode.BLITZ]: "Blitz Mode",
 };
 
-const ModeSelect: React.FC = () => {
-  const { players, gameSettings, setGameSettings, onGameStart } = useGameplay();
+interface ModeSelectProps {
+  onModeChange: (newMode: GameMode) => void;
+  onGameStart: () => void;
+}
+
+const ModeSelect: React.FC<ModeSelectProps> = ({
+  onModeChange,
+  onGameStart,
+}) => {
+  const { players, gameSettings } = useGameplay();
   const hasTooManyPlayers = players.length > 8;
-
-  const fadeAnim = useState(new Animated.Value(0.5))[0];
-
-  useEffect(() => {
-    if (!hasTooManyPlayers) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(fadeAnim, {
-            toValue: 1,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-          Animated.timing(fadeAnim, {
-            toValue: 0.5,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    }
-  }, [hasTooManyPlayers]);
 
   // 🔹 Function to switch game mode
   const handleModeChange = (newMode: GameMode) => {
-    setGameSettings({
-      mode: newMode,
-    });
+    onModeChange(newMode); // Use the passed-in callback to change the mode
   };
 
   return (
     <Styled.Container>
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={() => onGameStart(players.length)}
-      >
+      <TouchableOpacity activeOpacity={1} onPress={() => onGameStart()}>
         <Styled.Circle isActive={gameSettings.mode === GameMode.CHILL}>
           <Styled.ModeText>{MODES[gameSettings.mode]}</Styled.ModeText>
-
-          {!hasTooManyPlayers && (
-            <Animated.Text
-              style={{
-                opacity: fadeAnim,
-                fontSize: 14,
-                color: "#FFF",
-                position: "absolute",
-                bottom: -30,
-              }}
-            >
-              {"Tap to Start"}
-            </Animated.Text>
-          )}
         </Styled.Circle>
       </TouchableOpacity>
-
+      {!hasTooManyPlayers && (
+        <Styled.TextWrapper>
+          <FlashingText>Tap to Start</FlashingText>
+        </Styled.TextWrapper>
+      )}
       {/* 🔹 Add onPress to switch modes */}
       <Styled.IndicatorContainer>
         {Object.values(GameMode).map((gameMode) => (
-          <TouchableOpacity key={gameMode}>
-            <Styled.Indicator
-              isActive={gameSettings.mode === gameMode}
-              onPress={() => handleModeChange(gameMode)}
-            />
+          <TouchableOpacity
+            key={gameMode}
+            onPress={() => handleModeChange(gameMode)}
+          >
+            <Styled.Indicator isActive={gameSettings.mode === gameMode} />
           </TouchableOpacity>
         ))}
       </Styled.IndicatorContainer>

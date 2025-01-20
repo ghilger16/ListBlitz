@@ -46,8 +46,13 @@ const calculateSliceIndex = (
   return Math.floor((adjustedAngle / (2 * Math.PI)) * sectionsCount);
 };
 
-export const PlayersSelect: React.FC = () => {
-  const { initializePlayers } = useGameplay();
+interface PlayersSelectProps {
+  onPlayerCountChange: (count: number) => void; // Callback to handle player count
+}
+
+export const PlayersSelect: React.FC<PlayersSelectProps> = ({
+  onPlayerCountChange,
+}) => {
   const [selectedSlices, setSelectedSlices] = useState<Set<number>>(
     new Set([0])
   );
@@ -77,7 +82,7 @@ export const PlayersSelect: React.FC = () => {
       newSelection.add(i);
     }
     setSelectedSlices(newSelection);
-    initializePlayers(newSelection.size);
+    onPlayerCountChange(newSelection.size); // Pass the player count to the parent component
   };
 
   const panGesture = Gesture.Pan()
@@ -130,22 +135,18 @@ export const PlayersSelect: React.FC = () => {
           strokeWidth={2}
           opacity={isSelected ? 1 : 0.5}
         />
-
         {/* Show text only when selected */}
-        {isSelected && (
-          <Text
-            x={labelX * 0.9}
-            y={labelY * 0.9}
-            fontSize={18}
-            fontWeight="bold"
-            fill="#FFF"
-            textAnchor="middle"
-            alignmentBaseline="middle"
-          >
-            {index + 1}
-          </Text>
-        )}
-
+        <Text
+          x={labelX * 0.9}
+          y={labelY * 0.9}
+          fontSize={18}
+          fontWeight="bold"
+          fill={isSelected ? "#FFF" : "#000"}
+          textAnchor="middle"
+          alignmentBaseline="middle"
+        >
+          {index + 1}
+        </Text>
         {/* LottieView Icon */}
         <View
           style={{

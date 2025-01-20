@@ -1,11 +1,9 @@
 import styled from "styled-components/native";
 
 export const Wrapper = styled.SafeAreaView`
-  flex: 1;
   background-color: #192c43;
 `;
 
-export const ModeView = styled.View`
-  margin-top: 100px;
-  align-items: center;
+export const CounterWrapper = styled.View`
+  margin-top: 75px;
 `;

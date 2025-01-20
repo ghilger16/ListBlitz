@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { View, TouchableOpacity, Text } from "react-native";
 import Svg, { G, Path } from "react-native-svg";
 import * as d3 from "d3-shape";
 import LottieView from "lottie-react-native";
 import * as Styled from "./ChillCounter.styled";
+import { FlashingText } from "@Components";
 
 // Constants
 const RADIUS = 160;
@@ -30,7 +31,7 @@ interface IGameplayCounterProps {
   onStart: () => void;
 }
 
-const ChillCounter: React.FC<IGameplayCounterProps> = ({
+export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   isGameStarted,
   score,
   currentPlayerIndex,
@@ -51,20 +52,55 @@ const ChillCounter: React.FC<IGameplayCounterProps> = ({
   }, [score]);
 
   // Arc generator for dynamic fill
-  const arcGenerator = d3
-    .arc()
-    .innerRadius(INNER_RADIUS)
-    .outerRadius(RADIUS)
-    .startAngle(-Math.PI / 2)
-    .endAngle(-Math.PI / 2 + fillAngle); // Fill dynamically
+  const arcGenerator = useMemo(
+    () =>
+      d3
+        .arc()
+        .innerRadius(INNER_RADIUS)
+        .outerRadius(RADIUS)
+        .startAngle(-Math.PI / 2)
+        .endAngle(-Math.PI / 2 + fillAngle),
+    [fillAngle]
+  );
 
-  // Border ring generator
-  const borderArcGenerator = d3
-    .arc()
-    .innerRadius(RADIUS + 10)
-    .outerRadius(BORDER_RADIUS)
-    .startAngle(-Math.PI / 2)
-    .endAngle(Math.PI / 2); // Full half-circle border
+  // Adjust the arc generator to create a gap in the middle of the donut
+  const borderArcGenerator = useMemo(() => {
+    const gap = 0.15; // Adjust this value to control the size of the gap
+
+    // First arc section: before the gap
+    const arc1 = d3
+      .arc()
+      .innerRadius(RADIUS + 10)
+      .outerRadius(BORDER_RADIUS)
+      .startAngle(-Math.PI / 2)
+      .endAngle(-Math.PI / 2 + Math.PI / 2 - gap); // Ends before the gap
+
+    // Second arc section: after the gap
+    const arc2 = d3
+      .arc()
+      .innerRadius(RADIUS + 10)
+      .outerRadius(BORDER_RADIUS)
+      .startAngle(-Math.PI / 2 + Math.PI / 2 + gap) // Starts after the gap
+      .endAngle(Math.PI / 2); // Ends at the top
+
+    return [arc1, arc2];
+  }, []);
+
+  // Section generator for each slice's outline
+  const sectionArcGenerator = useMemo(
+    () => (index: number) => {
+      const startAngle = -Math.PI / 2 + (Math.PI / SECTIONS_COUNT) * index;
+      const endAngle = -Math.PI / 2 + (Math.PI / SECTIONS_COUNT) * (index + 1);
+
+      return d3
+        .arc()
+        .innerRadius(INNER_RADIUS)
+        .outerRadius(RADIUS)
+        .startAngle(startAngle)
+        .endAngle(endAngle);
+    },
+    []
+  );
 
   // Handle tap (restart animation & increment score)
   const handleIncrement = () => {
@@ -81,19 +117,37 @@ const ChillCounter: React.FC<IGameplayCounterProps> = ({
   };
 
   return (
-    <View style={{ alignItems: "center", justifyContent: "center" }}>
+    <Styled.Container>
       {/* SVG Donut */}
       <Svg width={RADIUS * 2 + 40} height={RADIUS + 120}>
         <G x={RADIUS + 20} y={RADIUS + 20}>
           {/* Outer Border */}
+          <Styled.Score>{score}</Styled.Score>
           <Path
-            d={borderArcGenerator({} as any) || ""}
+            d={borderArcGenerator[0]({} as any) || ""}
             fill="none"
-            stroke="#fff"
+            stroke="#f6c212"
+            strokeWidth={5}
+          />
+          <Path
+            d={borderArcGenerator[1]({} as any) || ""}
+            fill="none"
+            stroke="#f6c212"
             strokeWidth={5}
           />
           {/* Dynamic Fill */}
           <Path d={arcGenerator({} as any) || ""} fill={COLORS[1]} />
+
+          {/* Section Outlines */}
+          {Array.from({ length: SECTIONS_COUNT }).map((_, index) => (
+            <Path
+              key={index}
+              d={sectionArcGenerator(index)({} as any)}
+              fill="none"
+              stroke="#fff"
+              strokeWidth={2}
+            />
+          ))}
         </G>
       </Svg>
 
@@ -109,7 +163,8 @@ const ChillCounter: React.FC<IGameplayCounterProps> = ({
           justifyContent: "center",
           top: RADIUS - CENTER_RADIUS + 10,
           borderWidth: 5,
-          borderColor: "#fff",
+          borderColor: "#f6c212",
+          backgroundColor: "#fff",
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.3,
@@ -126,16 +181,13 @@ const ChillCounter: React.FC<IGameplayCounterProps> = ({
             height: CENTER_RADIUS * 2,
           }}
         />
-        {!isPlayerStartVisible && (
-          <Styled.PromptText>
-            {"Player " + (currentPlayerIndex + 1) + " Start"}
-          </Styled.PromptText>
-        )}
       </TouchableOpacity>
 
-      {/* Styled Player Start Text */}
-    </View>
+      {isPlayerStartVisible && (
+        <Styled.TextWrapper>
+          <FlashingText>{"Player " + currentPlayerIndex}</FlashingText>
+        </Styled.TextWrapper>
+      )}
+    </Styled.Container>
   );
 };
-
-export default ChillCounter;

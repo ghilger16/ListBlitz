@@ -2,6 +2,7 @@ export * from "./alpha-blitz";
 export * from "./blitz-mode";
 export * from "./blitz-packs";
 export * from "./custom-header";
+export * from "./flashing-text";
 export * from "./chill-mode";
 export * from "./pack-library";
 export * from "./prompt-display";
