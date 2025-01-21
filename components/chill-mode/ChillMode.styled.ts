@@ -4,6 +4,15 @@ export const Wrapper = styled.SafeAreaView`
   background-color: #192c43;
 `;
 
-export const CounterWrapper = styled.View`
-  margin-top: 75px;
+export const CounterContainer = styled.View`
+  position: absolute;
+  top: 200px;
+  left: 0px;
+  right: 0px;
+`;
+
+export const NextPlayerContainer = styled.View`
+  position: absolute;
+  top: 475px;
+  left: 15px;
 `;

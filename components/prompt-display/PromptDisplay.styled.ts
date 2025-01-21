@@ -1,10 +1,12 @@
+import { Animated } from "react-native";
 import styled from "styled-components/native";
 
 export const PromptContainer = styled.View`
   background-color: #192c43;
   border-radius: 30px;
   padding: 15px 25px;
-  margin: 10px 20px;
+  width: 325px;
+  height: 115px;
   align-items: center;
   justify-content: center;
   shadow-color: #000;
@@ -15,7 +17,7 @@ export const PromptContainer = styled.View`
   border: 5px solid #f6c212;
 `;
 
-export const PromptText = styled.Text`
+export const PromptText = styled(Animated.Text)`
   font-family: "LuckiestGuy";
   font-size: 23px;
   font-weight: bold;
@@ -23,4 +25,6 @@ export const PromptText = styled.Text`
   color: #ffffff;
   text-align: center;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  flex-wrap: wrap;
+  overflow: visible;
 `;

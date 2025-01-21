@@ -57,7 +57,9 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 
   // Start Game
   const onGameStart = () => {
-    const { playerCount = 0 } = gameSettings; // Get playersCount from gameSettings
+    console.log("playerCount in gameSettings:", gameSettings.playerCount); // Add this line for debugging
+
+    const playerCount = gameSettings.playerCount ?? 0;
 
     if (playerCount === 0) {
       alert("Please select the number of players.");
@@ -69,7 +71,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    initializePlayers(playerCount); // Initialize players with the count from gameSettings
+    initializePlayers(playerCount);
     router.push("/gameplay");
   };
 

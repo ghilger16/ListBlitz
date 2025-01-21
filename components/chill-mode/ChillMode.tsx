@@ -1,29 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-
-import { useGameplay } from "@Context";
+import { Text } from "react-native";
 import { ChillCounter } from "./chill-counter";
 import { PromptDisplay } from "components/prompt-display";
 
 import * as Styled from "./ChillMode.styled";
+import { NextPlayerPrompt } from "components/next-player-prompt";
+import { useGetIcons } from "@Services";
 
 interface ChillModeProps {
   currentPrompt: string;
   handleNextPlayer: () => void;
-  players: { id: number; name: string; score: number }[];
   currentPlayer: number;
 }
 
 export const ChillMode: React.FC<ChillModeProps> = ({
   currentPrompt,
   handleNextPlayer,
-  players,
   currentPlayer,
 }) => {
-  const { gameSettings } = useGameplay();
+  const { data: ICONS = [] } = useGetIcons();
   const [score, setScore] = useState(0);
 
-  const [isGameStarted, setIsGameStarted] = useState(false);
+  const [isGameStarted, setIsGameStarted] = useState(true);
   const [showNextPlayerBubble, setShowNextPlayerBubble] = useState(false);
 
   const handleScoreIncrement = () => {
@@ -45,43 +43,30 @@ export const ChillMode: React.FC<ChillModeProps> = ({
     setScore(0); // Reset the score when moving to the next player
   };
 
+  const nextIconIndex = (currentPlayer + 1) % ICONS.length;
+
   return (
     <Styled.Wrapper>
-      <Text style={{ color: "#FFF", fontSize: 30 }}>
-        {score}
-        {gameSettings.playerCount}
-        {gameSettings.mode}
-        {gameSettings.blitzPackId}
-        {gameSettings.blitzPackTitle}
-      </Text>
+      {/* <Text style={{ color: "#fff" }}>{currentPlayer}</Text> */}
       <PromptDisplay prompt={currentPrompt} />
-      <Styled.CounterWrapper>
+
+      <Styled.CounterContainer>
         <ChillCounter
-          isGameStarted={isGameStarted}
           onIncrement={handleScoreIncrement}
           onStart={() => setIsGameStarted(true)}
           score={score}
           currentPlayerIndex={currentPlayer}
         />
-      </Styled.CounterWrapper>
+      </Styled.CounterContainer>
 
       {/* Show the "Next Player" bubble when score reaches 5 */}
       {showNextPlayerBubble && (
-        <TouchableOpacity onPress={handleNextPlayerClick}>
-          <View
-            style={{
-              backgroundColor: "rgba(0, 0, 0, 0.8)",
-              padding: 10,
-              borderRadius: 20,
-              alignSelf: "center",
-              marginTop: 20,
-            }}
-          >
-            <Text style={{ color: "#FFF", fontSize: 20 }}>
-              Start Player {currentPlayer}
-            </Text>
-          </View>
-        </TouchableOpacity>
+        <Styled.NextPlayerContainer>
+          <NextPlayerPrompt
+            onNextPlayerClick={handleNextPlayerClick}
+            iconSource={ICONS[nextIconIndex]}
+          />
+        </Styled.NextPlayerContainer>
       )}
     </Styled.Wrapper>
   );

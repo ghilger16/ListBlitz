@@ -3,7 +3,7 @@ import { Text, ScrollView, ActivityIndicator } from "react-native";
 
 import { Stack } from "expo-router";
 
-import { useGetBlitzPacks } from "services";
+import { useGetBlitzPacks, useGetIcons } from "@Services";
 
 import * as Styled from "../../styles/Landing.styled";
 
@@ -13,9 +13,14 @@ import { AlphaBlitzSection } from "../../components/alpha-blitz";
 
 const Landing: React.FC = () => {
   const { data: blitzPacks = [], isLoading, error } = useGetBlitzPacks();
+  const {
+    data: icons = [],
+    isLoading: iconLoading,
+    error: iconError,
+  } = useGetIcons();
 
   // Display a loading spinner while data is being fetched
-  if (isLoading) {
+  if (isLoading || iconLoading) {
     return (
       <Styled.SafeArea>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -24,7 +29,7 @@ const Landing: React.FC = () => {
   }
 
   // Display an error message if the data fails to load
-  if (error) {
+  if (error || iconError) {
     return (
       <Styled.SafeArea>
         <Text style={{ color: "red" }}>

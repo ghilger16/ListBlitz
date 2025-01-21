@@ -5,6 +5,7 @@ import * as d3 from "d3-shape";
 import LottieView from "lottie-react-native";
 import * as Styled from "./ChillCounter.styled";
 import { FlashingText } from "@Components";
+import { useGetIcons } from "@Services";
 
 // Constants
 const RADIUS = 160;
@@ -16,15 +17,7 @@ const SECTIONS_COUNT = 5; // Total sections
 // Colors
 export const COLORS = ["#f6c212", "#f4770c"]; // Gradient for filled arc
 
-// Lottie Icons Array (Each player gets a fixed icon)
-const ICONS = [
-  require("@Assets/icons/camera.json"),
-  require("@Assets/icons/reel.json"),
-  require("@Assets/icons/ticket.json"),
-];
-
 interface IGameplayCounterProps {
-  isGameStarted: boolean;
   score: number;
   currentPlayerIndex: number; // <-- Determines icon
   onIncrement: () => void;
@@ -32,12 +25,12 @@ interface IGameplayCounterProps {
 }
 
 export const ChillCounter: React.FC<IGameplayCounterProps> = ({
-  isGameStarted,
   score,
   currentPlayerIndex,
   onIncrement,
   onStart,
 }) => {
+  const { data: ICONS = [] } = useGetIcons();
   const [fillAngle, setFillAngle] = useState(0);
   const [isPlayerStartVisible, setIsPlayerStartVisible] = useState(true); // State to control text visibility
   const lottieRef = useRef<LottieView>(null); // Ref for Lottie animation
@@ -102,19 +95,17 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
     []
   );
 
-  // Handle tap (restart animation & increment score)
+  // Handle tap (increment score)
   const handleIncrement = () => {
-    if (lottieRef.current) {
-      lottieRef.current.play(0); // Restart animation from the beginning
-    }
-    onIncrement();
+    onIncrement(); // Increment the score
   };
 
-  // Hide "Player Start" text when game is started
-  const handleStartGame = () => {
-    setIsPlayerStartVisible(false); // Hide the player start text
-    onStart();
-  };
+  // Hide "Player Start" text when score > 0
+  useEffect(() => {
+    if (score > 0) {
+      setIsPlayerStartVisible(false); // Hide the player start text
+    }
+  }, [score]);
 
   return (
     <Styled.Container>
@@ -153,7 +144,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
 
       {/* Tapable Circle Button (Lottie replaces button) */}
       <TouchableOpacity
-        onPress={isGameStarted ? handleIncrement : handleStartGame} // Start game or increment score
+        onPress={handleIncrement} // Only increment score
         style={{
           position: "absolute",
           width: CENTER_RADIUS * 2,
@@ -173,7 +164,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
       >
         <LottieView
           ref={lottieRef}
-          source={ICONS[iconIndex] ?? ICONS[0]} // <-- Now based on player, NOT score
+          source={ICONS[iconIndex] ?? ICONS[0]} // Based on player, not score
           autoPlay
           loop={false} // Only play when tapped
           style={{
@@ -183,9 +174,10 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
         />
       </TouchableOpacity>
 
+      {/* Show "Player Start" text if score is 0 */}
       {isPlayerStartVisible && (
         <Styled.TextWrapper>
-          <FlashingText>{"Player " + currentPlayerIndex}</FlashingText>
+          <FlashingText>Tap to Score</FlashingText>
         </Styled.TextWrapper>
       )}
     </Styled.Container>

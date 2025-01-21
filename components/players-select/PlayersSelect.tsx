@@ -13,18 +13,15 @@ import Svg, {
 import * as d3 from "d3-shape";
 import LottieView from "lottie-react-native";
 
-// Import Lottie icons
-import { camera, reel, ticket } from "@Assets";
-
 import { ModeSelect } from "./mode-select";
 import { COLORS } from "../../context/constants";
 import { GameMode, useGameplay } from "@Context"; // Import Enum
+import { useGetIcons } from "@Services";
 
 // Constants
 const RADIUS = 185;
 const OUTER_CIRCLE_RADIUS = 100;
 const SECTIONS_COUNT = 12;
-const ICONS = [camera, reel, ticket];
 
 const calculateSliceIndex = (
   x: number,
@@ -53,6 +50,7 @@ interface PlayersSelectProps {
 export const PlayersSelect: React.FC<PlayersSelectProps> = ({
   onPlayerCountChange,
 }) => {
+  const { data: ICONS = [] } = useGetIcons();
   const [selectedSlices, setSelectedSlices] = useState<Set<number>>(
     new Set([0])
   );

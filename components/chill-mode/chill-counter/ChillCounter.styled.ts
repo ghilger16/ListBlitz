@@ -15,5 +15,5 @@ export const Score = styled.Text`
 `;
 
 export const TextWrapper = styled.View`
-  margin: -35px 0px 0px -50px;
+  margin: -35px 0px 0px -80px;
 `;

@@ -1,15 +1,16 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useGlobalSearchParams, Stack } from "expo-router";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import * as Styled from "@Styles";
 import { useGameplay, GameMode } from "@Context";
 import { PlayersSelect } from "@Components";
 import { ModeSelect } from "components/players-select/mode-select";
+import { Text } from "react-native";
 
 const MODES = [GameMode.CHILL, GameMode.BLITZ]; // Use enum instead of strings
 
 const PlayerSelect: React.FC = () => {
-  const { setGameSettings, onGameStart } = useGameplay();
+  const { setGameSettings, onGameStart, gameSettings } = useGameplay();
 
   const [selectedMode, setSelectedMode] = useState<GameMode>(GameMode.CHILL);
   const [playerCount, setPlayerCount] = useState(1); // or another default value
@@ -31,16 +32,24 @@ const PlayerSelect: React.FC = () => {
 
       if (newIndex >= 0 && newIndex < MODES.length) {
         setSelectedMode(MODES[newIndex]);
-        setGameSettings({ mode: MODES[newIndex], playerCount: playerCount });
       }
     })
     .activeOffsetX([20, 20]);
 
+  // Update gameSettings when playerCount or selectedMode changes, and avoid unnecessary calls
+  useEffect(() => {
+    if (
+      gameSettings.playerCount !== playerCount ||
+      gameSettings.mode !== selectedMode
+    ) {
+      setGameSettings({ mode: selectedMode, playerCount: playerCount });
+    }
+  }, [selectedMode, playerCount, setGameSettings, gameSettings]);
+
   const handleGameStart = () => {
-    console.log("game Started");
-    setGameSettings({ mode: selectedMode, playerCount: playerCount });
-    onGameStart();
-    // Proceed to game
+    if (playerCount > 0) {
+      onGameStart();
+    }
   };
 
   return (

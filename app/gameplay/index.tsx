@@ -27,7 +27,7 @@ const Gameplay: React.FC = () => {
     refetch,
   } = useGetPromptsByBlitzPack(blitzPackId, PROMPT_LIMIT);
 
-  const [currentPlayer, setCurrentPlayer] = useState(1);
+  const [currentPlayer, setCurrentPlayer] = useState(0); // Start from player 1
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [usedPrompts, setUsedPrompts] = useState(new Set());
   const [availablePrompts, setAvailablePrompts] = useState<Prompt[]>([]);
@@ -54,18 +54,17 @@ const Gameplay: React.FC = () => {
     availablePrompts[currentPromptIndex]?.promptText || "Loading...";
 
   const handleNextPlayer = () => {
-    if (currentPlayer < players.length) {
-      setCurrentPlayer((prev) => prev + 1);
+    if (currentPlayer < players.length - 1) {
+      setCurrentPlayer((prev) => prev + 1); // Move to the next player
+      setCurrentPromptIndex((prev) =>
+        prev + 1 < availablePrompts.length ? prev + 1 : 0
+      ); // Reset prompt index when switching to the next player
+    } else {
+      // Reset to first player when all players have completed their turn
+      setCurrentPlayer(0);
       setCurrentPromptIndex((prev) =>
         prev + 1 < availablePrompts.length ? prev + 1 : 0
       );
-    } else {
-      router.push({
-        pathname: "/results",
-        params: {
-          scores: JSON.stringify(players.map((player) => player.score)),
-        },
-      });
     }
   };
 
@@ -80,7 +79,6 @@ const Gameplay: React.FC = () => {
           <ChillMode
             currentPrompt={currentPrompt}
             handleNextPlayer={handleNextPlayer}
-            players={players}
             currentPlayer={currentPlayer}
           />
         ) : (
