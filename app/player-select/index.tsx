@@ -3,7 +3,7 @@ import { useGlobalSearchParams, Stack } from "expo-router";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import * as Styled from "@Styles";
 import { useGameplay, GameMode } from "@Context";
-import { PlayersSelect } from "@Components";
+import { FlashingText, PlayersSelect } from "@Components";
 import { ModeSelect } from "components/players-select/mode-select";
 import { Text } from "react-native";
 
@@ -34,7 +34,7 @@ const PlayerSelect: React.FC = () => {
         setSelectedMode(MODES[newIndex]);
       }
     })
-    .activeOffsetX([20, 20]);
+    .activeOffsetX([-20, 20]);
 
   // Update gameSettings when playerCount or selectedMode changes, and avoid unnecessary calls
   useEffect(() => {
@@ -56,15 +56,20 @@ const PlayerSelect: React.FC = () => {
     <GestureDetector gesture={swipeGesture}>
       <Styled.SafeAreaWrapper>
         <Stack.Screen options={{ headerShown: false }} />
-        <Styled.Title>{selectedMode}</Styled.Title>
+        <Styled.Title>{gameSettings.blitzPackTitle}</Styled.Title>
         <Styled.PlayersWrapper>
-          <Styled.WheelTitle>Select Players</Styled.WheelTitle>
+          <Styled.WheelTitle>
+            <FlashingText>Select Players</FlashingText>
+          </Styled.WheelTitle>
           <PlayersSelect onPlayerCountChange={handlePlayerCountChange} />
-          <ModeSelect
-            onModeChange={handleModeChange}
-            onGameStart={handleGameStart}
-          />
+          <ModeSelect />
         </Styled.PlayersWrapper>
+        <Styled.StartButton
+          onPress={handleGameStart}
+          disabled={playerCount < 1}
+        >
+          <Styled.ButtonText>Start</Styled.ButtonText>
+        </Styled.StartButton>
       </Styled.SafeAreaWrapper>
     </GestureDetector>
   );

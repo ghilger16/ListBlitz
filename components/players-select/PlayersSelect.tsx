@@ -1,27 +1,23 @@
-import React, { useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Svg, {
+  Path,
+  Text,
   Circle,
-  Defs,
   G,
   LinearGradient,
-  Path,
+  Defs,
   Stop,
-  Text,
 } from "react-native-svg";
-import * as d3 from "d3-shape";
 import LottieView from "lottie-react-native";
-
-import { ModeSelect } from "./mode-select";
-import { COLORS } from "../../context/constants";
-import { GameMode, useGameplay } from "@Context"; // Import Enum
+import * as d3 from "d3-shape";
 import { useGetIcons } from "@Services";
+import { COLORS } from "../../context/constants";
 
-// Constants
 const RADIUS = 185;
 const OUTER_CIRCLE_RADIUS = 100;
-const SECTIONS_COUNT = 12;
+const SECTIONS_COUNT = 10;
 
 const calculateSliceIndex = (
   x: number,
@@ -124,6 +120,16 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
     const isSelected = selectedSlices.has(index);
     const iconSource = ICONS[index % ICONS.length];
 
+    const lottieRef = useRef<LottieView>(null);
+
+    useEffect(() => {
+      if (isSelected && lottieRef.current) {
+        lottieRef.current.play();
+      } else if (!isSelected && lottieRef.current) {
+        lottieRef.current.reset();
+      }
+    }, [isSelected]);
+
     return (
       <G key={`arc-${index}`}>
         <Path
@@ -133,7 +139,6 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
           strokeWidth={2}
           opacity={isSelected ? 1 : 0.5}
         />
-        {/* Show text only when selected */}
         <Text
           x={labelX * 0.9}
           y={labelY * 0.9}
@@ -145,22 +150,22 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
         >
           {index + 1}
         </Text>
-        {/* LottieView Icon */}
         <View
           style={{
             position: "absolute",
             left: x - 30,
-            top: y - 35,
+            top: y - 30,
             justifyContent: "center",
             alignItems: "center",
             opacity: isSelected ? 1 : 0.5,
           }}
         >
           <LottieView
+            ref={lottieRef}
             source={iconSource}
             autoPlay={isSelected}
             loop={isSelected}
-            style={{ width: 60, height: 60 }}
+            style={{ width: 75, height: 75 }}
           />
         </View>
       </G>
@@ -170,7 +175,7 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
   return (
     <View>
       <GestureDetector gesture={panGesture}>
-        <Svg width={RADIUS * 2} height={RADIUS * 2}>
+        <Svg width={RADIUS * 2 + 20} height={RADIUS * 2 + 20}>
           <Defs>
             {COLORS.map(([startColor, endColor], index) => (
               <LinearGradient key={`grad-${index}`} id={`grad-${index}`}>
@@ -179,7 +184,7 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
               </LinearGradient>
             ))}
           </Defs>
-          <G x={RADIUS} y={RADIUS}>
+          <G x={RADIUS + 10} y={RADIUS + 10}>
             {arcs.map(renderSlice)}
             {highlightArcs.map((arc, index) =>
               arc ? (
