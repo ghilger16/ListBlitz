@@ -1,4 +1,3 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 
@@ -46,7 +45,6 @@ export const StartButton = styled(TouchableOpacity)`
   border-width: 3px;
   border-color: #ffcc00;
 
-  /* Disabled state */
   opacity: ${(props) => (props.disabled ? 0.5 : 1)};
 `;
 
