@@ -1,14 +1,13 @@
 import React, { useEffect, useRef } from "react";
-import { COLORS, GameMode } from "@Context";
-import { Animated, Easing, Text } from "react-native";
+import { GameMode } from "@Context";
+import { Animated, Easing } from "react-native";
 import * as Styled from "./ModeSelect.styled";
-import { TouchableOpacity } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 const MODES = {
-  [GameMode.CHILL]: "Chill Mode",
-  [GameMode.BLITZ]: "Blitz Mode",
+  [GameMode.CHILL]: "Chill\nMode",
+  [GameMode.BLITZ]: "Blitz\nMode",
 };
 
 interface ModeSelectProps {
@@ -65,7 +64,9 @@ const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
           }}
         >
           <Styled.Circle isActive={mode === GameMode.CHILL}>
-            <Styled.ModeText>{MODES[mode]}</Styled.ModeText>{" "}
+            <Styled.ModeText isActive={mode === GameMode.CHILL}>
+              {MODES[mode]}
+            </Styled.ModeText>
           </Styled.Circle>
         </Animated.View>
       </TouchableWithoutFeedback>

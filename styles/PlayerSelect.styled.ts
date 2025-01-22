@@ -1,9 +1,8 @@
-import { TouchableOpacity } from "react-native";
+import { Animated, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 
 export const SafeAreaWrapper = styled.SafeAreaView`
   flex: 1;
-  background-color: #192c43;
 `;
 
 export const Title = styled.Text`
@@ -30,9 +29,10 @@ export const PlayersWrapper = styled.View`
   pointer-events: box-none;
 `;
 
-export const StartButton = styled(TouchableOpacity)`
+export const StartButton = styled(TouchableOpacity).attrs({
+  activeOpacity: 0.7,
+})`
   background-color: #ff6600;
-  padding: 15px 25px;
   border-radius: 60px;
   align-items: center;
   justify-content: center;
@@ -44,16 +44,16 @@ export const StartButton = styled(TouchableOpacity)`
   shadow-radius: 8px;
   border-width: 3px;
   border-color: #ffcc00;
-
   opacity: ${(props) => (props.disabled ? 0.5 : 1)};
 `;
 
-export const ButtonText = styled.Text`
-  font-size: 22px;
+export const StartText = styled(Animated.Text)`
+  font-size: 50px;
   font-weight: bold;
   color: white;
-  text-align: center;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  text-shadow: 0px 3px 6px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  text-shadow-offset: 0px 0px;
+  text-shadow-radius: 8px;
+  font-family: "SourGummy";
 `;

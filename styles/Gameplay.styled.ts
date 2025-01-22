@@ -2,7 +2,6 @@ import styled from "styled-components/native";
 
 export const Wrapper = styled.SafeAreaView`
   flex: 1;
-  background-color: #192c43;
 `;
 
 export const ModeView = styled.View`
