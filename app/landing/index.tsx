@@ -1,15 +1,11 @@
 import React from "react";
-import { Text, ScrollView, ActivityIndicator } from "react-native";
-
-import { Stack } from "expo-router";
+import { Text, ActivityIndicator } from "react-native";
 
 import { useGetBlitzPacks, useGetIcons } from "@Services";
 
 import * as Styled from "../../styles/Landing.styled";
 
-import CustomHeader from "../../components/custom-header/CustomHeader";
 import { PackLibrary } from "../../components/pack-library";
-import { AlphaBlitzSection } from "../../components/alpha-blitz";
 
 const Landing: React.FC = () => {
   const { data: blitzPacks = [], isLoading, error } = useGetBlitzPacks();
@@ -41,15 +37,7 @@ const Landing: React.FC = () => {
 
   return (
     <Styled.SafeArea>
-      <Stack.Screen
-        options={{
-          header: () => <CustomHeader />,
-        }}
-      />
-      <ScrollView>
-        <PackLibrary />
-        <AlphaBlitzSection />
-      </ScrollView>
+      <PackLibrary />
     </Styled.SafeArea>
   );
 };

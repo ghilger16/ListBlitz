@@ -5,6 +5,7 @@ import { useGameplay } from "@Context"; // Import GameContext
 
 import * as Styled from "./PackLibrary.styled";
 import { BlitzPack } from "../blitz-packs";
+import { CustomHeader } from "components/custom-header";
 
 const PackLibrary: React.FC = () => {
   const router = useRouter();
@@ -28,20 +29,23 @@ const PackLibrary: React.FC = () => {
 
   return (
     <>
-      <Styled.Title>Blitz Packs</Styled.Title>
+      <Styled.AbsoluteContainer>
+        <Styled.Title>Blitz Packs</Styled.Title>
+      </Styled.AbsoluteContainer>
+      <CustomHeader /> {/* ✅ Ensure header is outside ScrollContainer */}
       <Styled.ScrollContainer
-        horizontal={false} // Enable vertical scrolling
-        showsVerticalScrollIndicator={true} // Show vertical scroll indicator
+        horizontal={false}
+        showsVerticalScrollIndicator={true}
       >
         <Styled.ContentContainer>
           {rows.map((row, rowIndex) => (
             <Styled.Row key={rowIndex}>
               {row.map((pack, index) => (
                 <BlitzPack
-                  key={pack.id} // Add unique key for each pack
+                  key={pack.id}
                   title={pack.title}
                   onPress={() => handlePackPress(pack.title, pack.id)}
-                  index={rowIndex * 3 + index} // Calculate global index
+                  index={rowIndex * 3 + index}
                 />
               ))}
             </Styled.Row>
