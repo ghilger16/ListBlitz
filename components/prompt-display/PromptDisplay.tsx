@@ -28,7 +28,7 @@ export const PromptDisplay: React.FC<{ prompt: string }> = ({ prompt }) => {
           transform: [{ scale: bounceValue }],
         }}
       >
-        {prompt}
+        List {prompt}
       </Styled.PromptText>
     </Styled.PromptContainer>
   );

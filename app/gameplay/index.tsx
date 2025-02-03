@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Stack, useRouter } from "expo-router";
-import { Text, SafeAreaView } from "react-native";
+import { Text, SafeAreaView, TouchableOpacity } from "react-native";
 import * as Styled from "@Styles";
 import { GameMode, useGameplay } from "@Context";
 import { Prompt, useGetPromptsByBlitzPack } from "@Services";
@@ -73,7 +73,27 @@ const Gameplay: React.FC = () => {
 
   return (
     <Styled.Wrapper>
-      <Stack.Screen options={{ headerShown: false }} />
+      <Stack.Screen
+        options={{
+          animation: "none",
+          headerTitle: "",
+          headerStyle: {
+            backgroundColor: "transparent",
+          },
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={{
+                padding: 15,
+              }}
+            >
+              <Text style={{ fontSize: 20, color: "#fff", fontWeight: "700" }}>
+                ←
+              </Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
       <Styled.ModeView>
         {mode === GameMode.CHILL ? (
           <ChillMode

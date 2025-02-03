@@ -52,10 +52,10 @@ const Layout: React.FC = () => {
           <GameProvider>
             <Stack
               screenOptions={{
+                animation: "none",
                 contentStyle: {
                   backgroundColor: "#192c43",
                 },
-                headerShown: false,
               }}
             />
           </GameProvider>

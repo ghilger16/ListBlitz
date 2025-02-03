@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { Animated, Easing } from "react-native";
-import { Stack } from "expo-router";
+import { Animated, Easing, TouchableOpacity, Text } from "react-native";
+import { router, Stack } from "expo-router";
 import * as Styled from "@Styles";
 import { useGameplay, GameMode } from "@Context";
 import { FlashingText, PlayersSelect } from "@Components";
@@ -66,8 +66,29 @@ const PlayerSelect: React.FC = () => {
 
   return (
     <Styled.SafeAreaWrapper>
-      <Stack.Screen options={{ headerShown: false }} />
-      <Styled.Title>{gameSettings.blitzPackTitle}</Styled.Title>
+      <Stack.Screen
+        options={{
+          animation: "none",
+          headerTitle: () => (
+            <Styled.Title>{gameSettings.blitzPackTitle}</Styled.Title>
+          ),
+          headerStyle: {
+            backgroundColor: "transparent",
+          },
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={{
+                padding: 15,
+              }}
+            >
+              <Text style={{ fontSize: 20, color: "#fff", fontWeight: "700" }}>
+                ←
+              </Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
       <Styled.PlayersWrapper>
         <Styled.WheelTitle>
           <FlashingText>Select Players</FlashingText>

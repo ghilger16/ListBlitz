@@ -7,7 +7,7 @@ export const SafeAreaWrapper = styled.SafeAreaView`
 
 export const Title = styled.Text`
   font-family: "SourGummy";
-  font-size: 50px;
+  font-size: 25px;
   text-transform: uppercase;
   color: #ffffff;
   text-shadow: 0px 2px 4px rgba(0, 191, 255, 0.7);
