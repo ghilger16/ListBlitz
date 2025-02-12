@@ -14,6 +14,7 @@ import LottieView from "lottie-react-native";
 import * as d3 from "d3-shape";
 import { useGetIcons } from "@Services";
 import { COLORS } from "../../context/constants";
+import { Audio } from "expo-av";
 
 const RADIUS = 185;
 const OUTER_CIRCLE_RADIUS = 100;
@@ -70,11 +71,64 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
     return null;
   });
 
+  // Load the sound
+  const soundRef = useRef<Audio.Sound | null>(null);
+
+  useEffect(() => {
+    const loadSound = async () => {
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: true,
+        });
+
+        if (!soundRef.current) {
+          const { sound } = await Audio.Sound.createAsync(
+            require("@Assets/sounds/click.mp3")
+          );
+          soundRef.current = sound;
+        }
+      } catch (error) {
+        console.error("Error setting audio mode:", error);
+      }
+    };
+
+    loadSound();
+
+    return () => {
+      if (soundRef.current) {
+        soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+    };
+  }, []);
+
+  const playClickSound = async () => {
+    if (soundRef.current) {
+      try {
+        await soundRef.current.replayAsync();
+      } catch (error) {
+        console.error("Error playing sound:", error);
+      }
+    }
+  };
+
   const handleRangeSelection = (endIndex: number) => {
     const newSelection = new Set<number>([0]);
     for (let i = 0; i <= endIndex; i++) {
       newSelection.add(i);
     }
+
+    // Check if a new slice was added or removed
+    const added = [...newSelection].filter((x) => !selectedSlices.has(x));
+    const removed = [...selectedSlices].filter((x) => !newSelection.has(x));
+
+    // Play sound only for changes
+    if (added.length > 0 || removed.length > 0) {
+      playClickSound();
+    }
+
     setSelectedSlices(newSelection);
     onPlayerCountChange(newSelection.size); // Pass the player count to the parent component
   };

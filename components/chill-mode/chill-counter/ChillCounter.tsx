@@ -6,6 +6,7 @@ import LottieView from "lottie-react-native";
 import * as Styled from "./ChillCounter.styled";
 import { FlashingText } from "@Components";
 import { useGetIcons } from "@Services";
+import { Audio } from "expo-av"; // Import Audio from expo-av
 
 // Constants
 const RADIUS = 160;
@@ -34,9 +35,40 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   const [fillAngle, setFillAngle] = useState(0);
   const [isPlayerStartVisible, setIsPlayerStartVisible] = useState(true); // State to control text visibility
   const lottieRef = useRef<LottieView>(null); // Ref for Lottie animation
+  const soundRef = useRef<Audio.Sound | null>(null); // Ref for sound effect
 
   // Ensure we always get a valid icon index (cycling within available icons)
   const iconIndex = currentPlayerIndex % ICONS.length;
+
+  // Load the sound effect
+  useEffect(() => {
+    const loadSound = async () => {
+      const { sound } = await Audio.Sound.createAsync(
+        require("@Assets/sounds/tap.mp3")
+      );
+      soundRef.current = sound;
+    };
+
+    loadSound();
+
+    return () => {
+      if (soundRef.current) {
+        soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+    };
+  }, []);
+
+  // Play the sound effect
+  const playSound = async () => {
+    if (soundRef.current) {
+      try {
+        await soundRef.current.replayAsync();
+      } catch (error) {
+        console.error("Error playing sound:", error);
+      }
+    }
+  };
 
   // Update the arc fill angle based on the score
   useEffect(() => {
@@ -95,8 +127,9 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
     []
   );
 
-  // Handle tap (increment score)
+  // Handle tap (increment score and play sound)
   const handleIncrement = () => {
+    playSound(); // Play the tap sound
     onIncrement(); // Increment the score
   };
 
