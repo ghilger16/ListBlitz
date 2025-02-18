@@ -32,7 +32,7 @@ const PackLibrary: React.FC = () => {
       <Styled.AbsoluteContainer>
         <Styled.Title>Blitz Packs</Styled.Title>
       </Styled.AbsoluteContainer>
-      <CustomHeader /> {/* ✅ Ensure header is outside ScrollContainer */}
+      <CustomHeader />
       <Styled.ScrollContainer
         horizontal={false}
         showsVerticalScrollIndicator={true}

@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity } from "react-native";
 
 import { useGameplay } from "@Context";
 import { PromptDisplay } from "components/prompt-display";
+import * as Styled from "./BlitzMode.styled";
+import { BlitzCounter } from "./blitz-counter";
 
 interface BlitzModeProps {
   currentPrompt: string;
@@ -33,24 +35,26 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
     }
   }, [isGameStarted, timer]);
 
+  const handleScoreIncrement = () => {
+    if (!isGameStarted) {
+      // Prevent score from going beyond 5
+      setScore((prev) => prev + 1);
+    }
+  };
+
   return (
     <View>
       <Text>Current Player: {players[currentPlayer - 1]?.name}</Text>
       <PromptDisplay prompt={currentPrompt} />
-      <Text>Time Remaining: {timer}s</Text>
-      <Text>Score: {score}</Text>
-      <TouchableOpacity onPress={() => setScore((prev) => prev + 1)}>
-        <Text>Tap for Correct Answer</Text>
-      </TouchableOpacity>
-      {timer === 0 && (
-        <TouchableOpacity onPress={handleNextPlayer}>
-          <Text>
-            {currentPlayer < players.length
-              ? `➡️ Player ${currentPlayer + 1}`
-              : "➡️ Results"}
-          </Text>
-        </TouchableOpacity>
-      )}
+      <Styled.CounterContainer>
+        <BlitzCounter
+          score={score}
+          onIncrement={handleScoreIncrement}
+          currentPlayerIndex={currentPlayer}
+          onStart={() => setIsGameStarted(true)}
+          timer={timer}
+        />
+      </Styled.CounterContainer>
     </View>
   );
 };
