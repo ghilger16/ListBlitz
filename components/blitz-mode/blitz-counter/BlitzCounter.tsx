@@ -1,84 +1,61 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+import { View, TouchableOpacity, Text, Animated } from "react-native";
 import Svg, { G, Path } from "react-native-svg";
 import * as d3 from "d3-shape";
-import LottieView from "lottie-react-native";
 import * as Styled from "./BlitzCounter.styled";
 import { FlashingText } from "@Components";
 import { useGetIcons } from "@Services";
-import { Audio } from "expo-av"; // Import Audio from expo-av
+import { Audio } from "expo-av";
 
 // Constants
 const RADIUS = 125;
 const INNER_RADIUS = 80;
 const BORDER_RADIUS = 140;
 const CENTER_RADIUS = 60;
-const SECTIONS_COUNT = 20;
 const MISSING_ANGLE = Math.PI * 0.4; // 15% missing
-const TOTAL_TIME = 10; // Countdown duration in seconds
+const TOTAL_TIME = 60; // Timer duration in seconds
 
-// Colors
-export const COLORS = ["#f6c212", "#f4770c"]; // Gradient for filled arc
-
-interface IGameplayCounterProps {
-  score: number;
-  currentPlayerIndex: number;
-  onIncrement: () => void;
-  onStart: () => void;
-  timer: number;
-}
-
-export const BlitzCounter: React.FC<IGameplayCounterProps> = ({
+export const BlitzCounter: React.FC = ({
   score,
   currentPlayerIndex,
   onIncrement,
   onStart,
-  timer,
+  isGameStarted,
 }) => {
-  const { data: ICONS = [] } = useGetIcons();
-  const [fillAngle, setFillAngle] = useState(0);
-  const [isPlayerStartVisible, setIsPlayerStartVisible] = useState(true);
-  const lottieRef = useRef<LottieView>(null);
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const [fillAngle, setFillAngle] = useState(
+    Math.PI * 1 - MISSING_ANGLE / 2 // Start full
+  );
+  const [displayTime, setDisplayTime] = useState(TOTAL_TIME);
 
-  const iconIndex = currentPlayerIndex % ICONS.length;
+  const animatedTimer = useRef(new Animated.Value(TOTAL_TIME)).current;
 
   useEffect(() => {
-    const loadSound = async () => {
-      const { sound } = await Audio.Sound.createAsync(
-        require("@Assets/sounds/tap.mp3")
-      );
-      soundRef.current = sound;
-    };
+    if (isGameStarted) {
+      animatedTimer.setValue(TOTAL_TIME);
+      Animated.timing(animatedTimer, {
+        toValue: 0,
+        duration: TOTAL_TIME * 1000,
+        easing: Animated.Easing.linear,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [isGameStarted]);
 
-    loadSound();
+  useEffect(() => {
+    const listenerId = animatedTimer.addListener(({ value }) => {
+      setDisplayTime(Math.ceil(value));
+      setFillAngle(
+        -Math.PI / 1 +
+          MISSING_ANGLE / 2 +
+          (value / TOTAL_TIME) * (Math.PI * 2 - MISSING_ANGLE)
+      );
+    });
 
     return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-        soundRef.current = null;
-      }
+      animatedTimer.removeListener(listenerId);
     };
   }, []);
 
-  const playSound = async () => {
-    if (soundRef.current) {
-      try {
-        await soundRef.current.replayAsync();
-      } catch (error) {
-        console.error("Error playing sound:", error);
-      }
-    }
-  };
-
-  // Update fillAngle based on timer
-  useEffect(() => {
-    const timeElapsed = TOTAL_TIME - timer;
-    const percentage = Math.min(timeElapsed / TOTAL_TIME, 1);
-    setFillAngle(percentage * (Math.PI * 2 - MISSING_ANGLE));
-  }, [timer]);
-
-  // Arc generator for dynamic fill (based on timer)
   const arcGenerator = useMemo(
     () =>
       d3
@@ -86,101 +63,96 @@ export const BlitzCounter: React.FC<IGameplayCounterProps> = ({
         .innerRadius(INNER_RADIUS)
         .outerRadius(RADIUS)
         .startAngle(-Math.PI / 1 + MISSING_ANGLE / 2)
-        .endAngle(-Math.PI / 1 + MISSING_ANGLE / 2 + fillAngle),
+        .endAngle(fillAngle),
     [fillAngle]
   );
 
-  // Border arc generator (single arc, 15% missing)
   const borderArcGenerator = useMemo(() => {
-    return d3
+    const gap = 0.3; // Adjust this value to control the size of the gap
+
+    // First arc section: before the gap
+    const arc1 = d3
       .arc()
       .innerRadius(RADIUS + 10)
       .outerRadius(BORDER_RADIUS)
       .startAngle(-Math.PI / 1 + MISSING_ANGLE / 2)
-      .endAngle(Math.PI * 1 - MISSING_ANGLE / 2);
+      .endAngle(-Math.PI / 2 + Math.PI / 2 - gap);
+
+    // Second arc section: after the gap
+    const arc2 = d3
+      .arc()
+      .innerRadius(RADIUS + 10)
+      .outerRadius(BORDER_RADIUS)
+      .startAngle(-Math.PI / 2 + Math.PI / 2 + gap) // Starts after the gap
+      .endAngle(Math.PI / 1 - MISSING_ANGLE / 2); // Ends at the top
+
+    return [arc1, arc2];
   }, []);
 
-  // Section generator (slices for the outline, with 15% missing)
-  const sectionArcGenerator = useMemo(
-    () => (index: number) => {
-      const totalAngle = Math.PI * 2 - MISSING_ANGLE;
-      const startAngle =
-        -Math.PI / 1 +
-        MISSING_ANGLE / 2 +
-        (totalAngle / SECTIONS_COUNT) * index;
-      const endAngle = startAngle + totalAngle / SECTIONS_COUNT;
-
-      return d3
-        .arc()
-        .innerRadius(INNER_RADIUS)
-        .outerRadius(RADIUS)
-        .startAngle(startAngle)
-        .endAngle(endAngle);
-    },
-    []
-  );
-
-  const handleIncrement = () => {
-    playSound();
-    onIncrement();
-  };
-
-  useEffect(() => {
-    if (score > 0) {
-      setIsPlayerStartVisible(false);
-    }
-  }, [score]);
+  // **📌 Calculate pill position at the gap (adjusted for better alignment)**
+  const gapAngle =
+    -Math.PI / 1 + MISSING_ANGLE / 2 + (Math.PI * 2 - MISSING_ANGLE);
+  const pillOffset = RADIUS + 30; // Push outside the donut
+  const pillX = pillOffset * Math.cos(gapAngle);
+  const pillY = pillOffset * Math.sin(gapAngle);
 
   return (
     <Styled.Container>
       {/* SVG Donut */}
       <Svg width={RADIUS * 2 + 40} height={RADIUS + 200}>
         <G x={RADIUS + 20} y={RADIUS + 20}>
-          {/* Outer Border Arc (No Gaps) */}
           <Path
-            d={borderArcGenerator({} as any) || ""}
+            d={borderArcGenerator[0]({} as any) || ""}
             fill="none"
             stroke="#f6c212"
             strokeWidth={5}
           />
-
-          {/* Dynamic Fill Arc */}
-          <Path d={arcGenerator({} as any) || ""} fill={COLORS[1]} />
-
-          {/* Section Outlines */}
-          {Array.from({ length: SECTIONS_COUNT }).map((_, index) => (
-            <Path
-              key={index}
-              d={sectionArcGenerator(index)({} as any)}
-              fill="none"
-              stroke="#fff"
-              strokeWidth={2}
-            />
-          ))}
+          <Path
+            d={borderArcGenerator[1]({} as any) || ""}
+            fill="none"
+            stroke="#f6c212"
+            strokeWidth={5}
+          />
+          <Path d={arcGenerator({} as any) || ""} fill="#f4770c" />
         </G>
       </Svg>
 
       {/* Timer Countdown Display in Center */}
-      <TouchableOpacity
+      <View
         style={{
           position: "absolute",
           top: "50%",
           left: "50%",
           transform: [{ translateX: -20 }, { translateY: 15 }],
         }}
-        onPress={onStart}
       >
         <Text style={{ fontSize: 32, fontWeight: "bold", color: "#fff" }}>
-          {timer}
+          {displayTime}
         </Text>
-      </TouchableOpacity>
+      </View>
 
-      {/* Show "Player Start" text if score is 0 */}
-      {isPlayerStartVisible && (
-        <Styled.TextWrapper>
-          <FlashingText>Tap to Score</FlashingText>
-        </Styled.TextWrapper>
-      )}
+      {/* 📌 Pill Component at the Missing Arc Section (Better Alignment) */}
+      <View
+        style={{
+          position: "absolute",
+          width: 280, // Larger pill width
+          height: 40, // Taller pill
+          backgroundColor: "#ffcc00",
+          borderRadius: 20,
+          alignItems: "center",
+          justifyContent: "center",
+          left: `50%`, // Center pill horizontally
+          top: `50%`, // Center pill vertically
+          transform: [
+            { translateX: pillX - 15 }, // Center it correctly
+            { translateY: pillY - 20 },
+          ],
+        }}
+      >
+        <Text style={{ fontWeight: "bold", color: "#000", fontSize: 18 }}>
+          +10s
+        </Text>
+      </View>
     </Styled.Container>
   );
 };

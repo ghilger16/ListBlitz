@@ -13,7 +13,7 @@ interface BlitzModeProps {
   currentPlayer: number;
 }
 
-const TIMER_DURATION = 10;
+const TIMER_DURATION = 45;
 
 export const BlitzMode: React.FC<BlitzModeProps> = ({
   currentPrompt,
@@ -43,7 +43,7 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   };
 
   return (
-    <View>
+    <Styled.Wrapper>
       <Text>Current Player: {players[currentPlayer - 1]?.name}</Text>
       <PromptDisplay prompt={currentPrompt} />
       <Styled.CounterContainer>
@@ -53,8 +53,9 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
           currentPlayerIndex={currentPlayer}
           onStart={() => setIsGameStarted(true)}
           timer={timer}
+          isGameStarted={isGameStarted}
         />
       </Styled.CounterContainer>
-    </View>
+    </Styled.Wrapper>
   );
 };
