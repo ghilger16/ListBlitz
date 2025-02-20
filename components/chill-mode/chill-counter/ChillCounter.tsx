@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { View, TouchableOpacity, Text } from "react-native";
-import Svg, { G, Path } from "react-native-svg";
+import Svg, { Defs, G, LinearGradient, Path, Stop } from "react-native-svg";
 import * as d3 from "d3-shape";
 import LottieView from "lottie-react-native";
 import * as Styled from "./ChillCounter.styled";
 import { FlashingText } from "@Components";
 import { useGetIcons } from "@Services";
 import { Audio } from "expo-av"; // Import Audio from expo-av
+import { Player } from "@Context";
 
 // Constants
 const RADIUS = 160;
@@ -20,14 +21,14 @@ export const COLORS = ["#f6c212", "#f4770c"]; // Gradient for filled arc
 
 interface IGameplayCounterProps {
   score: number;
-  currentPlayerIndex: number; // <-- Determines icon
+  currentPlayer: Player; // <-- Determines icon
   onIncrement: () => void;
   onStart: () => void;
 }
 
 export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   score,
-  currentPlayerIndex,
+  currentPlayer,
   onIncrement,
   onStart,
 }) => {
@@ -38,7 +39,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   const soundRef = useRef<Audio.Sound | null>(null); // Ref for sound effect
 
   // Ensure we always get a valid icon index (cycling within available icons)
-  const iconIndex = currentPlayerIndex % ICONS.length;
+  const iconIndex = (currentPlayer.id - 1) % ICONS.length;
 
   // Load the sound effect
   useEffect(() => {
@@ -144,23 +145,40 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
     <Styled.Container>
       {/* SVG Donut */}
       <Svg width={RADIUS * 2 + 40} height={RADIUS + 120}>
+        <Defs>
+          <LinearGradient
+            id={`grad-${currentPlayer.id}`}
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+          >
+            <Stop offset="0%" stopColor={currentPlayer.startColor} />
+            <Stop offset="100%" stopColor={currentPlayer.endColor} />
+          </LinearGradient>
+        </Defs>
+
         <G x={RADIUS + 20} y={RADIUS + 20}>
           {/* Outer Border */}
           <Styled.Score>{score}</Styled.Score>
           <Path
             d={borderArcGenerator[0]({} as any) || ""}
             fill="none"
-            stroke="#f6c212"
+            stroke={currentPlayer.startColor}
             strokeWidth={5}
           />
           <Path
             d={borderArcGenerator[1]({} as any) || ""}
             fill="none"
-            stroke="#f6c212"
+            stroke={currentPlayer.startColor}
             strokeWidth={5}
           />
-          {/* Dynamic Fill */}
-          <Path d={arcGenerator({} as any) || ""} fill={COLORS[1]} />
+
+          {/* Dynamic Fill with Gradient */}
+          <Path
+            d={arcGenerator({} as any) || ""}
+            fill={`url(#grad-${currentPlayer.id})`}
+          />
 
           {/* Section Outlines */}
           {Array.from({ length: SECTIONS_COUNT }).map((_, index) => (
@@ -175,9 +193,9 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
         </G>
       </Svg>
 
-      {/* Tapable Circle Button (Lottie replaces button) */}
+      {/* Tapable Circle Button */}
       <TouchableOpacity
-        onPress={handleIncrement} // Only increment score
+        onPress={handleIncrement}
         style={{
           position: "absolute",
           width: CENTER_RADIUS * 2,
@@ -187,7 +205,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
           justifyContent: "center",
           top: RADIUS - CENTER_RADIUS + 10,
           borderWidth: 5,
-          borderColor: "#f6c212",
+          borderColor: currentPlayer.startColor,
           backgroundColor: "#fff",
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 4 },
@@ -197,9 +215,9 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
       >
         <LottieView
           ref={lottieRef}
-          source={ICONS[iconIndex] ?? ICONS[0]} // Based on player, not score
+          source={ICONS[iconIndex] ?? ICONS[0]}
           autoPlay
-          loop={false} // Only play when tapped
+          loop={false}
           style={{
             width: CENTER_RADIUS * 2,
             height: CENTER_RADIUS * 2,

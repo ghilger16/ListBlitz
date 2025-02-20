@@ -2,14 +2,11 @@ import LottieView from "lottie-react-native";
 import styled from "styled-components/native";
 
 export const NextPlayerContainer = styled.View`
-  background-color: #f6c212;
   width: 300px;
-  height: 60px;
+  height: 75px;
   padding: 10px;
-  border-radius: 60px;
   flex-direction: row;
   align-items: center;
-  justify-content: ;
 `;
 
 export const NextPlayerText = styled.Text`

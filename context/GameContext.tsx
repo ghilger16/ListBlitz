@@ -1,23 +1,17 @@
 import React, { createContext, useState, useContext, ReactNode } from "react";
 import { useRouter } from "expo-router";
-import { COLORS, GameMode, GameSettings } from "./constants"; // Ensure this contains GameMode enums
-
-// Player Interface
-interface Player {
-  id: number;
-  name: string;
-  score: number;
-  color: [string, string]; // Add color property (gradient pair)
-}
+import { COLORS, GameMode, GameSettings, Player } from "./constants"; // Ensure this contains GameMode enums
 
 // Context Type
 interface GameContextType {
   players: Player[];
+  currentPlayer: Player;
   gameSettings: GameSettings;
   initializePlayers: (playerCount: number) => void;
   updatePlayerScore: (id: number, score: number) => void;
   setGameSettings: (settings: Partial<GameSettings>) => void;
   onGameStart: () => void;
+  handleNextPlayer: (score: number) => void;
 }
 
 // Create Context
@@ -27,6 +21,7 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 export const GameProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const [players, setPlayers] = useState<Player[]>([]);
+  const [currentPlayer, setCurrentPlayer] = useState<Player>({} as Player);
   const [gameSettings, setGameSettingsState] = useState<GameSettings>({
     mode: GameMode.CHILL, // Default mode
     playerCount: 0,
@@ -38,11 +33,12 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       id: index + 1,
       name: `Player ${index + 1}`,
       score: 0,
-      color: COLORS[index % COLORS.length], // Assign a cyclic color from COLORS array
+      startColor: COLORS[index % COLORS.length][0], // Assign Start Color
+      endColor: COLORS[index % COLORS.length][1], // Assign a cyclic color
     }));
     setPlayers(newPlayers);
+    setCurrentPlayer(newPlayers[0]); // ✅ Set the first player as the current player
   };
-
   // Update Player Score
   const updatePlayerScore = (id: number, score: number) => {
     setPlayers((prevPlayers) =>
@@ -50,6 +46,19 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         player.id === id ? { ...player, score } : player
       )
     );
+  };
+
+  // Move to the next player, updating their score before switching
+  const handleNextPlayer = (score: number) => {
+    setPlayers((prevPlayers) =>
+      prevPlayers.map((player) =>
+        player.id === currentPlayer?.id ? { ...player, score } : player
+      )
+    );
+
+    const currentIndex = players.findIndex((p) => p.id === currentPlayer?.id);
+    const nextIndex = (currentIndex + 1) % players.length;
+    setCurrentPlayer(players[nextIndex]); // ✅ Move to the next player
   };
 
   // Set Game Settings (Partial Update)
@@ -81,11 +90,13 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     <GameContext.Provider
       value={{
         players,
+        currentPlayer,
         gameSettings,
         initializePlayers,
         updatePlayerScore,
         setGameSettings,
         onGameStart,
+        handleNextPlayer,
       }}
     >
       {children}

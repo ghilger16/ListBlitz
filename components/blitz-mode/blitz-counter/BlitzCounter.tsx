@@ -11,7 +11,16 @@ import * as d3 from "d3-shape";
 import LottieView from "lottie-react-native";
 import * as Styled from "./BlitzCounter.styled";
 import { useGetIcons } from "@Services";
-import { COLORS } from "@Context";
+import { COLORS, Player } from "@Context";
+
+interface BlitzCounterProps {
+  score: number;
+  currentPlayer: Player;
+  onIncrement: () => void;
+  onStart: () => void;
+  isGameStarted: boolean;
+  timer: number;
+}
 
 // Constants
 const RADIUS = 125;
@@ -19,23 +28,22 @@ const INNER_RADIUS = 80;
 const BORDER_RADIUS = 140;
 const CENTER_RADIUS = 60;
 const MISSING_ANGLE = Math.PI * 0.4; // 15% missing
-const TOTAL_TIME = 45; // Timer duration in seconds
 
 const AnimatedSvgPath = Animated.createAnimatedComponent(SvgPath);
 
-export const BlitzCounter: React.FC = ({
+export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   score,
-  currentPlayerIndex,
+  currentPlayer,
   onIncrement,
   onStart,
   isGameStarted,
+  timer,
 }) => {
   const { data: ICONS = [] } = useGetIcons();
   const lottieRef = useRef<LottieView>(null);
-  const animatedTimer = useRef(new Animated.Value(TOTAL_TIME)).current;
+  const animatedTimer = useRef(new Animated.Value(timer)).current;
   const flashAnim = useRef(new Animated.Value(0)).current; // Flash animation
-  const playerColor = COLORS[currentPlayerIndex % COLORS.length]; // Get player color
-  const [displayTime, setDisplayTime] = useState(TOTAL_TIME);
+  const [displayTime, setDisplayTime] = useState(timer);
   const [fillAngle, setFillAngle] = useState(
     Math.PI * 1 - MISSING_ANGLE / 2 // Start full
   );
@@ -48,15 +56,15 @@ export const BlitzCounter: React.FC = ({
   };
 
   // Ensure valid icon index
-  const iconIndex = currentPlayerIndex + (1 % ICONS.length);
+  const iconIndex = currentPlayer.id + (1 % ICONS.length);
 
   // Start animation when game starts
   useEffect(() => {
     if (isGameStarted) {
-      animatedTimer.setValue(TOTAL_TIME);
+      animatedTimer.setValue(timer);
       Animated.timing(animatedTimer, {
         toValue: 0,
-        duration: TOTAL_TIME * 1000,
+        duration: timer * 1000,
         easing: Easing.linear,
         useNativeDriver: false,
       }).start();
@@ -69,7 +77,7 @@ export const BlitzCounter: React.FC = ({
       setFillAngle(
         -Math.PI / 1 +
           MISSING_ANGLE / 2 +
-          (value / TOTAL_TIME) * (Math.PI * 2 - MISSING_ANGLE)
+          (value / timer) * (Math.PI * 2 - MISSING_ANGLE)
       );
     });
 
@@ -142,19 +150,16 @@ export const BlitzCounter: React.FC = ({
       <Svg width={RADIUS * 2 + 40} height={RADIUS + 200}>
         <G x={RADIUS + 20} y={RADIUS + 20}>
           <Defs>
-            {COLORS.map(([startColor, endColor], index) => (
-              <LinearGradient
-                key={`grad-${index}`}
-                id={`grad-${index}`}
-                x1="0%"
-                y1="0%"
-                x2="100%"
-                y2="0%"
-              >
-                <Stop offset="0%" stopColor={startColor} />
-                <Stop offset="100%" stopColor={endColor} />
-              </LinearGradient>
-            ))}
+            <LinearGradient
+              id={`grad-${currentPlayer.id}`}
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="0%"
+            >
+              <Stop offset="0%" stopColor={currentPlayer.startColor} />
+              <Stop offset="100%" stopColor={currentPlayer.endColor} />
+            </LinearGradient>
           </Defs>
           <Styled.Score>{score}</Styled.Score>
           <AnimatedSvgPath
@@ -173,7 +178,7 @@ export const BlitzCounter: React.FC = ({
           {/* Dynamic Fill */}
           <AnimatedSvgPath
             d={arcGenerator({} as any) || ""}
-            fill={`url(#grad-${currentPlayerIndex % COLORS.length})`}
+            fill={`url(#grad-${currentPlayer.id})`}
           />
         </G>
       </Svg>
@@ -221,9 +226,7 @@ export const BlitzCounter: React.FC = ({
             }}
           >
             <Styled.PillButtonText>
-              {isGameStarted
-                ? "Tap to Score"
-                : `Start P${currentPlayerIndex + 1}`}
+              {isGameStarted ? "Tap to Score" : `Start ${currentPlayer.name}`}
             </Styled.PillButtonText>
           </TouchableOpacity>
         </Animated.View>

@@ -10,6 +10,14 @@ export interface GameSettings {
   playerCount?: number;
 }
 
+export interface Player {
+  id: number;
+  name: string;
+  score: number;
+  startColor: string;
+  endColor: string;
+}
+
 export const COLORS: ReadonlyArray<[string, string]> = [
   ["#FFD700", "#FFA500"],
   ["#87CEEB", "#4682B4"],

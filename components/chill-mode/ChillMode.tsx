@@ -6,18 +6,22 @@ import { PromptDisplay } from "components/prompt-display";
 import * as Styled from "./ChillMode.styled";
 import { NextPlayerPrompt } from "components/next-player-prompt";
 import { useGetIcons } from "@Services";
+import { Player } from "@Context";
 
 interface ChillModeProps {
   currentPrompt: string;
-  handleNextPlayer: () => void;
-  currentPlayer: number;
+  handleNextPlayer: (score: number) => void;
+  currentPlayer: Player;
+  players: Player[];
 }
 
 export const ChillMode: React.FC<ChillModeProps> = ({
   currentPrompt,
   handleNextPlayer,
   currentPlayer,
+  players,
 }) => {
+  console.log("🚀 ~ currentPlayer:", currentPlayer);
   const { data: ICONS = [] } = useGetIcons();
   const [score, setScore] = useState(0);
 
@@ -38,12 +42,12 @@ export const ChillMode: React.FC<ChillModeProps> = ({
   }, [score]);
 
   const handleNextPlayerClick = () => {
-    handleNextPlayer();
+    handleNextPlayer(score);
     setShowNextPlayerBubble(false); // Hide the bubble after clicking
     setScore(0); // Reset the score when moving to the next player
   };
 
-  const nextIconIndex = (currentPlayer + 1) % ICONS.length;
+  const nextIconIndex = (currentPlayer.id + 1) % ICONS.length;
 
   return (
     <Styled.Wrapper>
@@ -55,7 +59,7 @@ export const ChillMode: React.FC<ChillModeProps> = ({
           onIncrement={handleScoreIncrement}
           onStart={() => setIsGameStarted(true)}
           score={score}
-          currentPlayerIndex={currentPlayer}
+          currentPlayer={currentPlayer}
         />
       </Styled.CounterContainer>
 
@@ -65,6 +69,7 @@ export const ChillMode: React.FC<ChillModeProps> = ({
           <NextPlayerPrompt
             onNextPlayerClick={handleNextPlayerClick}
             iconSource={ICONS[nextIconIndex]}
+            nextPlayer={players[currentPlayer.id]}
           />
         </Styled.NextPlayerContainer>
       )}
