@@ -1,12 +1,13 @@
 import React, { createContext, useState, useContext, ReactNode } from "react";
 import { useRouter } from "expo-router";
-import { GameMode, GameSettings } from "./constants"; // Ensure this contains GameMode enums
+import { COLORS, GameMode, GameSettings } from "./constants"; // Ensure this contains GameMode enums
 
 // Player Interface
 interface Player {
   id: number;
   name: string;
   score: number;
+  color: [string, string]; // Add color property (gradient pair)
 }
 
 // Context Type
@@ -16,7 +17,7 @@ interface GameContextType {
   initializePlayers: (playerCount: number) => void;
   updatePlayerScore: (id: number, score: number) => void;
   setGameSettings: (settings: Partial<GameSettings>) => void;
-  onGameStart: () => void; // onGameStart doesn't need to pass players count anymore
+  onGameStart: () => void;
 }
 
 // Create Context
@@ -28,7 +29,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [gameSettings, setGameSettingsState] = useState<GameSettings>({
     mode: GameMode.CHILL, // Default mode
-    playerCount: 0, // Initialize playersCount
+    playerCount: 0,
   });
 
   // Initialize Players
@@ -37,6 +38,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       id: index + 1,
       name: `Player ${index + 1}`,
       score: 0,
+      color: COLORS[index % COLORS.length], // Assign a cyclic color from COLORS array
     }));
     setPlayers(newPlayers);
   };
@@ -57,7 +59,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 
   // Start Game
   const onGameStart = () => {
-    console.log("playerCount in gameSettings:", gameSettings.playerCount); // Add this line for debugging
+    console.log("playerCount in gameSettings:", gameSettings.playerCount); // Debugging log
 
     const playerCount = gameSettings.playerCount ?? 0;
 

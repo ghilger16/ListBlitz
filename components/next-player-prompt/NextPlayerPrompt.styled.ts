@@ -1,12 +1,10 @@
-// NextPlayerPrompt.styled.ts
-
 import LottieView from "lottie-react-native";
 import styled from "styled-components/native";
 
 export const NextPlayerContainer = styled.View`
   background-color: #f6c212;
   width: 300px;
-  height: 60px; /* Increased height to accommodate both the icon and text */
+  height: 60px;
   padding: 10px;
   border-radius: 60px;
   flex-direction: row;

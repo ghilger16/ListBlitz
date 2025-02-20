@@ -5,6 +5,7 @@ import { useGameplay } from "@Context";
 import { PromptDisplay } from "components/prompt-display";
 import * as Styled from "./BlitzMode.styled";
 import { BlitzCounter } from "./blitz-counter";
+import { ScoreRankings } from "./score-rankings";
 
 interface BlitzModeProps {
   currentPrompt: string;
@@ -32,20 +33,27 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
         setTimer((prev) => (prev > 0 ? prev - 1 : 0));
       }, 1000);
       return () => clearInterval(countdown);
+    } else if (timer === 0) {
+      handleNextPlayer(); // Automatically go to the next player when time is up
     }
   }, [isGameStarted, timer]);
 
   const handleScoreIncrement = () => {
-    if (!isGameStarted) {
-      // Prevent score from going beyond 5
+    if (isGameStarted) {
       setScore((prev) => prev + 1);
     }
   };
 
+  const handleNextPlayerClick = () => {
+    setScore(0);
+    setTimer(TIMER_DURATION);
+    setIsGameStarted(false);
+  };
+
   return (
     <Styled.Wrapper>
-      <Text>Current Player: {players[currentPlayer - 1]?.name}</Text>
       <PromptDisplay prompt={currentPrompt} />
+
       <Styled.CounterContainer>
         <BlitzCounter
           score={score}
@@ -55,7 +63,13 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
           timer={timer}
           isGameStarted={isGameStarted}
         />
+        <ScoreRankings players={players} />
       </Styled.CounterContainer>
+
+      {/* Manual Next Player Button */}
+      <TouchableOpacity onPress={handleNextPlayerClick}>
+        <Text style={{ color: "white", fontSize: 18 }}>Next Player</Text>
+      </TouchableOpacity>
     </Styled.Wrapper>
   );
 };
