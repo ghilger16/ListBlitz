@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Text, Animated } from "react-native";
 import * as Styled from "./PromptDisplay.styled";
 
-export const PromptDisplay: React.FC<{ prompt: string }> = ({ prompt }) => {
+export const PromptDisplay: React.FC<{
+  prompt: string;
+  playerColor: string;
+}> = ({ prompt, playerColor }) => {
   const [bounceValue] = useState(new Animated.Value(1));
 
   useEffect(() => {
@@ -22,7 +25,7 @@ export const PromptDisplay: React.FC<{ prompt: string }> = ({ prompt }) => {
   }, [prompt]);
 
   return (
-    <Styled.PromptContainer>
+    <Styled.PromptContainer playerColor={playerColor}>
       <Styled.PromptText
         style={{
           transform: [{ scale: bounceValue }],

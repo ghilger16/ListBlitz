@@ -21,7 +21,6 @@ export const ChillMode: React.FC<ChillModeProps> = ({
   currentPlayer,
   players,
 }) => {
-  console.log("🚀 ~ currentPlayer:", currentPlayer);
   const { data: ICONS = [] } = useGetIcons();
   const [score, setScore] = useState(0);
 
@@ -52,7 +51,10 @@ export const ChillMode: React.FC<ChillModeProps> = ({
   return (
     <Styled.Wrapper>
       {/* <Text style={{ color: "#fff" }}>{currentPlayer}</Text> */}
-      <PromptDisplay prompt={currentPrompt} />
+      <PromptDisplay
+        prompt={currentPrompt}
+        playerColor={currentPlayer.startColor}
+      />
 
       <Styled.CounterContainer>
         <ChillCounter

@@ -10,6 +10,7 @@ const Gameplay: React.FC = () => {
   const router = useRouter();
   const { players, currentPlayer, gameSettings, handleNextPlayer } =
     useGameplay();
+  console.log("🚀 ~ currentPlayer:", currentPlayer);
   const { mode, blitzPackId } = gameSettings;
   const PROMPT_LIMIT = 10;
 
@@ -53,6 +54,13 @@ const Gameplay: React.FC = () => {
   const currentPrompt =
     availablePrompts[currentPromptIndex]?.promptText || "Loading...";
 
+  const handleNextPlayerAndPrompt = (score: number) => {
+    handleNextPlayer(score);
+    setCurrentPromptIndex(
+      (prevIndex) => (prevIndex + 1) % availablePrompts.length
+    );
+  };
+
   if (isLoading || !currentPlayer) return <Text>Loading...</Text>;
   if (error) return <Text>Error loading prompts.</Text>;
 
@@ -83,14 +91,14 @@ const Gameplay: React.FC = () => {
         {mode === GameMode.CHILL ? (
           <ChillMode
             currentPrompt={currentPrompt}
-            handleNextPlayer={handleNextPlayer}
+            handleNextPlayer={handleNextPlayerAndPrompt}
             currentPlayer={currentPlayer}
             players={players}
           />
         ) : (
           <BlitzMode
             currentPrompt={currentPrompt}
-            handleNextPlayer={handleNextPlayer}
+            handleNextPlayer={handleNextPlayerAndPrompt}
             players={players}
             currentPlayer={currentPlayer}
           />

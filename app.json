@@ -5,7 +5,10 @@
     "web": {
       "bundler": "metro"
     },
-    "plugins": ["expo-router", "expo-font"],
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ],
     "name": "ListBlitz",
     "slug": "ListBlitz",
     "extra": {
@@ -13,7 +16,15 @@
         "headerShown": false
       }
     },
-    "assetBundlePatterns": ["**/*"],
-    "newArchEnabled": true
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "newArchEnabled": true,
+    "android": {
+      "package": "com.anonymous.ListBlitz"
+    },
+    "ios": {
+      "bundleIdentifier": "com.anonymous.ListBlitz"
+    }
   }
 }

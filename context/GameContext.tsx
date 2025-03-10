@@ -50,15 +50,27 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 
   // Move to the next player, updating their score before switching
   const handleNextPlayer = (score: number) => {
+    // Update the current player's score
     setPlayers((prevPlayers) =>
       prevPlayers.map((player) =>
         player.id === currentPlayer?.id ? { ...player, score } : player
       )
     );
 
+    // Find the next player's index
     const currentIndex = players.findIndex((p) => p.id === currentPlayer?.id);
-    const nextIndex = (currentIndex + 1) % players.length;
-    setCurrentPlayer(players[nextIndex]); // ✅ Move to the next player
+    const nextIndex = currentIndex + 1;
+
+    console.log("🚀 ~ handleNextPlayer ~ nextIndex:", nextIndex);
+
+    if (nextIndex === gameSettings.playerCount) {
+      console.log("hit");
+      // If all players have played, reset the game with the same player count
+      initializePlayers(gameSettings.playerCount);
+    } else {
+      // Move to the next player
+      setCurrentPlayer(players[nextIndex]);
+    }
   };
 
   // Set Game Settings (Partial Update)

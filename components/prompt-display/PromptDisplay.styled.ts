@@ -1,7 +1,7 @@
 import { Animated } from "react-native";
 import styled from "styled-components/native";
 
-export const PromptContainer = styled.View`
+export const PromptContainer = styled.View<{ playerColor: string }>`
   background-color: #192c43;
   border-radius: 30px;
   padding: 15px 25px;
@@ -14,7 +14,8 @@ export const PromptContainer = styled.View`
   shadow-opacity: 0.2;
   shadow-radius: 5px;
   elevation: 5;
-  border: 5px solid #f6c212;
+  border: 5px solid;
+  border-color: ${(props) => props.playerColor};
 `;
 
 export const PromptText = styled(Animated.Text)`
