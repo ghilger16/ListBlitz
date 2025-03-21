@@ -33,11 +33,11 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       id: index + 1,
       name: `Player ${index + 1}`,
       score: 0,
-      startColor: COLORS[index % COLORS.length][0], // Assign Start Color
-      endColor: COLORS[index % COLORS.length][1], // Assign a cyclic color
+      startColor: COLORS[index % COLORS.length][0],
+      endColor: COLORS[index % COLORS.length][1],
     }));
     setPlayers(newPlayers);
-    setCurrentPlayer(newPlayers[0]); // ✅ Set the first player as the current player
+    setCurrentPlayer(newPlayers[0]); // Ensure this is valid immediately
   };
   // Update Player Score
   const updatePlayerScore = (id: number, score: number) => {
@@ -53,24 +53,14 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     // Update the current player's score
     setPlayers((prevPlayers) =>
       prevPlayers.map((player) =>
-        player.id === currentPlayer?.id ? { ...player, score } : player
+        player.id === currentPlayer.id ? { ...player, score } : player
       )
     );
 
-    // Find the next player's index
-    const currentIndex = players.findIndex((p) => p.id === currentPlayer?.id);
-    const nextIndex = currentIndex + 1;
+    const currentIndex = players.findIndex((p) => p.id === currentPlayer.id);
+    const nextIndex = (currentIndex + 1) % players.length; // Loops back to 0 when out of range
 
-    console.log("🚀 ~ handleNextPlayer ~ nextIndex:", nextIndex);
-
-    if (nextIndex === gameSettings.playerCount) {
-      console.log("hit");
-      // If all players have played, reset the game with the same player count
-      initializePlayers(gameSettings.playerCount);
-    } else {
-      // Move to the next player
-      setCurrentPlayer(players[nextIndex]);
-    }
+    setCurrentPlayer(players[nextIndex]);
   };
 
   // Set Game Settings (Partial Update)

@@ -46,8 +46,21 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
 
   return (
     <Styled.Wrapper>
-      <PromptDisplay prompt={currentPrompt} />
-
+      <PromptDisplay
+        prompt={currentPrompt}
+        playerColor={currentPlayer.startColor}
+      />
+      <Text
+        style={{
+          color: "#fff",
+          fontFamily: "SourGummy",
+          fontSize: 22,
+          textAlign: "center",
+          marginTop: 15,
+        }}
+      >
+        Player {currentPlayer.id}
+      </Text>
       <Styled.CounterContainer>
         <BlitzCounter
           score={score}

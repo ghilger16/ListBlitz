@@ -47,14 +47,25 @@ export const ChillMode: React.FC<ChillModeProps> = ({
   };
 
   const nextIconIndex = (currentPlayer.id + 1) % ICONS.length;
-
+  const currentIndex = players.findIndex((p) => p.id === currentPlayer.id);
+  const nextIndex = (currentIndex + 1) % players.length;
   return (
     <Styled.Wrapper>
-      {/* <Text style={{ color: "#fff" }}>{currentPlayer}</Text> */}
       <PromptDisplay
         prompt={currentPrompt}
         playerColor={currentPlayer.startColor}
       />
+      <Text
+        style={{
+          color: "#fff",
+          fontFamily: "SourGummy",
+          fontSize: 24,
+          textAlign: "center",
+          marginTop: 15,
+        }}
+      >
+        Player {currentPlayer.id}
+      </Text>
 
       <Styled.CounterContainer>
         <ChillCounter
@@ -71,7 +82,7 @@ export const ChillMode: React.FC<ChillModeProps> = ({
           <NextPlayerPrompt
             onNextPlayerClick={handleNextPlayerClick}
             iconSource={ICONS[nextIconIndex]}
-            nextPlayer={players[currentPlayer.id]}
+            nextPlayer={players[nextIndex]}
           />
         </Styled.NextPlayerContainer>
       )}

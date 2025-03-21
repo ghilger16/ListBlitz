@@ -16,12 +16,11 @@ interface NextPlayerPromptProps {
 export const NextPlayerPrompt: React.FC<NextPlayerPromptProps> = ({
   onNextPlayerClick,
   iconSource,
-  nextPlayer, // ✅ Destructure nextPlayer to use colors
+  nextPlayer,
 }) => {
   return (
     <TouchableOpacity onPress={onNextPlayerClick}>
       <Styled.NextPlayerContainer>
-        {/* Linear Gradient Background */}
         <Svg height="100%" width="100%" style={{ position: "absolute" }}>
           <Defs>
             <LinearGradient
@@ -48,7 +47,9 @@ export const NextPlayerPrompt: React.FC<NextPlayerPromptProps> = ({
           <Styled.PlayerIcon source={iconSource} autoPlay={false} />
         </Styled.PlayerIconContainer>
 
-        <Styled.NextPlayerText>Next Player</Styled.NextPlayerText>
+        <Styled.NextPlayerText>
+          Start Player {nextPlayer.id}
+        </Styled.NextPlayerText>
       </Styled.NextPlayerContainer>
     </TouchableOpacity>
   );

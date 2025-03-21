@@ -7,7 +7,7 @@ export const Wrapper = styled.SafeAreaView`
 
 export const CounterContainer = styled.View`
   position: absolute;
-  top: 180px;
+  top: 220px;
   left: 0px;
   right: 0px;
 `;

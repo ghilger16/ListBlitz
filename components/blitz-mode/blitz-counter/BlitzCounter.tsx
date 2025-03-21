@@ -161,7 +161,24 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
               <Stop offset="100%" stopColor={currentPlayer.endColor} />
             </LinearGradient>
           </Defs>
-          <Styled.Score>{score}</Styled.Score>
+          <Styled.Score>
+            {ICONS.length > 0 && (
+              <LottieView
+                ref={lottieRef}
+                source={ICONS[iconIndex] ?? ICONS[0]}
+                autoPlay
+                loop
+                style={{
+                  borderWidth: 5,
+                  borderColor: currentPlayer.startColor,
+                  backgroundColor: "#fff",
+                  borderRadius: CENTER_RADIUS,
+                  width: CENTER_RADIUS,
+                  height: CENTER_RADIUS,
+                }}
+              />
+            )}
+          </Styled.Score>
           <AnimatedSvgPath
             d={borderArcGenerator[0]({} as any) || ""}
             fill="none"
@@ -182,8 +199,7 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
           />
         </G>
       </Svg>
-
-      {/* 📌 Center Section with Player LottieView & Timer */}
+      <Styled.Score2>{score}</Styled.Score2>
       <View
         style={{
           position: "absolute",
@@ -194,22 +210,8 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
           top: RADIUS - CENTER_RADIUS + 30,
         }}
       >
-        {/* Lottie Animation for Player Icon */}
-        {ICONS.length > 0 && (
-          <LottieView
-            ref={lottieRef}
-            source={ICONS[iconIndex] ?? ICONS[0]}
-            autoPlay
-            loop
-            style={{
-              width: CENTER_RADIUS * 2,
-              height: CENTER_RADIUS * 2,
-            }}
-          />
-        )}
         <Styled.TimerText>{formatTime(displayTime)}</Styled.TimerText>
       </View>
-
       <Styled.PillButton>
         <Animated.View
           style={{

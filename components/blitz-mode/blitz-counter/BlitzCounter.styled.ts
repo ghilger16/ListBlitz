@@ -7,12 +7,21 @@ export const Container = styled.SafeAreaView`
 `;
 
 export const Score = styled.Text`
-  top: -20px;
+  top: -45px;
+  left: 115px;
   font-family: "LuckiestGuy";
   font-size: 45px;
   font-weight: bold;
   color: #fff;
-  text-align: center;
+`;
+
+export const Score2 = styled.Text`
+  top: -220px;
+  left: 0px;
+  font-family: "LuckiestGuy";
+  font-size: 70px;
+  font-weight: bold;
+  color: #fff;
 `;
 
 export const TextWrapper = styled.View`
@@ -33,7 +42,7 @@ export const PillButton = styled.View`
   height: 40px;
   border-radius: 20px;
   left: 4%;
-  top: 72%;
+  top: 62%;
   overflow: hidden;
 `;
 

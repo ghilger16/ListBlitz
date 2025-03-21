@@ -14,7 +14,7 @@ export const NextPlayerText = styled.Text`
   font-family: "SourGummy";
   font-size: 30px;
   text-align: center;
-  margin-left: 20px;
+  margin-left: 10px;
 `;
 
 export const PlayerIconContainer = styled.View`
