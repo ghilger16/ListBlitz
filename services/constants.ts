@@ -1,9 +1,9 @@
 import { Platform } from "react-native";
 import Constants from "expo-constants";
+// ✅ Use your real machine IP for mobile access
+const LOCAL_NETWORK_IP = "http://192.168.0.123:8080/api";
 
 export const BASE_URL =
   Platform.OS === "web" || !Constants.executionEnvironment
-    ? "http://localhost:8080/api" // Web or unknown environment
-    : "http://10.0.0.221:8080/api"; // Mobile (iOS or Android)
-
-// "http://10.0.0.82:8080/api";  Mobile (iOS or Android) Spink House
+    ? "http://localhost:8080/api"
+    : LOCAL_NETWORK_IP;

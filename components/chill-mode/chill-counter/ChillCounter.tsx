@@ -4,10 +4,10 @@ import Svg, { Defs, G, LinearGradient, Path, Stop } from "react-native-svg";
 import * as d3 from "d3-shape";
 import LottieView from "lottie-react-native";
 import * as Styled from "./ChillCounter.styled";
-import { FlashingText } from "@Components";
 import { useGetIcons } from "@Services";
 import { Audio } from "expo-av"; // Import Audio from expo-av
 import { Player } from "@Context";
+import { FlashingText } from "components/flashing-text";
 
 // Constants
 const RADIUS = 160;

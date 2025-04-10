@@ -9,6 +9,7 @@ import { View, ActivityIndicator, Image } from "react-native";
 const headerGif = require("@Assets/gifs/header.gif");
 
 const Layout: React.FC = () => {
+  console.log("Layout");
   const queryClient = new QueryClient();
   const [gifLoaded, setGifLoaded] = useState(false);
 

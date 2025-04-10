@@ -42,7 +42,7 @@ export const PillButton = styled.View`
   height: 40px;
   border-radius: 20px;
   left: 4%;
-  top: 62%;
+  top: 69%;
   overflow: hidden;
 `;
 
