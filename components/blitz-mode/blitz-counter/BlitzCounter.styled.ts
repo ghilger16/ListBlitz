@@ -16,10 +16,10 @@ export const Score = styled.Text`
 `;
 
 export const Score2 = styled.Text`
-  top: -220px;
+  top: -150px;
   left: 0px;
   font-family: "LuckiestGuy";
-  font-size: 70px;
+  font-size: 60px;
   font-weight: bold;
   color: #fff;
 `;
@@ -31,7 +31,7 @@ export const TextWrapper = styled.View`
 export const TimerText = styled.Text`
   position: absolute;
   bottom: -60px;
-  font-size: 20px;
+  font-size: 26px;
   font-weight: bold;
   color: #fff;
 `;
@@ -42,7 +42,7 @@ export const PillButton = styled.View`
   height: 40px;
   border-radius: 20px;
   left: 4%;
-  top: 69%;
+  top: 80%;
   overflow: hidden;
 `;
 

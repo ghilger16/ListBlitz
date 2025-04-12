@@ -23,11 +23,11 @@ interface BlitzCounterProps {
 }
 
 // Constants
-const RADIUS = 125;
+const RADIUS = 110;
 const INNER_RADIUS = 80;
 const BORDER_RADIUS = 140;
 const CENTER_RADIUS = 60;
-const MISSING_ANGLE = Math.PI * 0.4; // 15% missing
+const MISSING_ANGLE = Math.PI * 0.3; // 15% missing
 
 const AnimatedSvgPath = Animated.createAnimatedComponent(SvgPath);
 
@@ -44,9 +44,7 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   const animatedTimer = useRef(new Animated.Value(timer)).current;
   const flashAnim = useRef(new Animated.Value(0)).current; // Flash animation
   const [displayTime, setDisplayTime] = useState(timer);
-  const [fillAngle, setFillAngle] = useState(
-    Math.PI * 1 - MISSING_ANGLE / 2 // Start full
-  );
+  const [fillAngle, setFillAngle] = useState(-Math.PI / 1 + MISSING_ANGLE / 2);
 
   // Format timer into MM:SS (1:00, 0:59, etc.)
   const formatTime = (seconds: number) => {
@@ -104,38 +102,29 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   });
 
   // Arc generator for dynamic fill
-  const arcGenerator = useMemo(
-    () =>
-      d3
-        .arc()
-        .innerRadius(INNER_RADIUS)
-        .outerRadius(RADIUS)
-        .startAngle(-Math.PI / 1 + MISSING_ANGLE / 2)
-        .endAngle(fillAngle),
-    [fillAngle]
-  );
+  // const arcGenerator = useMemo(
+  //   () =>
+  //     d3
+  //       .arc()
+  //       .innerRadius(INNER_RADIUS)
+  //       .outerRadius(RADIUS)
+  //       .startAngle(-Math.PI / 1 + MISSING_ANGLE / 2)
+  //       .endAngle(fillAngle),
+  //   [fillAngle]
+  // );
 
   const borderArcGenerator = useMemo(() => {
-    const gap = 0.3; // Adjust this value to control the size of the gap
+    const gap = 1; // Adjust this value to control the size of the gap
+    const startAngle = Math.PI + Math.PI / 6; // Start at 7 o'clock (180° + 30°)
+    const endAngle = -Math.PI / 1 + MISSING_ANGLE / 2;
 
-    // First arc section: before the gap
-    const arc1 = d3
+    return d3
       .arc()
-      .innerRadius(RADIUS + 10)
-      .outerRadius(BORDER_RADIUS)
-      .startAngle(-Math.PI / 1 + MISSING_ANGLE / 2)
-      .endAngle(-Math.PI / 2 + Math.PI / 2 - gap);
-
-    // Second arc section: after the gap
-    const arc2 = d3
-      .arc()
-      .innerRadius(RADIUS + 10)
-      .outerRadius(BORDER_RADIUS)
-      .startAngle(-Math.PI / 2 + Math.PI / 2 + gap) // Starts after the gap
-      .endAngle(Math.PI / 1 - MISSING_ANGLE / 2); // Ends at the top
-
-    return [arc1, arc2];
-  }, []);
+      .innerRadius(RADIUS)
+      .outerRadius(RADIUS + 10) // Border thickness
+      .startAngle(endAngle)
+      .endAngle(Math.PI * 1 - MISSING_ANGLE / 2); // Start full);
+  }, [fillAngle]);
 
   // **📌 Calculate pill position at the missing arc**
   const gapAngle =
@@ -161,42 +150,38 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
               <Stop offset="100%" stopColor={currentPlayer.endColor} />
             </LinearGradient>
           </Defs>
-          <Styled.Score>
-            {ICONS.length > 0 && (
-              <LottieView
-                ref={lottieRef}
-                source={ICONS[iconIndex] ?? ICONS[0]}
-                autoPlay
-                loop
-                style={{
-                  borderWidth: 5,
-                  borderColor: currentPlayer.startColor,
-                  backgroundColor: "#fff",
-                  borderRadius: CENTER_RADIUS,
-                  width: CENTER_RADIUS,
-                  height: CENTER_RADIUS,
-                }}
-              />
-            )}
-          </Styled.Score>
+          {/* LottieView Icon */}
+          {ICONS.length > 0 && (
+            <LottieView
+              ref={lottieRef}
+              source={ICONS[iconIndex] ?? ICONS[0]}
+              autoPlay
+              loop
+              style={{
+                borderWidth: 5,
+                borderColor: currentPlayer.startColor,
+                backgroundColor: "#fff",
+                borderRadius: CENTER_RADIUS,
+                width: CENTER_RADIUS,
+                height: CENTER_RADIUS,
+                position: "absolute",
+                top: -CENTER_RADIUS / 2,
+                left: -CENTER_RADIUS / 2,
+              }}
+            />
+          )}
           <AnimatedSvgPath
-            d={borderArcGenerator[0]({} as any) || ""}
+            d={borderArcGenerator({} as any) || ""}
             fill="none"
             stroke={animatedColor}
-            strokeWidth={5}
-          />
-          <AnimatedSvgPath
-            d={borderArcGenerator[1]({} as any) || ""}
-            fill="none"
-            stroke={animatedColor}
-            strokeWidth={5}
+            strokeWidth={12}
           />
 
           {/* Dynamic Fill */}
-          <AnimatedSvgPath
+          {/* <AnimatedSvgPath
             d={arcGenerator({} as any) || ""}
             fill={`url(#grad-${currentPlayer.id})`}
-          />
+          /> */}
         </G>
       </Svg>
       <Styled.Score2>{score}</Styled.Score2>
@@ -207,7 +192,7 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
           height: CENTER_RADIUS,
           alignItems: "center",
           justifyContent: "center",
-          top: RADIUS - CENTER_RADIUS + 30,
+          top: RADIUS - CENTER_RADIUS + 80,
         }}
       >
         <Styled.TimerText>{formatTime(displayTime)}</Styled.TimerText>
