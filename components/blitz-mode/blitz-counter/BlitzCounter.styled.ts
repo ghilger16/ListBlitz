@@ -16,10 +16,10 @@ export const Score = styled.Text`
 `;
 
 export const Score2 = styled.Text`
-  top: -150px;
+  top: -145px;
   left: 0px;
   font-family: "LuckiestGuy";
-  font-size: 60px;
+  font-size: 55px;
   font-weight: bold;
   color: #fff;
 `;
@@ -30,7 +30,8 @@ export const TextWrapper = styled.View`
 
 export const TimerText = styled.Text`
   position: absolute;
-  bottom: -60px;
+  bottom: -61px;
+  left: 1px;
   font-size: 26px;
   font-weight: bold;
   color: #fff;

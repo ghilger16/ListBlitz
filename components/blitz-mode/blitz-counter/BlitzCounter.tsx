@@ -44,7 +44,7 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   const animatedTimer = useRef(new Animated.Value(timer)).current;
   const flashAnim = useRef(new Animated.Value(0)).current; // Flash animation
   const [displayTime, setDisplayTime] = useState(timer);
-  const [fillAngle, setFillAngle] = useState(-Math.PI / 1 + MISSING_ANGLE / 2);
+  const [fillAngle, setFillAngle] = useState(Math.PI * 1 - MISSING_ANGLE / 2);
 
   // Format timer into MM:SS (1:00, 0:59, etc.)
   const formatTime = (seconds: number) => {
@@ -114,16 +114,25 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   // );
 
   const borderArcGenerator = useMemo(() => {
-    const gap = 1; // Adjust this value to control the size of the gap
-    const startAngle = Math.PI + Math.PI / 6; // Start at 7 o'clock (180° + 30°)
-    const endAngle = -Math.PI / 1 + MISSING_ANGLE / 2;
+    const gap = 0.01;
+    const startAngle = -Math.PI / 1 + MISSING_ANGLE / 2; // Start at 7 o'clock (180° + 30°)
+    const endAngle = Math.PI * 1 - MISSING_ANGLE / 2;
 
-    return d3
+    const fillArc = d3
       .arc()
       .innerRadius(RADIUS)
       .outerRadius(RADIUS + 10) // Border thickness
-      .startAngle(endAngle)
-      .endAngle(Math.PI * 1 - MISSING_ANGLE / 2); // Start full);
+      .startAngle(startAngle)
+      .endAngle(endAngle); // Start full);
+
+    const animatedFillArc = d3
+      .arc()
+      .innerRadius(RADIUS)
+      .outerRadius(RADIUS + 10) // Border thickness
+      .startAngle(fillAngle)
+      .endAngle(endAngle); // Start full);
+
+    return [fillArc, animatedFillArc];
   }, [fillAngle]);
 
   // **📌 Calculate pill position at the missing arc**
@@ -162,19 +171,27 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
                 borderColor: currentPlayer.startColor,
                 backgroundColor: "#fff",
                 borderRadius: CENTER_RADIUS,
-                width: CENTER_RADIUS,
-                height: CENTER_RADIUS,
+                width: CENTER_RADIUS * 1.5,
+                height: CENTER_RADIUS * 1.5,
                 position: "absolute",
-                top: -CENTER_RADIUS / 2,
-                left: -CENTER_RADIUS / 2,
+                top: CENTER_RADIUS - 5,
+                left: CENTER_RADIUS + 25,
               }}
             />
           )}
           <AnimatedSvgPath
-            d={borderArcGenerator({} as any) || ""}
+            d={borderArcGenerator[0]({} as any) || ""}
             fill="none"
-            stroke={animatedColor}
+            stroke={"#FFF"}
             strokeWidth={12}
+            strokeLinecap="round"
+          />
+          <AnimatedSvgPath
+            d={borderArcGenerator[1]({} as any) || ""}
+            fill="none"
+            stroke={currentPlayer.startColor}
+            strokeWidth={12}
+            strokeLinecap="round"
           />
 
           {/* Dynamic Fill */}

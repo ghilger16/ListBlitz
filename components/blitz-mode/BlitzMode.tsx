@@ -70,7 +70,7 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
           timer={timer}
           isGameStarted={isGameStarted}
         />
-        {/* <ScoreRankings players={players} /> */}
+        <ScoreRankings players={players} />
       </Styled.CounterContainer>
     </Styled.Wrapper>
   );

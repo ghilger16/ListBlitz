@@ -14,6 +14,7 @@ interface ScoreRankingsProps {
 export const ScoreRankings: React.FC<ScoreRankingsProps> = ({ players }) => {
   // Sort players by score in descending order
   const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+  console.log("Sorted Players:", sortedPlayers);
 
   return (
     <Styled.Container>
@@ -24,18 +25,6 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({ players }) => {
             width="100%"
             style={{ position: "absolute", borderRadius: 20 }}
           >
-            <Defs>
-              <LinearGradient
-                id={`grad-${player.id}`}
-                x1="0%"
-                y1="0%"
-                x2="100%"
-                y2="0%"
-              >
-                <Stop offset="0%" stopColor={player.color[0]} />
-                <Stop offset="100%" stopColor={player.color[1]} />
-              </LinearGradient>
-            </Defs>
             <Rect
               x="0"
               y="0"
