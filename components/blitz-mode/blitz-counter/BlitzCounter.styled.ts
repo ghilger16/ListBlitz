@@ -3,7 +3,6 @@ import styled from "styled-components/native";
 
 export const Container = styled.SafeAreaView`
   align-items: center;
-  justify-content: center;
 `;
 
 export const Score = styled.Text`
@@ -30,8 +29,8 @@ export const TextWrapper = styled.View`
 
 export const TimerText = styled.Text`
   position: absolute;
-  bottom: -61px;
-  left: 1px;
+  bottom: -62px;
+  left: 2px;
   font-size: 26px;
   font-weight: bold;
   color: #fff;
@@ -43,7 +42,7 @@ export const PillButton = styled.View`
   height: 40px;
   border-radius: 20px;
   left: 4%;
-  top: 80%;
+  top: 75%;
   overflow: hidden;
 `;
 

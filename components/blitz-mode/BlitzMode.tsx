@@ -14,7 +14,7 @@ interface BlitzModeProps {
   currentPlayer: Player;
 }
 
-const TIMER_DURATION = 45;
+const TIMER_DURATION = 5;
 
 export const BlitzMode: React.FC<BlitzModeProps> = ({
   currentPrompt,
@@ -34,7 +34,7 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
       return () => clearInterval(countdown);
     } else if (timer === 0) {
       handleNextPlayer(score);
-      setTimer(TIMER_DURATION); // Automatically go to the next player when time is up
+      resetGameState(); // Automatically reset when time is up
     }
   }, [isGameStarted, timer]);
 
@@ -42,6 +42,17 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
     if (isGameStarted) {
       setScore((prev) => prev + 1);
     }
+  };
+
+  const resetGameState = () => {
+    setIsGameStarted(false);
+    setScore(0);
+    setTimer(TIMER_DURATION);
+  };
+
+  const handleNextPlayerClick = () => {
+    handleNextPlayer(score); // Pass the current player's score
+    resetGameState(); // Reset the game state for the next player
   };
 
   return (

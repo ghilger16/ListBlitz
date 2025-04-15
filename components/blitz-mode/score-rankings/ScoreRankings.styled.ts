@@ -1,14 +1,13 @@
 import styled from "styled-components/native";
 
 export const Container = styled.View`
-  margin-top: 20px;
-  flex-direction: row;
-  flex-wrap: wrap;
+  flex-direction: column;
   justify-content: center;
+  margin-top: 30px;
 `;
 
 export const Pill = styled.View`
-  position: absolute;
+  margin-top: 10px;
   width: 300px;
   height: 40px;
   border-radius: 20px;
@@ -16,6 +15,7 @@ export const Pill = styled.View`
   align-items: center;
   padding-left: 5px;
   padding-right: 5px;
+  left: 4%;
 `;
 
 export const RankContainer = styled.View`

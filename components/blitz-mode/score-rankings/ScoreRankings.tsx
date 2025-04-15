@@ -7,35 +7,27 @@ interface ScoreRankingsProps {
     id: number;
     name: string;
     score: number;
-    color: [string, string]; // Start and End Colors
+    startColor?: string;
+    endColor?: string;
   }[];
 }
 
 export const ScoreRankings: React.FC<ScoreRankingsProps> = ({ players }) => {
   // Sort players by score in descending order
-  const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
-  console.log("Sorted Players:", sortedPlayers);
+  const sortedPlayers = [...players]
+    .filter((player) => player.score > 0) // Only include players with a score
+    .sort((a, b) => b.score - a.score);
 
+  console.log("Sorted Players:", sortedPlayers);
   return (
     <Styled.Container>
-      {sortedPlayers.map((player, index) => (
-        <Styled.Pill key={player.id}>
-          <Svg
-            height="100%"
-            width="100%"
-            style={{ position: "absolute", borderRadius: 20 }}
-          >
-            <Rect
-              x="0"
-              y="0"
-              width="100%"
-              height="100%"
-              fill={`url(#grad-${player.id})`}
-              rx="20"
-              ry="20"
-            />
-          </Svg>
-
+      {sortedPlayers.map((player) => (
+        <Styled.Pill
+          key={player.id}
+          style={{
+            backgroundColor: player.startColor || "#000", // Use startColor as the background
+          }}
+        >
           <Styled.RankContainer>
             <Styled.Rank>{player.score}</Styled.Rank>
           </Styled.RankContainer>
