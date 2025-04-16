@@ -47,9 +47,10 @@ export const PillButton = styled.View`
 `;
 
 export const PillButtonText = styled.Text`
-  font-size: 20px;
+  font-size: 25px;
   font-weight: bold;
   color: #000;
   text-align: center;
-  text-align-vertical: center;
+  margin-top: 10px;
+  font-family: "LuckiestGuy";
 `;

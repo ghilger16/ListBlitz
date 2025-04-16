@@ -64,8 +64,9 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
       <Text
         style={{
           color: "#fff",
-          fontFamily: "SourGummy",
-          fontSize: 22,
+          fontFamily: "LuckiestGuy",
+          fontWeight: "bold",
+          fontSize: 18,
           textAlign: "center",
           marginTop: 15,
         }}

@@ -98,7 +98,7 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   // Modify color based on animation
   const animatedColor = flashAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ["#f6c212", "#ffffff"], // Flashing effect (orange to white)
+    outputRange: [`${currentPlayer.startColor}`, "#ffffff"], // Flashing effect (orange to white)
   });
 
   // Arc generator for dynamic fill
@@ -226,7 +226,7 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
             activeOpacity={1}
             onPress={() => {
               triggerFlash(); // Flash effect
-              isGameStarted ? onIncrement() : onStart(); // ✅ Calls onStart first, then onIncrement
+              isGameStarted ? onIncrement() : onStart();
             }}
           >
             <Styled.PillButtonText>

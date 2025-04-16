@@ -3,7 +3,6 @@ import styled from "styled-components/native";
 export const Container = styled.View`
   flex-direction: column;
   justify-content: center;
-  margin-top: 30px;
 `;
 
 export const Pill = styled.View`
@@ -27,20 +26,26 @@ export const RankContainer = styled.View`
   align-items: center;
 `;
 
+export const NameContainer = styled.View``;
+
 export const Rank = styled.Text`
+  font-size: 18px;
   font-weight: bold;
   color: #000;
 `;
 
 export const Name = styled.Text`
-  color: #192c43;
-  font-family: "SourGummy";
-  font-size: 30px;
+  font-size: 25px;
+  font-weight: bold;
+  color: #000;
   text-align: center;
-  margin-left: 20px;
+  margin-top: 10px;
+  margin-left: 50px;
+  font-family: "LuckiestGuy";
 `;
 
 export const Score = styled.Text`
   color: #fff;
+
   font-weight: bold;
 `;

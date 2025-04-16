@@ -6,15 +6,5 @@ export const Wrapper = styled.SafeAreaView`
 `;
 
 export const CounterContainer = styled.View`
-  position: absolute;
-  top: 170px;
-  bottom: -80px;
-  left: 0px;
-  right: 0px;
-`;
-
-export const NextPlayerContainer = styled.View`
-  position: absolute;
-  top: 475px;
-  left: 15px;
+  margin-top: 20px;
 `;
