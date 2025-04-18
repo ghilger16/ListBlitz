@@ -26,8 +26,6 @@ export const RankContainer = styled.View`
   align-items: center;
 `;
 
-export const NameContainer = styled.View``;
-
 export const Rank = styled.Text`
   font-size: 18px;
   font-weight: bold;

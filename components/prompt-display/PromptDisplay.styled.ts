@@ -5,8 +5,8 @@ export const PromptContainer = styled.View<{ playerColor: string }>`
   background-color: #192c43;
   border-radius: 30px;
   padding: 15px 25px;
-  width: 325px;
-  height: 115px;
+  max-width: 325px;
+  min-height: 115px;
   align-items: center;
   justify-content: center;
   shadow-color: #000;

@@ -43,17 +43,15 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({ players }) => {
               <Styled.Rank>{player.score}</Styled.Rank>
             </Styled.RankContainer>
 
-            <Styled.NameContainer>
-              <Styled.Name>{player.name}</Styled.Name>
-              <LottieView
-                source={icon}
-                style={{
-                  width: 35,
-                  height: 35,
-                  marginLeft: 10,
-                }}
-              />
-            </Styled.NameContainer>
+            <Styled.Name>{player.name}</Styled.Name>
+            <LottieView
+              source={icon}
+              style={{
+                width: 35,
+                height: 35,
+                marginLeft: 10,
+              }}
+            />
           </Styled.Pill>
         );
       }}

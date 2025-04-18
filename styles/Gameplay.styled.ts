@@ -5,6 +5,8 @@ export const Wrapper = styled.SafeAreaView`
 `;
 
 export const ModeView = styled.View`
-  margin-top: 100px;
+  flex: 1;
+  justify-content: center;
   align-items: center;
+  padding: 20px;
 `;
