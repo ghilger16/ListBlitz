@@ -1,38 +1,27 @@
-import { Animated } from "react-native";
 import styled from "styled-components/native";
+import { Text as SvgText } from "react-native-svg";
 
 export const Container = styled.SafeAreaView`
-  flex: 1;
-  justify-content: center;
   align-items: center;
-  border: 5px solid red;
+  width: 320px;
+  height: 375px;
 `;
 
 export const Score = styled.Text`
-  font-family: "LuckiestGuy";
-  font-size: 55px;
+  font-size: 60px;
   font-weight: bold;
+  font-family: "LuckiestGuy";
+  text-align: center;
+  margin-top: 75px;
   color: #fff;
-`;
-
-export const TextWrapper = styled.View`
-  margin: -35px 0px 0px -80px;
 `;
 
 export const TimerText = styled.Text`
   font-size: 26px;
   font-weight: bold;
   color: #fff;
-  margin-top: 10px;
-`;
-
-export const PillButton = styled.View`
-  width: 300px;
-  height: 40px;
-  border-radius: 20px;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
+  margin-top: 5px;
+  text-align: center;
 `;
 
 export const PillButtonText = styled.Text`
@@ -40,6 +29,29 @@ export const PillButtonText = styled.Text`
   font-weight: bold;
   color: #000;
   text-align: center;
-  margin-top: 10px;
+  margin-top: 12px;
   font-family: "LuckiestGuy";
+`;
+
+export const PillButtonWrapper = styled.View`
+  position: absolute;
+  bottom: 5%;
+  width: 105%;
+  height: 40px;
+  align-items: center;
+`;
+
+export const SvgScoreText = styled(SvgText)`
+  font-size: 60px;
+  font-weight: bold;
+  font-family: "LuckiestGuy";
+  fill: #fff;
+  text-anchor: middle;
+`;
+
+export const SvgTimerText = styled(SvgText)`
+  font-size: 24px;
+  font-weight: bold;
+  fill: #fff;
+  text-anchor: middle;
 `;

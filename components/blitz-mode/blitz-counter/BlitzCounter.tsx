@@ -145,50 +145,28 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
 
   return (
     <Styled.Container>
-      <Svg
-        width={RADIUS * 2 + 40}
-        height={RADIUS * 2 + 40}
-        style={{ borderWidth: 1, borderColor: "green" }}
-      >
-        <G x={(RADIUS * 2 + 40) / 2} y={(RADIUS * 2 + 40) / 2}>
-          <Defs>
-            <LinearGradient
-              id={`grad-${currentPlayer.id}`}
-              x1="0%"
-              y1="0%"
-              x2="100%"
-              y2="0%"
-            >
-              <Stop offset="0%" stopColor={currentPlayer.startColor} />
-              <Stop offset="100%" stopColor={currentPlayer.endColor} />
-            </LinearGradient>
-          </Defs>
-          {/* LottieView Icon */}
+      <Svg width={320} height={375}>
+        <G x={320 / 2} y={320 / 2}>
           {ICONS.length > 0 && (
             <G>
-              <ForeignObject
-                width={CENTER_RADIUS * 1.5}
-                height={CENTER_RADIUS * 1.5}
-                x={-CENTER_RADIUS * 0.75}
-                y={-CENTER_RADIUS * 1.5}
-              >
-                <LottieView
-                  ref={lottieRef}
-                  source={ICONS[iconIndex] ?? ICONS[0]}
-                  autoPlay
-                  loop
-                  style={{
-                    borderWidth: 5,
-                    borderColor: currentPlayer.startColor,
-                    backgroundColor: "#fff",
-                    borderRadius: CENTER_RADIUS,
-                    width: CENTER_RADIUS * 1.5,
-                    height: CENTER_RADIUS * 1.5,
-                  }}
-                />
-              </ForeignObject>
+              <LottieView
+                ref={lottieRef}
+                source={ICONS[iconIndex] ?? ICONS[0]}
+                autoPlay
+                loop
+                style={{
+                  borderWidth: 5,
+                  borderColor: currentPlayer.startColor,
+                  backgroundColor: "#fff",
+                  borderRadius: CENTER_RADIUS,
+                  width: CENTER_RADIUS * 1.5,
+                  height: CENTER_RADIUS * 1.5,
+                  transform: [{ translateX: 114 }, { translateY: 75 }],
+                }}
+              />
             </G>
           )}
+
           <AnimatedSvgPath
             d={borderArcGenerator[0]({} as any) || ""}
             fill="none"
@@ -203,26 +181,23 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
             strokeWidth={12}
             strokeLinecap="round"
           />
+
+          <Styled.SvgScoreText x="0" y="70">
+            {score}
+          </Styled.SvgScoreText>
+          <Styled.SvgTimerText x="0" y="115">
+            {formatTime(displayTime)}
+          </Styled.SvgTimerText>
         </G>
       </Svg>
-      <Styled.Score>{score}</Styled.Score>
-      <View
-        style={{
-          fontSize: 26,
-          fontWeight: "bold",
-          fill: "#fff",
-          textAnchor: "middle",
-          y: 60,
-        }}
-      >
-        <Styled.TimerText>{formatTime(displayTime)}</Styled.TimerText>
-      </View>
-      <Styled.PillButton>
+
+      <Styled.PillButtonWrapper>
         <Animated.View
           style={{
             backgroundColor: animatedColor,
-            width: "100%",
+            width: "90%",
             height: "100%",
+            borderRadius: 20,
           }}
         >
           <TouchableOpacity
@@ -237,7 +212,7 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
             </Styled.PillButtonText>
           </TouchableOpacity>
         </Animated.View>
-      </Styled.PillButton>
+      </Styled.PillButtonWrapper>
     </Styled.Container>
   );
 };

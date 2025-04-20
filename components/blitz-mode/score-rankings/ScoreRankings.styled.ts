@@ -6,7 +6,7 @@ export const Container = styled.View`
 `;
 
 export const Pill = styled.View`
-  margin-top: 10px;
+  margin-top: 5px;
   width: 300px;
   height: 40px;
   border-radius: 20px;
