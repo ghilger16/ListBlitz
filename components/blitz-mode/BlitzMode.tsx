@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { View, Text, TouchableOpacity, Animated } from "react-native";
 
 import { Player, useGameplay } from "@Context";
 import { PromptDisplay } from "components/prompt-display";
@@ -25,6 +25,10 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   const [timer, setTimer] = useState(TIMER_DURATION);
   const [score, setScore] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(false);
+  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+  const [showWinnerOverlay, setShowWinnerOverlay] = useState(false);
+
+  const fadeAnim = useRef(new Animated.Value(0)).current; // For fading in the overlay
 
   useEffect(() => {
     if (isGameStarted && timer > 0) {
@@ -34,7 +38,8 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
       return () => clearInterval(countdown);
     } else if (timer === 0) {
       handleNextPlayer(score);
-      resetGameState(); // Automatically reset when time is up
+      setCurrentPlayerIndex((prevIndex) => prevIndex + 1);
+      resetGameState();
     }
   }, [isGameStarted, timer]);
 
@@ -50,17 +55,62 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
     setTimer(TIMER_DURATION);
   };
 
-  const handleNextPlayerClick = () => {
-    handleNextPlayer(score); // Pass the current player's score
-    resetGameState(); // Reset the game state for the next player
+  const isRoundOver = currentPlayerIndex === players.length;
+
+  useEffect(() => {
+    if (isRoundOver) {
+      setShowWinnerOverlay(true);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isRoundOver]);
+
+  const handleNextRound = () => {
+    // Reset the whole state for a new round
+    setCurrentPlayerIndex(0);
+    setScore(0);
+    setTimer(TIMER_DURATION);
+    setIsGameStarted(false);
+    setShowWinnerOverlay(false);
+    fadeAnim.setValue(0);
+    // (Optional) Shuffle players or prompt if needed here
   };
 
-  return (
+  return showWinnerOverlay ? (
+    <Animated.View
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0,0,0,0.8)",
+        justifyContent: "center",
+        alignItems: "center",
+        opacity: fadeAnim,
+      }}
+    >
+      <Styled.WinnerCard>
+        <Styled.WinnerText>🏆 Winner: {players[0]?.name}!</Styled.WinnerText>
+        <Styled.WinnerScore>Score: {players[0]?.score}</Styled.WinnerScore>
+
+        <Styled.NextRoundButton onPress={handleNextRound}>
+          <Styled.NextRoundButtonText>
+            Play Next Round
+          </Styled.NextRoundButtonText>
+        </Styled.NextRoundButton>
+      </Styled.WinnerCard>
+    </Animated.View>
+  ) : (
     <Styled.Wrapper>
       <PromptDisplay
         prompt={currentPrompt}
         playerColor={currentPlayer.startColor}
       />
+
       <Text
         style={{
           color: "#fff",
@@ -73,6 +123,18 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
       >
         Player {currentPlayer.id}
       </Text>
+
+      <Text
+        style={{
+          color: "#ff0",
+          fontSize: 16,
+          textAlign: "center",
+          marginTop: 10,
+        }}
+      >
+        Current Player Index: {currentPlayerIndex}
+      </Text>
+
       <Styled.CounterContainer>
         <BlitzCounter
           score={score}
