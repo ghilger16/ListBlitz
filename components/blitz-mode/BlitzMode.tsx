@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, TouchableOpacity, Animated } from "react-native";
+import { View, Text, TouchableOpacity, Animated, Image } from "react-native";
 
 import { Player, useGameplay } from "@Context";
 import { PromptDisplay } from "components/prompt-display";
 import * as Styled from "./BlitzMode.styled";
 import { BlitzCounter } from "./blitz-counter";
 import { ScoreRankings } from "./score-rankings";
+import { LinearGradient } from "expo-linear-gradient";
+import ConfettiCannon from "react-native-confetti-cannon";
+import trophy from "@Assets";
 
 interface BlitzModeProps {
   currentPrompt: string;
@@ -87,22 +90,55 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: "rgba(0,0,0,0.8)",
+        backgroundColor: "#192c43",
         justifyContent: "center",
         alignItems: "center",
         opacity: fadeAnim,
       }}
     >
-      <Styled.WinnerCard>
-        <Styled.WinnerText>🏆 Winner: {players[0]?.name}!</Styled.WinnerText>
-        <Styled.WinnerScore>Score: {players[0]?.score}</Styled.WinnerScore>
+      <LinearGradient
+        colors={["#6a11cb", "#2575fc"]} // Purple to blue
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Image
+          source={trophy}
+          style={{
+            width: 120,
+            height: 120,
+            resizeMode: "contain",
+            marginBottom: 20,
+            zIndex: 2,
+          }}
+        />
+        <Styled.WinnerCard>
+          <Styled.WinnerText>🏆 Winner: {players[0]?.name}!</Styled.WinnerText>
+          <Styled.WinnerScore>Score: {players[0]?.score}</Styled.WinnerScore>
 
-        <Styled.NextRoundButton onPress={handleNextRound}>
-          <Styled.NextRoundButtonText>
-            Play Next Round
-          </Styled.NextRoundButtonText>
-        </Styled.NextRoundButton>
-      </Styled.WinnerCard>
+          <Styled.NextRoundButton onPress={handleNextRound}>
+            <Styled.NextRoundButtonText>
+              Play Next Round
+            </Styled.NextRoundButtonText>
+          </Styled.NextRoundButton>
+        </Styled.WinnerCard>
+      </LinearGradient>
+      <ConfettiCannon
+        count={100}
+        origin={{ x: -10, y: 0 }}
+        fadeOut
+        fallSpeed={3000}
+        explosionSpeed={400}
+      />
+      <Styled.CounterContainer>
+        <ScoreRankings players={players} />
+      </Styled.CounterContainer>
     </Animated.View>
   ) : (
     <Styled.Wrapper>
