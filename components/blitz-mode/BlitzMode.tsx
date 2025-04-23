@@ -8,7 +8,9 @@ import { BlitzCounter } from "./blitz-counter";
 import { ScoreRankings } from "./score-rankings";
 import { LinearGradient } from "expo-linear-gradient";
 import ConfettiCannon from "react-native-confetti-cannon";
-import trophy from "@Assets";
+import LottieView from "lottie-react-native";
+import { useGetIcons } from "@Services";
+import { G } from "react-native-svg";
 
 interface BlitzModeProps {
   currentPrompt: string;
@@ -25,6 +27,8 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   players,
   currentPlayer,
 }) => {
+  const { data: ICONS = [] } = useGetIcons();
+  const lottieRef = useRef<LottieView>(null);
   const [timer, setTimer] = useState(TIMER_DURATION);
   const [score, setScore] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(false);
@@ -108,17 +112,7 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
           alignItems: "center",
         }}
       >
-        <Image
-          source={trophy}
-          style={{
-            width: 120,
-            height: 120,
-            resizeMode: "contain",
-            marginBottom: 20,
-            zIndex: 2,
-          }}
-        />
-        <Styled.WinnerCard>
+        {/* <Styled.WinnerCard>
           <Styled.WinnerText>🏆 Winner: {players[0]?.name}!</Styled.WinnerText>
           <Styled.WinnerScore>Score: {players[0]?.score}</Styled.WinnerScore>
 
@@ -127,7 +121,7 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
               Play Next Round
             </Styled.NextRoundButtonText>
           </Styled.NextRoundButton>
-        </Styled.WinnerCard>
+        </Styled.WinnerCard> */}
       </LinearGradient>
       <ConfettiCannon
         count={100}
@@ -136,9 +130,13 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
         fallSpeed={3000}
         explosionSpeed={400}
       />
-      <Styled.CounterContainer>
-        <ScoreRankings players={players} />
-      </Styled.CounterContainer>
+      <G>
+        <LottieView ref={lottieRef} source={ICONS[3]} autoPlay style={{width={75}}} />
+      </G>
+
+      <Styled.ScoreRankingsContainer>
+        <ScoreRankings players={players} isRoundOver />
+      </Styled.ScoreRankingsContainer>
     </Animated.View>
   ) : (
     <Styled.Wrapper>

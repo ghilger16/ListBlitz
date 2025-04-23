@@ -33,8 +33,8 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
     if (isRoundOver) {
       Animated.parallel([
         Animated.timing(slideAnim, {
-          toValue: -100, // Adjust based on your UI
-          duration: 500,
+          toValue: -200, // Adjust based on your UI
+          duration: 1000,
           useNativeDriver: true,
         }),
         Animated.spring(scaleAnim, {

@@ -1,11 +1,12 @@
-import { camera, reel, ticket } from "@Assets"; // Import your assets
+import { camera, reel, ticket, trophy } from "@Assets"; // Import your assets
 import { useQuery } from "@tanstack/react-query";
 
 // Now, use the imported assets in the iconUrls array
 const iconUrls = [
   camera, // Replace URL with the local asset
   reel, // Replace URL with the local asset
-  ticket, // Replace URL with the local asset
+  ticket,
+  trophy, // Replace URL with the local asset
 ];
 
 // Fetching the icons from the local assets

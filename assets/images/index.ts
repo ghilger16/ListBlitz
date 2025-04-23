@@ -1,1 +1,3 @@
-export { default as trophy } from "./trophy.png";
+import Trophy from "./trophy.svg";
+
+export { Trophy };

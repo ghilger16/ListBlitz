@@ -42,3 +42,10 @@ export const NextRoundButtonText = styled.Text`
   font-weight: bold;
   color: #000;
 `;
+
+export const ScoreRankingsContainer = styled.View`
+  flex: 1;
+  justify-content: center;
+  margin-top: 560px;
+  margin-right: 20px;
+`;
