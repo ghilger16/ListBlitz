@@ -6,17 +6,15 @@ import { PromptDisplay } from "components/prompt-display";
 import * as Styled from "./BlitzMode.styled";
 import { BlitzCounter } from "./blitz-counter";
 import { ScoreRankings } from "./score-rankings";
-import { LinearGradient } from "expo-linear-gradient";
-import ConfettiCannon from "react-native-confetti-cannon";
-import LottieView from "lottie-react-native";
-import { useGetIcons } from "@Services";
-import { G } from "react-native-svg";
+
+import { WinnerOverlay } from "./winner-overlay/WinningOverlay";
 
 interface BlitzModeProps {
   currentPrompt: string;
   handleNextPlayer: (score: number) => void;
   players: { id: number; name: string; score: number }[];
   currentPlayer: Player;
+  handleNextRound: () => void;
 }
 
 const TIMER_DURATION = 5;
@@ -26,9 +24,8 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   handleNextPlayer,
   players,
   currentPlayer,
+  handleNextRound,
 }) => {
-  const { data: ICONS = [] } = useGetIcons();
-  const lottieRef = useRef<LottieView>(null);
   const [timer, setTimer] = useState(TIMER_DURATION);
   const [score, setScore] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(false);
@@ -69,14 +66,14 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
       setShowWinnerOverlay(true);
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 500,
+        duration: 1000,
         useNativeDriver: true,
       }).start();
     }
   }, [isRoundOver]);
 
-  const handleNextRound = () => {
-    // Reset the whole state for a new round
+  const handleNextRoundClick = () => {
+    handleNextRound();
     setCurrentPlayerIndex(0);
     setScore(0);
     setTimer(TIMER_DURATION);
@@ -87,57 +84,11 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   };
 
   return showWinnerOverlay ? (
-    <Animated.View
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "#192c43",
-        justifyContent: "center",
-        alignItems: "center",
-        opacity: fadeAnim,
-      }}
-    >
-      <LinearGradient
-        colors={["#6a11cb", "#2575fc"]} // Purple to blue
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        {/* <Styled.WinnerCard>
-          <Styled.WinnerText>🏆 Winner: {players[0]?.name}!</Styled.WinnerText>
-          <Styled.WinnerScore>Score: {players[0]?.score}</Styled.WinnerScore>
-
-          <Styled.NextRoundButton onPress={handleNextRound}>
-            <Styled.NextRoundButtonText>
-              Play Next Round
-            </Styled.NextRoundButtonText>
-          </Styled.NextRoundButton>
-        </Styled.WinnerCard> */}
-      </LinearGradient>
-      <ConfettiCannon
-        count={100}
-        origin={{ x: -10, y: 0 }}
-        fadeOut
-        fallSpeed={3000}
-        explosionSpeed={400}
-      />
-      <G>
-        <LottieView ref={lottieRef} source={ICONS[3]} autoPlay style={{width={75}}} />
-      </G>
-
-      <Styled.ScoreRankingsContainer>
-        <ScoreRankings players={players} isRoundOver />
-      </Styled.ScoreRankingsContainer>
-    </Animated.View>
+    <WinnerOverlay
+      players={players}
+      handleNextRound={handleNextRoundClick}
+      fadeAnim={fadeAnim}
+    />
   ) : (
     <Styled.Wrapper>
       <PromptDisplay
@@ -157,18 +108,6 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
       >
         Player {currentPlayer.id}
       </Text>
-
-      <Text
-        style={{
-          color: "#ff0",
-          fontSize: 16,
-          textAlign: "center",
-          marginTop: 10,
-        }}
-      >
-        Current Player Index: {currentPlayerIndex}
-      </Text>
-
       <Styled.CounterContainer>
         <BlitzCounter
           score={score}

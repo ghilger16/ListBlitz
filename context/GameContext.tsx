@@ -12,6 +12,7 @@ interface GameContextType {
   setGameSettings: (settings: Partial<GameSettings>) => void;
   onGameStart: () => void;
   handleNextPlayer: (score: number) => void;
+  handleNextRound: () => void;
 }
 
 // Create Context
@@ -70,8 +71,6 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 
   // Start Game
   const onGameStart = () => {
-    console.log("playerCount in gameSettings:", gameSettings.playerCount); // Debugging log
-
     const playerCount = gameSettings.playerCount ?? 0;
 
     if (playerCount === 0) {
@@ -88,6 +87,16 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     router.push("/gameplay");
   };
 
+  const handleNextRound = () => {
+    setPlayers((prevPlayers) =>
+      prevPlayers.map((player) => ({ ...player, score: 0 }))
+    );
+
+    if (players.length > 0) {
+      setCurrentPlayer(players[0]);
+    }
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -99,6 +108,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         setGameSettings,
         onGameStart,
         handleNextPlayer,
+        handleNextRound,
       }}
     >
       {children}

@@ -3,7 +3,7 @@ import Svg, { Defs, LinearGradient, Stop, Rect } from "react-native-svg";
 import * as Styled from "./ScoreRankings.styled";
 import { useGetIcons } from "@Services";
 import LottieView from "lottie-react-native";
-import { Animated, FlatList } from "react-native";
+import { Animated, FlatList, ViewStyle } from "react-native";
 
 interface ScoreRankingsProps {
   players: {
@@ -33,7 +33,7 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
     if (isRoundOver) {
       Animated.parallel([
         Animated.timing(slideAnim, {
-          toValue: -200, // Adjust based on your UI
+          toValue: -265, // Adjust based on your UI
           duration: 1000,
           useNativeDriver: true,
         }),
@@ -50,17 +50,31 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
     <FlatList
       data={sortedPlayers}
       keyExtractor={(player) => player.id.toString()}
-      style={{ maxHeight: 170, overflow: "visible" }}
-      contentContainerStyle={{ paddingBottom: 10 }}
+      style={{
+        maxHeight: 170,
+        overflow: isRoundOver ? "visible" : "hidden", // Allow overflow when round is over
+      }}
+      contentContainerStyle={{
+        paddingBottom: 10,
+        paddingTop: isRoundOver ? 50 : 0, // Add padding to account for the fixed first item
+      }}
       renderItem={({ item: player, index }) => {
         const iconIndex = player.id % ICONS.length;
         const icon = ICONS[iconIndex] || ICONS[0];
 
+        // Style for the first item
         const animatedStyle =
           index === 0
-            ? {
-                transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
-              }
+            ? isRoundOver
+              ? {
+                  position: "absolute", // Fix the first item
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
+                  zIndex: 1, // Ensure it stays on top
+                }
+              : {}
             : isRoundOver
             ? {
                 opacity: 0.5, // Fade out others when round ends
@@ -69,7 +83,9 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
             : {};
 
         return (
-          <Animated.View style={animatedStyle}>
+          <Animated.View
+            style={animatedStyle as Animated.WithAnimatedObject<ViewStyle>}
+          >
             <Styled.Pill
               style={{
                 backgroundColor: player.startColor || "#000",

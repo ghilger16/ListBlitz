@@ -8,9 +8,14 @@ import { ChillMode, BlitzMode } from "@Components";
 
 const Gameplay: React.FC = () => {
   const router = useRouter();
-  const { players, currentPlayer, gameSettings, handleNextPlayer } =
-    useGameplay();
-  console.log("🚀 ~ currentPlayer:", currentPlayer);
+  const {
+    players,
+    currentPlayer,
+    gameSettings,
+    handleNextPlayer,
+    handleNextRound,
+  } = useGameplay();
+
   const { mode, blitzPackId } = gameSettings;
   const PROMPT_LIMIT = 10;
 
@@ -101,6 +106,7 @@ const Gameplay: React.FC = () => {
             handleNextPlayer={handleNextPlayerAndPrompt}
             players={players}
             currentPlayer={currentPlayer}
+            handleNextRound={handleNextRound}
           />
         )}
       </Styled.ModeView>
