@@ -26,6 +26,9 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
     .filter((player) => player.score > 0)
     .sort((a, b) => b.score - a.score);
 
+  const winner = sortedPlayers[0];
+  const restPlayers = sortedPlayers.slice(1);
+
   const slideAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -33,12 +36,12 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
     if (isRoundOver) {
       Animated.parallel([
         Animated.timing(slideAnim, {
-          toValue: -265, // Adjust based on your UI
+          toValue: -250, // You might tweak this now
           duration: 1000,
           useNativeDriver: true,
         }),
         Animated.spring(scaleAnim, {
-          toValue: 1.1, // Slight scale up for winner
+          toValue: 1.1,
           friction: 5,
           useNativeDriver: true,
         }),
@@ -46,69 +49,57 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
     }
   }, [isRoundOver, slideAnim, scaleAnim]);
 
+  const renderPill = (player: (typeof players)[number], animated = false) => {
+    const iconIndex = player.id % ICONS.length;
+    const icon = ICONS[iconIndex] || ICONS[0];
+
+    const animatedStyle = animated
+      ? {
+          transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
+        }
+      : {};
+
+    return (
+      <Animated.View style={animatedStyle}>
+        <Styled.Pill
+          style={{
+            backgroundColor: player.startColor || "#000",
+          }}
+        >
+          <Styled.RankContainer>
+            <Styled.Rank>{player.score}</Styled.Rank>
+          </Styled.RankContainer>
+
+          <Styled.Name>{player.name}</Styled.Name>
+
+          <LottieView
+            source={icon}
+            style={{
+              width: 35,
+              height: 35,
+              marginLeft: 10,
+            }}
+          />
+        </Styled.Pill>
+      </Animated.View>
+    );
+  };
+
   return (
-    <FlatList
-      data={sortedPlayers}
-      keyExtractor={(player) => player.id.toString()}
-      style={{
-        maxHeight: 170,
-        overflow: isRoundOver ? "visible" : "hidden", // Allow overflow when round is over
-      }}
-      contentContainerStyle={{
-        paddingBottom: 10,
-        paddingTop: isRoundOver ? 50 : 0, // Add padding to account for the fixed first item
-      }}
-      renderItem={({ item: player, index }) => {
-        const iconIndex = player.id % ICONS.length;
-        const icon = ICONS[iconIndex] || ICONS[0];
+    <>
+      {/* Winning Player (fixed, not scrollable) */}
+      {winner && renderPill(winner, true)}
 
-        // Style for the first item
-        const animatedStyle =
-          index === 0
-            ? isRoundOver
-              ? {
-                  position: "absolute", // Fix the first item
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
-                  zIndex: 1, // Ensure it stays on top
-                }
-              : {}
-            : isRoundOver
-            ? {
-                opacity: 0.5, // Fade out others when round ends
-                transform: [{ scale: 0.9 }],
-              }
-            : {};
-
-        return (
-          <Animated.View
-            style={animatedStyle as Animated.WithAnimatedObject<ViewStyle>}
-          >
-            <Styled.Pill
-              style={{
-                backgroundColor: player.startColor || "#000",
-              }}
-            >
-              <Styled.RankContainer>
-                <Styled.Rank>{player.score}</Styled.Rank>
-              </Styled.RankContainer>
-
-              <Styled.Name>{player.name}</Styled.Name>
-
-              <LottieView
-                source={icon}
-                style={{
-                  width: 35,
-                  height: 35,
-                  marginLeft: 10,
-                }}
-              />
-            </Styled.Pill>
-          </Animated.View>
-        );
-      }}
-    />
+      {/* Rest of Players (scrollable) */}
+      <FlatList
+        data={restPlayers}
+        keyExtractor={(player) => player.id.toString()}
+        style={{
+          maxHeight: 170,
+          overflow: "visible",
+        }}
+        renderItem={({ item }) => renderPill(item)}
+      />
+    </>
   );
 };

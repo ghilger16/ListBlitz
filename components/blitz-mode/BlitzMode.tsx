@@ -29,10 +29,26 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   const [timer, setTimer] = useState(TIMER_DURATION);
   const [score, setScore] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(false);
+  const [isCountdownActive, setIsCountdownActive] = useState(false); // New state for countdown
+  const [countdown, setCountdown] = useState(3); // Countdown timer
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [showWinnerOverlay, setShowWinnerOverlay] = useState(false);
 
   const fadeAnim = useRef(new Animated.Value(0)).current; // For fading in the overlay
+
+  useEffect(() => {
+    if (isCountdownActive) {
+      if (countdown > 0) {
+        const countdownInterval = setInterval(() => {
+          setCountdown((prev) => prev - 1);
+        }, 1000);
+        return () => clearInterval(countdownInterval);
+      } else {
+        setIsCountdownActive(false);
+        setIsGameStarted(true); // Start the game after countdown
+      }
+    }
+  }, [isCountdownActive, countdown]);
 
   useEffect(() => {
     if (isGameStarted && timer > 0) {
@@ -83,6 +99,11 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
     // (Optional) Shuffle players or prompt if needed here
   };
 
+  const handleStartGame = () => {
+    setCountdown(3); // Reset countdown
+    setIsCountdownActive(true); // Start countdown
+  };
+
   return showWinnerOverlay ? (
     <WinnerOverlay
       players={players}
@@ -94,6 +115,8 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
       <PromptDisplay
         prompt={currentPrompt}
         playerColor={currentPlayer.startColor}
+        isObscured={!isGameStarted}
+        countdown={isCountdownActive ? countdown : null}
       />
 
       <Text
@@ -113,7 +136,7 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
           score={score}
           onIncrement={handleScoreIncrement}
           currentPlayer={currentPlayer}
-          onStart={() => setIsGameStarted(true)}
+          onStart={handleStartGame} // Trigger countdown on start
           timer={timer}
           isGameStarted={isGameStarted}
         />
