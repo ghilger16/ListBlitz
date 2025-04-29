@@ -13,7 +13,8 @@ import LottieView from "lottie-react-native";
 import * as Styled from "./BlitzCounter.styled";
 import { useGetIcons } from "@Services";
 import { COLORS, Player } from "@Context";
-
+import { playSound } from "components/utils";
+import tapSound from "@Assets/sounds/tap.mp3"; // Correctly import the sound file
 interface BlitzCounterProps {
   score: number;
   currentPlayer: Player;
@@ -21,6 +22,7 @@ interface BlitzCounterProps {
   onStart: () => void;
   isGameStarted: boolean;
   timer: number;
+  isCountdownActive: boolean;
 }
 
 // Constants
@@ -39,6 +41,7 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   onStart,
   isGameStarted,
   timer,
+  isCountdownActive,
 }) => {
   const { data: ICONS = [] } = useGetIcons();
   const lottieRef = useRef<LottieView>(null);
@@ -143,6 +146,17 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   const pillX = pillOffset * Math.cos(gapAngle);
   const pillY = pillOffset * Math.sin(gapAngle);
 
+  const handleIncrement = () => {
+    if (isCountdownActive) return;
+    if (isGameStarted) {
+      onIncrement();
+      triggerFlash();
+      playSound(tapSound);
+    } else {
+      onStart();
+    }
+  };
+
   return (
     <Styled.Container>
       <Svg width={320} height={375}>
@@ -203,12 +217,11 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
           <TouchableOpacity
             activeOpacity={1}
             onPress={() => {
-              triggerFlash();
-              isGameStarted ? onIncrement() : onStart();
+              handleIncrement();
             }}
           >
             <Styled.PillButtonText>
-              {isGameStarted ? "Tap to Score" : `Start ${currentPlayer.name}`}
+              {isGameStarted ? "Tap to Score" : `Start`}
             </Styled.PillButtonText>
           </TouchableOpacity>
         </Animated.View>
