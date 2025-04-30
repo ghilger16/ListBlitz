@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Text, Animated } from "react-native";
 import * as Styled from "./PromptDisplay.styled";
+import { playSound } from "components/utils";
+import { countdownSound } from "@Assets";
 
 export const PromptDisplay: React.FC<{
   prompt: string;
@@ -11,10 +13,21 @@ export const PromptDisplay: React.FC<{
   const [bounceValue] = useState(new Animated.Value(1));
   const [fadeValue] = useState(new Animated.Value(0)); // New fade animation
   const [scaleValue] = useState(new Animated.Value(0.8));
+  const [hasPlayedSound, setHasPlayedSound] = useState(false); // Track if sound has been played
+
+  useEffect(() => {
+    if (countdown !== null && !hasPlayedSound) {
+      playSound(countdownSound); // Play the countdown sound
+      setHasPlayedSound(true); // Mark the sound as played
+    }
+
+    if (countdown === null) {
+      setHasPlayedSound(false); // Reset when countdown ends
+    }
+  }, [countdown, hasPlayedSound]);
 
   useEffect(() => {
     if (countdown !== null) {
-      // Trigger fade and scale animations for each countdown number
       fadeValue.setValue(0);
       scaleValue.setValue(0.8);
       Animated.parallel([

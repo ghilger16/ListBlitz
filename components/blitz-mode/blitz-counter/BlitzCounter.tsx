@@ -14,7 +14,8 @@ import * as Styled from "./BlitzCounter.styled";
 import { useGetIcons } from "@Services";
 import { COLORS, Player } from "@Context";
 import { playSound } from "components/utils";
-import tapSound from "@Assets/sounds/tap.mp3"; // Correctly import the sound file
+import { tapSound } from "@Assets";
+
 interface BlitzCounterProps {
   score: number;
   currentPlayer: Player;
