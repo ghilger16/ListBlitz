@@ -136,10 +136,10 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
           score={score}
           onIncrement={handleScoreIncrement}
           currentPlayer={currentPlayer}
-          onStart={handleStartGame} // Trigger countdown on start
+          onStart={handleStartGame}
           timer={timer}
           isGameStarted={isGameStarted}
-          isCountdownActive={isCountdownActive} // Allow tap during countdown
+          isCountdownActive={isCountdownActive}
         />
         <ScoreRankings players={players} />
       </Styled.CounterContainer>

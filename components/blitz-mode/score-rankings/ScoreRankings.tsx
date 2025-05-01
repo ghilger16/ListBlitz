@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from "react";
-import Svg, { Defs, LinearGradient, Stop, Rect } from "react-native-svg";
+import React, { useState, useEffect, useRef } from "react";
+import { FlatList, Animated, TouchableOpacity } from "react-native";
 import * as Styled from "./ScoreRankings.styled";
+import { EditScoreModal } from "./EditScoreModal";
+import { useGameplay } from "@Context";
 import { useGetIcons } from "@Services";
-import LottieView from "lottie-react-native";
-import { Animated, FlatList, ViewStyle } from "react-native";
 
 interface ScoreRankingsProps {
   players: {
@@ -13,14 +13,24 @@ interface ScoreRankingsProps {
     startColor?: string;
     endColor?: string;
   }[];
-  isRoundOver?: boolean; // <-- NEW PROP
+  isRoundOver?: boolean;
 }
 
 export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
   players,
   isRoundOver,
 }) => {
+  const [selectedPlayer, setSelectedPlayer] = useState<{
+    id: number;
+    name: string;
+    score: number;
+  } | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const { data: ICONS = [] } = useGetIcons();
+  const { updatePlayerScore } = useGameplay();
+
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const sortedPlayers = [...players]
     .filter((player) => player.score > 0)
@@ -29,14 +39,11 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
   const winner = sortedPlayers[0];
   const restPlayers = sortedPlayers.slice(1);
 
-  const slideAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-
   useEffect(() => {
     if (isRoundOver) {
       Animated.parallel([
         Animated.timing(slideAnim, {
-          toValue: -250, // You might tweak this now
+          toValue: -250,
           duration: 1000,
           useNativeDriver: true,
         }),
@@ -49,6 +56,19 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
     }
   }, [isRoundOver, slideAnim, scaleAnim]);
 
+  const handlePillPress = (player: (typeof players)[number]) => {
+    setSelectedPlayer(player);
+    setIsModalVisible(true);
+  };
+
+  const handleSaveScore = (newScore: number) => {
+    if (selectedPlayer) {
+      updatePlayerScore(selectedPlayer.id, newScore);
+      setSelectedPlayer(null);
+      setIsModalVisible(false);
+    }
+  };
+
   const renderPill = (player: (typeof players)[number], animated = false) => {
     const iconIndex = player.id % ICONS.length;
     const icon = ICONS[iconIndex] || ICONS[0];
@@ -60,46 +80,49 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
       : {};
 
     return (
-      <Animated.View style={animatedStyle}>
-        <Styled.Pill
-          style={{
-            backgroundColor: player.startColor || "#000",
-          }}
-        >
-          <Styled.RankContainer>
-            <Styled.Rank>{player.score}</Styled.Rank>
-          </Styled.RankContainer>
-
-          <Styled.Name>{player.name}</Styled.Name>
-
-          <LottieView
-            source={icon}
+      <TouchableOpacity onPress={() => handlePillPress(player)}>
+        <Animated.View style={animatedStyle}>
+          <Styled.Pill
             style={{
-              width: 35,
-              height: 35,
-              marginLeft: 10,
+              backgroundColor: player.startColor || "#000",
             }}
-          />
-        </Styled.Pill>
-      </Animated.View>
+          >
+            <Styled.RankContainer>
+              <Styled.Rank>{player.score}</Styled.Rank>
+            </Styled.RankContainer>
+            <Styled.Name>{player.name}</Styled.Name>
+          </Styled.Pill>
+        </Animated.View>
+      </TouchableOpacity>
     );
   };
 
   return (
     <>
       {/* Winning Player (fixed, not scrollable) */}
-      {winner && renderPill(winner, true)}
+      {winner && isRoundOver && renderPill(winner, true)}
 
       {/* Rest of Players (scrollable) */}
       <FlatList
-        data={restPlayers}
+        data={isRoundOver ? restPlayers : sortedPlayers}
         keyExtractor={(player) => player.id.toString()}
         style={{
           maxHeight: 170,
-          overflow: "visible",
+          overflow: "hidden",
         }}
         renderItem={({ item }) => renderPill(item)}
       />
+
+      {/* Edit Score Modal */}
+      {selectedPlayer && (
+        <EditScoreModal
+          visible={isModalVisible}
+          onClose={() => setIsModalVisible(false)}
+          playerName={selectedPlayer.name}
+          initialScore={selectedPlayer.score}
+          onSave={handleSaveScore}
+        />
+      )}
     </>
   );
 };
