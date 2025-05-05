@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "target": "es2016",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "baseUrl": "./",
+    "paths": {
+      "@Components": ["components"],
+      "@Services": ["services"],
+      "@Context": ["context"],
+      "@Assets": ["assets"],
+      "@Styles": ["styles"]
+    }
+  },
+  "include": [
+    "app/**/*",
+    "components/**/*",
+    "services/**/*",
+    "context/**/*",
+    "styles/Gameplay.styled.ts",
+    "styles/Landing.styled.ts",
+    "styles/PlayerSelect.styled.ts"
+  ],
+  "extends": "expo/tsconfig.base"
+}
