@@ -1,12 +1,17 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Text, Animated } from "react-native";
+import {
+  Text,
+  Animated,
+  SafeAreaView,
+  View,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 
 import { Player } from "@Context";
 import { PromptDisplay } from "components/prompt-display";
-import * as Styled from "./BlitzMode.styled";
 import { BlitzCounter } from "./blitz-counter";
 import { ScoreRankings } from "./score-rankings";
-
 import { WinnerOverlay } from "./winner-overlay/WinningOverlay";
 
 interface BlitzModeProps {
@@ -29,12 +34,12 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   const [timer, setTimer] = useState(TIMER_DURATION);
   const [score, setScore] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(false);
-  const [isCountdownActive, setIsCountdownActive] = useState(false); // New state for countdown
-  const [countdown, setCountdown] = useState(3); // Countdown timer
+  const [isCountdownActive, setIsCountdownActive] = useState(false);
+  const [countdown, setCountdown] = useState(3);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [showWinnerOverlay, setShowWinnerOverlay] = useState(false);
 
-  const fadeAnim = useRef(new Animated.Value(0)).current; // For fading in the overlay
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (isCountdownActive) {
@@ -45,7 +50,7 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
         return () => clearInterval(countdownInterval);
       } else {
         setIsCountdownActive(false);
-        setIsGameStarted(true); // Start the game after countdown
+        setIsGameStarted(true);
       }
     }
   }, [isCountdownActive, countdown]);
@@ -96,22 +101,25 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
     setIsGameStarted(false);
     setShowWinnerOverlay(false);
     fadeAnim.setValue(0);
-    // (Optional) Shuffle players or prompt if needed here
   };
 
   const handleStartGame = () => {
-    setCountdown(3); // Reset countdown
-    setIsCountdownActive(true); // Start countdown
+    setCountdown(3);
+    setIsCountdownActive(true);
   };
 
-  return showWinnerOverlay ? (
-    <WinnerOverlay
-      players={players}
-      handleNextRound={handleNextRoundClick}
-      fadeAnim={fadeAnim}
-    />
-  ) : (
-    <Styled.Wrapper>
+  if (showWinnerOverlay) {
+    return (
+      <WinnerOverlay
+        players={players}
+        handleNextRound={handleNextRoundClick}
+        fadeAnim={fadeAnim}
+      />
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.wrapper}>
       <PromptDisplay
         prompt={currentPrompt}
         playerColor={currentPlayer.startColor}
@@ -119,19 +127,9 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
         countdown={isCountdownActive ? countdown : null}
       />
 
-      <Text
-        style={{
-          color: "#fff",
-          fontFamily: "LuckiestGuy",
-          fontWeight: "bold",
-          fontSize: 18,
-          textAlign: "center",
-          marginTop: 15,
-        }}
-      >
-        Player {currentPlayer.id}
-      </Text>
-      <Styled.CounterContainer>
+      <Text style={styles.playerLabel}>Player {currentPlayer.id}</Text>
+
+      <View style={styles.counterContainer}>
         <BlitzCounter
           score={score}
           onIncrement={handleScoreIncrement}
@@ -142,7 +140,27 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
           isCountdownActive={isCountdownActive}
         />
         <ScoreRankings players={players} />
-      </Styled.CounterContainer>
-    </Styled.Wrapper>
+      </View>
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    justifyContent: "center",
+    paddingTop: 50,
+  },
+  playerLabel: {
+    color: "#fff",
+    fontFamily: "LuckiestGuy",
+    fontWeight: "bold",
+    fontSize: 18,
+    textAlign: "center",
+    marginTop: 15,
+  },
+  counterContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
+});

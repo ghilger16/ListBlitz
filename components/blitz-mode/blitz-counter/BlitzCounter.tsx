@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { TouchableOpacity, Animated, Easing } from "react-native";
-import Svg, { G, Path as SvgPath } from "react-native-svg";
+import {
+  View,
+  TouchableOpacity,
+  Animated,
+  Easing,
+  StyleSheet,
+  Text,
+} from "react-native";
+import Svg, { G, Path as SvgPath, Text as SvgText } from "react-native-svg";
 import * as d3 from "d3-shape";
-import LottieView from "lottie-react-native";
-import * as Styled from "./BlitzCounter.styled";
-import { useGetIcons } from "@Services";
 import { COLORS, Player } from "@Context";
 import { playSound } from "components/utils";
 import { tapSound } from "@Assets";
@@ -19,12 +23,11 @@ interface BlitzCounterProps {
   isCountdownActive: boolean;
 }
 
-// Constants
 const RADIUS = 110;
 const INNER_RADIUS = 80;
 const BORDER_RADIUS = 140;
 const CENTER_RADIUS = 60;
-const MISSING_ANGLE = Math.PI * 0.3; // 15% missing
+const MISSING_ANGLE = Math.PI * 0.3;
 
 const AnimatedSvgPath = Animated.createAnimatedComponent(SvgPath);
 
@@ -37,24 +40,17 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   timer,
   isCountdownActive,
 }) => {
-  // const { data: ICONS = [] } = useGetIcons();
-  // const lottieRef = useRef<LottieView>(null);
   const animatedTimer = useRef(new Animated.Value(timer)).current;
-  const flashAnim = useRef(new Animated.Value(0)).current; // Flash animation
+  const flashAnim = useRef(new Animated.Value(0)).current;
   const [displayTime, setDisplayTime] = useState(timer);
   const [fillAngle, setFillAngle] = useState(Math.PI * 1 - MISSING_ANGLE / 2);
 
-  // Format timer into MM:SS (1:00, 0:59, etc.)
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
-  // Ensure valid icon index
-  // const iconIndex = currentPlayer.id + (1 % ICONS.length);
-
-  // Start animation when game starts
   useEffect(() => {
     if (isGameStarted) {
       animatedTimer.setValue(timer);
@@ -76,69 +72,42 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
           (value / timer) * (Math.PI * 2 - MISSING_ANGLE)
       );
     });
-
     return () => {
       animatedTimer.removeListener(listenerId);
     };
   }, []);
 
-  // **📌 Flash Animation Triggered on onIncrement**
   const triggerFlash = () => {
     flashAnim.setValue(1);
     Animated.timing(flashAnim, {
       toValue: 0,
-      duration: 300, // Quick flash effect
+      duration: 300,
       easing: Easing.linear,
       useNativeDriver: false,
     }).start();
   };
 
-  // Modify color based on animation
   const animatedColor = flashAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [`${currentPlayer.startColor}`, "#ffffff"], // Flashing effect (orange to white)
+    outputRange: [`${currentPlayer.startColor}`, "#ffffff"],
   });
 
-  // Arc generator for dynamic fill
-  // const arcGenerator = useMemo(
-  //   () =>
-  //     d3
-  //       .arc()
-  //       .innerRadius(INNER_RADIUS)
-  //       .outerRadius(RADIUS)
-  //       .startAngle(-Math.PI / 1 + MISSING_ANGLE / 2)
-  //       .endAngle(fillAngle),
-  //   [fillAngle]
-  // );
-
   const borderArcGenerator = useMemo(() => {
-    const gap = 0.01;
-    const startAngle = -Math.PI / 1 + MISSING_ANGLE / 2; // Start at 7 o'clock (180° + 30°)
     const endAngle = Math.PI * 1 - MISSING_ANGLE / 2;
-
     const fillArc = d3
       .arc()
       .innerRadius(RADIUS)
-      .outerRadius(RADIUS + 10) // Border thickness
-      .startAngle(startAngle)
-      .endAngle(endAngle); // Start full);
-
+      .outerRadius(RADIUS + 10)
+      .startAngle(-Math.PI / 1 + MISSING_ANGLE / 2)
+      .endAngle(endAngle);
     const animatedFillArc = d3
       .arc()
       .innerRadius(RADIUS)
-      .outerRadius(RADIUS + 10) // Border thickness
+      .outerRadius(RADIUS + 10)
       .startAngle(fillAngle)
-      .endAngle(endAngle); // Start full);
-
+      .endAngle(endAngle);
     return [fillArc, animatedFillArc];
   }, [fillAngle]);
-
-  // **📌 Calculate pill position at the missing arc**
-  const gapAngle =
-    -Math.PI / 1 + MISSING_ANGLE / 2 + (Math.PI * 2 - MISSING_ANGLE);
-  const pillOffset = RADIUS + 30; // Push outside the donut
-  const pillX = pillOffset * Math.cos(gapAngle);
-  const pillY = pillOffset * Math.sin(gapAngle);
 
   const handleIncrement = () => {
     if (isCountdownActive) return;
@@ -152,33 +121,13 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   };
 
   return (
-    <Styled.Container>
+    <View style={styles.container}>
       <Svg width={320} height={375}>
         <G x={320 / 2} y={320 / 2}>
-          {/* {ICONS.length > 0 && (
-            <G>
-              <LottieView
-                ref={lottieRef}
-                source={ICONS[iconIndex] ?? ICONS[0]}
-                autoPlay
-                loop
-                style={{
-                  borderWidth: 5,
-                  borderColor: currentPlayer.startColor,
-                  backgroundColor: "#fff",
-                  borderRadius: CENTER_RADIUS,
-                  width: CENTER_RADIUS * 1.5,
-                  height: CENTER_RADIUS * 1.5,
-                  transform: [{ translateX: 114 }, { translateY: 75 }],
-                }}
-              />
-            </G>
-          )} */}
-
           <AnimatedSvgPath
             d={borderArcGenerator[0]({} as any) || ""}
             fill="none"
-            stroke={"#FFF"}
+            stroke="#FFF"
             strokeWidth={12}
             strokeLinecap="round"
           />
@@ -189,37 +138,69 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
             strokeWidth={12}
             strokeLinecap="round"
           />
-
-          <Styled.SvgScoreText x="0" y="70">
+          <SvgText
+            x="0"
+            y="70"
+            fontSize="60"
+            fontWeight="bold"
+            fill="#fff"
+            fontFamily="LuckiestGuy"
+            textAnchor="middle"
+          >
             {score}
-          </Styled.SvgScoreText>
-          <Styled.SvgTimerText x="0" y="115">
+          </SvgText>
+          <SvgText
+            x="0"
+            y="115"
+            fontSize="24"
+            fontWeight="bold"
+            fill="#fff"
+            textAnchor="middle"
+          >
             {formatTime(displayTime)}
-          </Styled.SvgTimerText>
+          </SvgText>
         </G>
       </Svg>
 
-      <Styled.PillButtonWrapper>
+      <View style={styles.pillWrapper}>
         <Animated.View
-          style={{
-            backgroundColor: animatedColor,
-            width: "90%",
-            height: "100%",
-            borderRadius: 20,
-          }}
+          style={[styles.animatedPill, { backgroundColor: animatedColor }]}
         >
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={() => {
-              handleIncrement();
-            }}
-          >
-            <Styled.PillButtonText>
+          <TouchableOpacity activeOpacity={1} onPress={handleIncrement}>
+            <Text style={styles.pillText}>
               {isGameStarted ? "Tap to Score" : `Start`}
-            </Styled.PillButtonText>
+            </Text>
           </TouchableOpacity>
         </Animated.View>
-      </Styled.PillButtonWrapper>
-    </Styled.Container>
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: "center",
+    width: 320,
+    height: 375,
+  },
+  pillWrapper: {
+    position: "absolute",
+    bottom: "5%",
+    width: "105%",
+    height: 40,
+    alignItems: "center",
+  },
+  animatedPill: {
+    width: "90%",
+    height: "100%",
+    borderRadius: 20,
+  },
+  pillText: {
+    fontSize: 25,
+    fontWeight: "bold",
+    color: "#000",
+    textAlign: "center",
+    marginTop: 12,
+    fontFamily: "LuckiestGuy",
+  },
+});

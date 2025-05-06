@@ -1,9 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import { GameMode } from "@Context";
-import { Animated, Easing } from "react-native";
-import * as Styled from "./ModeSelect.styled";
-
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import {
+  Animated,
+  Easing,
+  Text,
+  View,
+  StyleSheet,
+  TouchableWithoutFeedback,
+} from "react-native";
 
 const MODES = {
   [GameMode.CHILL]: "Chill\nMode",
@@ -56,22 +60,56 @@ const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
   };
 
   return (
-    <Styled.Container>
+    <View style={styles.container}>
       <TouchableWithoutFeedback onPress={handlePress}>
-        <Animated.View
-          style={{
-            transform: [{ scale: scaleAnim }],
-          }}
-        >
-          <Styled.Circle isActive={mode === GameMode.CHILL}>
-            <Styled.ModeText isActive={mode === GameMode.CHILL}>
-              {MODES[mode]}
-            </Styled.ModeText>
-          </Styled.Circle>
+        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+          <View
+            style={[
+              styles.circle,
+              {
+                borderColor: mode === GameMode.CHILL ? "#FFD700" : "#87CEFA",
+                backgroundColor:
+                  mode === GameMode.CHILL ? "#FFD700" : "#87CEFA",
+                shadowOpacity: mode === GameMode.CHILL ? 1 : 0.3,
+              },
+            ]}
+          >
+            <Text style={styles.modeText}>{MODES[mode]}</Text>
+          </View>
         </Animated.View>
       </TouchableWithoutFeedback>
-    </Styled.Container>
+    </View>
   );
 };
 
 export default ModeSelect;
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: -262,
+  },
+  circle: {
+    width: 130,
+    height: 130,
+    borderRadius: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 3,
+    shadowColor: "#fff",
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  modeText: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "white",
+    fontFamily: "SourGummy",
+    textAlign: "center",
+    lineHeight: 30,
+    textShadowColor: "#333",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 2,
+  },
+});

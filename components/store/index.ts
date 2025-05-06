@@ -1,1 +1,0 @@
-export { StoreSection } from "./StoreSection";

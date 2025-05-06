@@ -1,28 +1,34 @@
 import React, { useState, useEffect } from "react";
-import { Animated } from "react-native";
-import * as Styled from "./PromptDisplay.styled";
+import {
+  View,
+  Animated,
+  Text,
+  StyleSheet,
+  ViewStyle,
+  TextStyle,
+} from "react-native";
 import { playSound } from "components/utils";
 import { countdownSound } from "@Assets";
 
 export const PromptDisplay: React.FC<{
   prompt: string;
   playerColor: string;
-  isObscured?: boolean; // New prop to obscure the prompt
-  countdown?: number | null; // New prop for countdown
+  isObscured?: boolean;
+  countdown?: number | null;
 }> = ({ prompt, playerColor, isObscured, countdown }) => {
   const [bounceValue] = useState(new Animated.Value(1));
-  const [fadeValue] = useState(new Animated.Value(0)); // New fade animation
+  const [fadeValue] = useState(new Animated.Value(0));
   const [scaleValue] = useState(new Animated.Value(0.8));
-  const [hasPlayedSound, setHasPlayedSound] = useState(false); // Track if sound has been played
+  const [hasPlayedSound, setHasPlayedSound] = useState(false);
 
   useEffect(() => {
     if (countdown !== null && !hasPlayedSound) {
-      playSound(countdownSound); // Play the countdown sound
-      setHasPlayedSound(true); // Mark the sound as played
+      playSound(countdownSound);
+      setHasPlayedSound(true);
     }
 
     if (countdown === null) {
-      setHasPlayedSound(false); // Reset when countdown ends
+      setHasPlayedSound(false);
     }
   }, [countdown, hasPlayedSound]);
 
@@ -32,26 +38,25 @@ export const PromptDisplay: React.FC<{
       scaleValue.setValue(0.8);
       Animated.parallel([
         Animated.timing(fadeValue, {
-          toValue: 1, // Fade in
+          toValue: 1,
           duration: 500,
           useNativeDriver: true,
         }),
         Animated.spring(scaleValue, {
-          toValue: 1, // Scale up
+          toValue: 1,
           friction: 3,
           useNativeDriver: true,
         }),
-      ]).start(() => {});
+      ]).start();
     } else {
-      // Bounce animation for the prompt when countdown is finished
       Animated.sequence([
         Animated.spring(bounceValue, {
-          toValue: 1.2, // Slightly scale up
+          toValue: 1.2,
           friction: 3,
           useNativeDriver: true,
         }),
         Animated.spring(bounceValue, {
-          toValue: 1, // Return to original size
+          toValue: 1,
           friction: 3,
           useNativeDriver: true,
         }),
@@ -59,34 +64,69 @@ export const PromptDisplay: React.FC<{
     }
   }, [countdown]);
 
+  const containerStyle: ViewStyle = {
+    ...styles.container,
+    borderColor: playerColor,
+  };
+
   return (
-    <Styled.PromptContainer playerColor={playerColor}>
+    <View style={containerStyle}>
       {isObscured ? (
         countdown !== null ? (
-          <Styled.PromptText
-            style={{
-              opacity: fadeValue, // Fade effect
-              transform: [{ scale: scaleValue }], // Scale effect
-              fontSize: 70,
-              color: "#fff", // Ensure text color is visible
-              fontWeight: "bold",
-              textAlign: "center",
-            }}
+          <Animated.Text
+            style={[
+              styles.promptText,
+              {
+                opacity: fadeValue,
+                transform: [{ scale: scaleValue }],
+                fontSize: 70,
+                color: "#fff",
+              },
+            ]}
           >
             {countdown}
-          </Styled.PromptText>
+          </Animated.Text>
         ) : (
-          <Styled.PromptText>List Blitz</Styled.PromptText>
+          <Text style={styles.promptText}>List Blitz</Text>
         )
       ) : (
-        <Styled.PromptText
-          style={{
-            transform: [{ scale: bounceValue }],
-          }}
+        <Animated.Text
+          style={[styles.promptText, { transform: [{ scale: bounceValue }] }]}
         >
           List {prompt}
-        </Styled.PromptText>
+        </Animated.Text>
       )}
-    </Styled.PromptContainer>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#192c43",
+    borderRadius: 30,
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    maxWidth: 325,
+    minHeight: 115,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+    borderWidth: 5,
+  },
+  promptText: {
+    fontFamily: "LuckiestGuy",
+    fontSize: 23,
+    fontWeight: "bold",
+    marginTop: 5,
+    color: "#ffffff",
+    textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.5)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+    flexWrap: "wrap",
+  },
+});

@@ -1,42 +1,22 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { Animated, Easing, TouchableOpacity, Text } from "react-native";
+import {
+  Animated,
+  Easing,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  View,
+} from "react-native";
 import { router, Stack } from "expo-router";
-import * as Styled from "@Styles";
 import { useGameplay, GameMode } from "@Context";
 import { FlashingText, PlayersSelect } from "@Components";
 import { ModeSelect } from "components/players-select/mode-select";
 
 const PlayerSelect: React.FC = () => {
   const { setGameSettings, onGameStart, gameSettings } = useGameplay();
-
   const [selectedMode, setSelectedMode] = useState<GameMode>(gameSettings.mode);
   const [playerCount, setPlayerCount] = useState(1);
-
-  // Callback for updating player count
-  const handlePlayerCountChange = useCallback((count: number) => {
-    setPlayerCount(count);
-  }, []);
-
-  // Callback for updating selected mode
-  const handleModeChange = useCallback((mode: GameMode) => {
-    setSelectedMode(mode);
-  }, []);
-
-  // Update game settings when player count or mode changes
-  useEffect(() => {
-    if (
-      gameSettings.playerCount !== playerCount ||
-      gameSettings.mode !== selectedMode
-    ) {
-      setGameSettings({ mode: selectedMode, playerCount });
-    }
-  }, [selectedMode, playerCount, setGameSettings, gameSettings]);
-
-  const handleGameStart = () => {
-    if (playerCount > 0) {
-      onGameStart();
-    }
-  };
 
   const glowAnim = useRef(new Animated.Value(0)).current;
 
@@ -61,48 +41,131 @@ const PlayerSelect: React.FC = () => {
 
   const glowInterpolation = glowAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ["rgba(255, 255, 255, 0.3)", "rgba(255, 255, 255, 1)"], // Pulsating glow
+    outputRange: ["rgba(255, 255, 255, 0.3)", "rgba(255, 255, 255, 1)"],
   });
 
+  const handlePlayerCountChange = useCallback((count: number) => {
+    setPlayerCount(count);
+  }, []);
+
+  const handleModeChange = useCallback((mode: GameMode) => {
+    setSelectedMode(mode);
+  }, []);
+
+  useEffect(() => {
+    if (
+      gameSettings.playerCount !== playerCount ||
+      gameSettings.mode !== selectedMode
+    ) {
+      setGameSettings({ mode: selectedMode, playerCount });
+    }
+  }, [selectedMode, playerCount, setGameSettings, gameSettings]);
+
+  const handleGameStart = () => {
+    if (playerCount > 0) onGameStart();
+  };
+
   return (
-    <Styled.SafeAreaWrapper>
+    <SafeAreaView style={styles.safeArea}>
       <Stack.Screen
         options={{
           animation: "none",
           headerTitle: () => (
-            <Styled.Title>{gameSettings.blitzPackTitle}</Styled.Title>
+            <Text style={styles.title}>{gameSettings.blitzPackTitle}</Text>
           ),
           headerStyle: {
             backgroundColor: "transparent",
           },
           headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => router.back()}
-              style={{
-                padding: 15,
-              }}
-            >
-              <Text style={{ fontSize: 20, color: "#fff", fontWeight: "700" }}>
-                ←
-              </Text>
+            <TouchableOpacity onPress={() => router.back()}>
+              <Text style={styles.backButtonText}>←</Text>
             </TouchableOpacity>
           ),
         }}
       />
-      <Styled.PlayersWrapper>
-        <Styled.WheelTitle>
+
+      <View style={styles.playersWrapper}>
+        <Text style={styles.wheelTitle}>
           <FlashingText>Select Players</FlashingText>
-        </Styled.WheelTitle>
+        </Text>
         <PlayersSelect onPlayerCountChange={handlePlayerCountChange} />
         <ModeSelect onModeChange={handleModeChange} mode={selectedMode} />
-      </Styled.PlayersWrapper>
-      <Styled.StartButton onPress={handleGameStart} disabled={playerCount < 1}>
-        <Styled.StartText style={{ textShadowColor: glowInterpolation }}>
+      </View>
+
+      <TouchableOpacity
+        style={[styles.startButton, { opacity: playerCount < 1 ? 0.5 : 1 }]}
+        onPress={handleGameStart}
+        disabled={playerCount < 1}
+        activeOpacity={0.7}
+      >
+        <Animated.Text
+          style={[styles.startText, { textShadowColor: glowInterpolation }]}
+        >
           Start
-        </Styled.StartText>
-      </Styled.StartButton>
-    </Styled.SafeAreaWrapper>
+        </Animated.Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#192c43",
+  },
+  title: {
+    fontFamily: "SourGummy",
+    fontSize: 25,
+    textTransform: "uppercase",
+    color: "#ffffff",
+    textShadowColor: "rgba(0, 191, 255, 0.7)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    letterSpacing: 2,
+    textAlign: "center",
+    alignSelf: "center",
+  },
+  backButtonText: {
+    fontSize: 20,
+    color: "#fff",
+    fontWeight: "700",
+  },
+  playersWrapper: {
+    marginTop: 75,
+    alignItems: "center",
+  },
+  wheelTitle: {
+    marginBottom: 20,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    textShadowColor: "rgba(0, 191, 255, 0.7)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  startButton: {
+    backgroundColor: "#FF6600",
+    borderRadius: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 175,
+    elevation: 8,
+    shadowColor: "rgba(255, 165, 0, 0.5)",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    borderWidth: 3,
+    borderColor: "#FFCC00",
+  },
+  startText: {
+    fontSize: 50,
+    fontWeight: "bold",
+    color: "white",
+    textTransform: "uppercase",
+    textAlign: "center",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+    fontFamily: "SourGummy",
+  },
+});
 
 export default PlayerSelect;

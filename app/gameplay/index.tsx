@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Stack, useRouter } from "expo-router";
-import { Text, SafeAreaView, TouchableOpacity } from "react-native";
-import * as Styled from "@Styles";
+import {
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { GameMode, useGameplay } from "@Context";
 import { Prompt, useGetPromptsByBlitzPack } from "@Services";
 import { ChillMode, BlitzMode } from "@Components";
@@ -70,16 +75,55 @@ const Gameplay: React.FC = () => {
   if (error) return <Text>Error loading prompts.</Text>;
 
   return (
-    <SafeAreaView>
-      <BlitzMode
-        currentPrompt={"Test Prompt"}
-        handleNextPlayer={() => {}}
-        players={[]}
-        currentPlayer={null}
-        handleNextRound={() => {}}
+    <SafeAreaView style={styles.wrapper}>
+      <Stack.Screen
+        options={{
+          animation: "none",
+          headerTitle: "",
+          headerStyle: {
+            backgroundColor: "transparent",
+          },
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Text style={{ fontSize: 20, color: "#fff", fontWeight: "700" }}>
+                ←
+              </Text>
+            </TouchableOpacity>
+          ),
+        }}
       />
+      <View style={styles.modeView}>
+        {mode === GameMode.CHILL ? (
+          <ChillMode
+            currentPrompt={currentPrompt}
+            handleNextPlayer={handleNextPlayerAndPrompt}
+            currentPlayer={currentPlayer}
+            players={players}
+          />
+        ) : (
+          <BlitzMode
+            currentPrompt={currentPrompt}
+            handleNextPlayer={handleNextPlayerAndPrompt}
+            players={players}
+            currentPlayer={currentPlayer}
+            handleNextRound={handleNextRound}
+          />
+        )}
+      </View>
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+  },
+  modeView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 20,
+  },
+});
 
 export default Gameplay;

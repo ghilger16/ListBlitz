@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FlatList, Animated, TouchableOpacity } from "react-native";
-import * as Styled from "./ScoreRankings.styled";
+import {
+  FlatList,
+  Animated,
+  TouchableOpacity,
+  View,
+  Text,
+  StyleSheet,
+} from "react-native";
 import { EditScoreModal } from "./EditScoreModal";
 import { useGameplay } from "@Context";
-import { useGetIcons } from "@Services";
 
 interface ScoreRankingsProps {
   players: {
@@ -26,7 +31,6 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
     score: number;
   } | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  // const { data: ICONS = [] } = useGetIcons();
   const { updatePlayerScore } = useGameplay();
 
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -54,7 +58,7 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
         }),
       ]).start();
     }
-  }, [isRoundOver, slideAnim, scaleAnim]);
+  }, [isRoundOver]);
 
   const handlePillPress = (player: (typeof players)[number]) => {
     setSelectedPlayer(player);
@@ -70,9 +74,6 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
   };
 
   const renderPill = (player: (typeof players)[number], animated = false) => {
-    // const iconIndex = player.id % ICONS.length;
-    // const icon = ICONS[iconIndex] || ICONS[0];
-
     const animatedStyle = animated
       ? {
           transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
@@ -82,16 +83,17 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
     return (
       <TouchableOpacity onPress={() => handlePillPress(player)}>
         <Animated.View style={animatedStyle}>
-          <Styled.Pill
-            style={{
-              backgroundColor: player.startColor || "#000",
-            }}
+          <View
+            style={[
+              styles.pill,
+              { backgroundColor: player.startColor || "#000" },
+            ]}
           >
-            <Styled.RankContainer>
-              <Styled.Rank>{player.score}</Styled.Rank>
-            </Styled.RankContainer>
-            <Styled.Name>{player.name}</Styled.Name>
-          </Styled.Pill>
+            <View style={styles.rankContainer}>
+              <Text style={styles.rank}>{player.score}</Text>
+            </View>
+            <Text style={styles.name}>{player.name}</Text>
+          </View>
         </Animated.View>
       </TouchableOpacity>
     );
@@ -99,21 +101,13 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
 
   return (
     <>
-      {/* Winning Player (fixed, not scrollable) */}
       {winner && isRoundOver && renderPill(winner, true)}
-
-      {/* Rest of Players (scrollable) */}
       <FlatList
         data={isRoundOver ? restPlayers : sortedPlayers}
         keyExtractor={(player) => player.id.toString()}
-        style={{
-          maxHeight: 170,
-          overflow: "hidden",
-        }}
+        style={{ maxHeight: 170, overflow: "hidden" }}
         renderItem={({ item }) => renderPill(item)}
       />
-
-      {/* Edit Score Modal */}
       {selectedPlayer && (
         <EditScoreModal
           visible={isModalVisible}
@@ -126,3 +120,39 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  pill: {
+    marginTop: 5,
+    width: 300,
+    height: 40,
+    borderRadius: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingLeft: 5,
+    paddingRight: 5,
+    left: "4%",
+  },
+  rankContainer: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  rank: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  name: {
+    fontSize: 25,
+    fontWeight: "bold",
+    color: "#000",
+    textAlign: "center",
+    marginTop: 10,
+    marginLeft: 50,
+    fontFamily: "LuckiestGuy",
+  },
+});

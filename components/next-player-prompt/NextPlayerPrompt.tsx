@@ -1,12 +1,17 @@
 // NextPlayerPrompt.tsx
 import React from "react";
-import { TouchableOpacity, View, Text } from "react-native";
-import * as Styled from "./NextPlayerPrompt.styled";
+import {
+  TouchableOpacity,
+  View,
+  Text,
+  StyleSheet,
+  ViewStyle,
+  TextStyle,
+} from "react-native";
 import LottieView from "lottie-react-native";
 import { Player } from "@Context";
 import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
 
-// Interface to accept an icon as a prop
 interface NextPlayerPromptProps {
   onNextPlayerClick: () => void;
   iconSource: any;
@@ -20,8 +25,8 @@ export const NextPlayerPrompt: React.FC<NextPlayerPromptProps> = ({
 }) => {
   return (
     <TouchableOpacity onPress={onNextPlayerClick}>
-      <Styled.NextPlayerContainer>
-        <Svg height="100%" width="100%" style={{ position: "absolute" }}>
+      <View style={styles.container}>
+        <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
           <Defs>
             <LinearGradient
               id="nextPlayerGradient"
@@ -43,14 +48,52 @@ export const NextPlayerPrompt: React.FC<NextPlayerPromptProps> = ({
           />
         </Svg>
 
-        <Styled.PlayerIconContainer>
-          <Styled.PlayerIcon source={iconSource} autoPlay={false} />
-        </Styled.PlayerIconContainer>
+        <View style={styles.iconContainer}>
+          <LottieView
+            source={iconSource}
+            autoPlay={false}
+            style={styles.icon}
+          />
+        </View>
 
-        <Styled.NextPlayerText>
-          Start Player {nextPlayer.id}
-        </Styled.NextPlayerText>
-      </Styled.NextPlayerContainer>
+        <Text style={styles.text}>Start Player {nextPlayer.id}</Text>
+      </View>
     </TouchableOpacity>
   );
 };
+
+const styles = StyleSheet.create<{
+  container: ViewStyle;
+  iconContainer: ViewStyle;
+  icon: ViewStyle;
+  text: TextStyle;
+}>({
+  container: {
+    width: 300,
+    height: 75,
+    padding: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 30,
+    overflow: "hidden", // Ensures gradient stays rounded
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  icon: {
+    width: 30,
+    height: 30,
+  },
+  text: {
+    color: "#192c43",
+    fontFamily: "SourGummy",
+    fontSize: 30,
+    textAlign: "center",
+    marginLeft: 10,
+  },
+});
