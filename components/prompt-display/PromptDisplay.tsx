@@ -104,10 +104,8 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#192c43",
     borderRadius: 30,
-    paddingVertical: 15,
-    paddingHorizontal: 25,
-    maxWidth: 325,
-    minHeight: 115,
+    width: 325,
+    height: 115,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
+import LottieView from "lottie-react-native";
 
 interface EditScoreModalProps {
   visible: boolean;
@@ -14,6 +15,8 @@ interface EditScoreModalProps {
   playerName: string;
   initialScore: number;
   onSave: (newScore: number) => void;
+  startColor: string; // <-- Add this
+  playerIcon: any;
 }
 
 export const EditScoreModal: React.FC<EditScoreModalProps> = ({
@@ -22,6 +25,8 @@ export const EditScoreModal: React.FC<EditScoreModalProps> = ({
   playerName,
   initialScore,
   onSave,
+  startColor,
+  playerIcon,
 }) => {
   const [score, setScore] = useState(initialScore.toString());
 
@@ -37,20 +42,58 @@ export const EditScoreModal: React.FC<EditScoreModalProps> = ({
     <Modal visible={visible} transparent={true} animationType="slide">
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
-          <Text style={styles.title}>Edit Score</Text>
-          <Text style={styles.playerName}>{playerName}</Text>
-          <TextInput
-            style={styles.input}
-            keyboardType="numeric"
-            value={score}
-            onChangeText={setScore}
-          />
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.buttonText}>Save</Text>
+          <View
+            style={[styles.playerNamePill, { backgroundColor: startColor }]}
+          >
+            <View style={styles.playerNameContent}>
+              <Text style={styles.playerName}>{playerName}</Text>
+              <LottieView
+                source={playerIcon}
+                autoPlay
+                loop
+                style={styles.playerIcon}
+              />
+            </View>
+          </View>
+          <View style={styles.scoreRow}>
+            <TouchableOpacity
+              style={styles.incrementButton}
+              onPress={() =>
+                setScore((prev) => {
+                  const newVal = parseInt(prev || "0", 10) - 1;
+                  return newVal >= 0 ? newVal.toString() : "0";
+                })
+              }
+            >
+              <Text style={styles.incrementButtonText}>-</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-              <Text style={styles.buttonText}>Cancel</Text>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={styles.input}
+                keyboardType="numeric"
+                value={score}
+                onChangeText={setScore}
+              />
+            </View>
+            <TouchableOpacity
+              style={styles.incrementButton}
+              onPress={() =>
+                setScore((prev) => {
+                  const newVal = parseInt(prev || "0", 10) + 1;
+                  return newVal.toString();
+                })
+              }
+            >
+              <Text style={styles.incrementButtonText}>+</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={handleSave}
+              activeOpacity={1}
+            >
+              <Text style={styles.playerName}>Done</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -64,57 +107,105 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
   modalContainer: {
     backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 10,
-    width: "80%",
+    width: 320,
+    height: 360,
+    borderRadius: 30,
     alignItems: "center",
+    justifyContent: "space-between",
+    shadowColor: "#000",
+    shadowRadius: 10,
+    shadowOpacity: 0.25,
+    elevation: 10,
+    paddingVertical: 50,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
+  playerNamePill: {
+    backgroundColor: "#192C43",
+    borderRadius: 20,
+    width: 260,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  playerNameContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  playerIcon: {
+    width: 40,
+    height: 40,
+    marginRight: -10,
+    marginLeft: 10,
   },
   playerName: {
-    fontSize: 18,
-    marginBottom: 20,
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "#000",
+    textAlign: "center",
+    fontFamily: "LuckiestGuy",
+    marginTop: 10,
+  },
+  scoreRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  inputWrapper: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
   },
   input: {
-    width: "100%",
-    padding: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    marginBottom: 20,
+    fontSize: 50,
+    borderColor: "#192C43",
     textAlign: "center",
-    fontSize: 16,
+    color: "#192C43",
+    fontWeight: "bold",
+    fontFamily: "LuckiestGuy",
+    marginTop: 15,
+  },
+  incrementButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#4FD1C5",
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 10,
+  },
+  incrementButtonText: {
+    color: "#fff",
+    fontSize: 60,
+    fontFamily: "LuckiestGuy",
+    marginTop: 5,
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     width: "100%",
+    marginTop: 10,
   },
   saveButton: {
-    backgroundColor: "#28a745",
-    padding: 10,
-    borderRadius: 5,
-    flex: 1,
+    backgroundColor: "#FFD700",
+    width: 200,
+    height: 50,
+    borderRadius: 30,
+    marginHorizontal: 10,
     alignItems: "center",
-    marginRight: 5,
-  },
-  cancelButton: {
-    backgroundColor: "#dc3545",
-    padding: 10,
-    borderRadius: 5,
-    flex: 1,
-    alignItems: "center",
-    marginLeft: 5,
+    justifyContent: "center",
+    activeOpacity: 0.9,
   },
   buttonText: {
     color: "#fff",
+    fontSize: 18,
     fontWeight: "bold",
+    fontFamily: "LuckiestGuy",
   },
 });

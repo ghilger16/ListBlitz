@@ -9,6 +9,7 @@ import Svg, {
   LinearGradient,
   Defs,
   Stop,
+  TextPath,
 } from "react-native-svg";
 import LottieView from "lottie-react-native";
 import * as d3 from "d3-shape";
@@ -208,7 +209,7 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
           style={{
             position: "absolute",
             left: x - 30,
-            top: y - 30,
+            top: y - 15,
             justifyContent: "center",
             alignItems: "center",
             opacity: isSelected ? 1 : 0.5,
@@ -229,7 +230,7 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
   return (
     <View>
       <GestureDetector gesture={panGesture}>
-        <Svg width={RADIUS * 2 + 20} height={RADIUS * 2 + 20}>
+        <Svg width={RADIUS * 2 + 20} height={RADIUS * 2 + 35}>
           <Defs>
             {COLORS.map(([startColor, endColor], index) => (
               <LinearGradient key={`grad-${index}`} id={`grad-${index}`}>
@@ -238,7 +239,31 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
               </LinearGradient>
             ))}
           </Defs>
-          <G x={RADIUS + 10} y={RADIUS + 10}>
+          <G x={RADIUS + 10} y={RADIUS + 25}>
+            <G transform="rotate(165)">
+              <Defs>
+                <Path
+                  id="text-curve"
+                  d={`M 135,145 A 200,200 0 0,1 -135,145`}
+                  fill="none"
+                />
+              </Defs>
+              <Text
+                fill="white"
+                fontSize="15"
+                fontWeight="bold"
+                letterSpacing="1"
+                textAnchor="middle"
+              >
+                <TextPath
+                  href="#text-curve"
+                  startOffset="50%"
+                  textLength="200%"
+                >
+                  Assign players clockwise from you →
+                </TextPath>
+              </Text>
+            </G>
             {arcs.map(renderSlice)}
             {highlightArcs.map((arc, index) =>
               arc ? (

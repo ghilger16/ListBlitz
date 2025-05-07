@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import { EditScoreModal } from "./EditScoreModal";
 import { useGameplay } from "@Context";
+import { useGetIcons } from "@Services";
+import LottieView from "lottie-react-native";
 
 interface ScoreRankingsProps {
   players: {
@@ -29,8 +31,10 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
     id: number;
     name: string;
     score: number;
+    startColor?: string;
   } | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const { data: ICONS = [] } = useGetIcons();
   const { updatePlayerScore } = useGameplay();
 
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -74,6 +78,8 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
   };
 
   const renderPill = (player: (typeof players)[number], animated = false) => {
+    const iconIndex = player.id % ICONS.length;
+    const icon = ICONS[iconIndex] || ICONS[0];
     const animatedStyle = animated
       ? {
           transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
@@ -81,7 +87,10 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
       : {};
 
     return (
-      <TouchableOpacity onPress={() => handlePillPress(player)}>
+      <TouchableOpacity
+        onPress={() => handlePillPress(player)}
+        activeOpacity={0.9}
+      >
         <Animated.View style={animatedStyle}>
           <View
             style={[
@@ -93,6 +102,14 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
               <Text style={styles.rank}>{player.score}</Text>
             </View>
             <Text style={styles.name}>{player.name}</Text>
+            <LottieView
+              source={icon}
+              style={{
+                width: 35,
+                height: 35,
+                marginLeft: 10,
+              }}
+            />
           </View>
         </Animated.View>
       </TouchableOpacity>
@@ -115,6 +132,8 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
           playerName={selectedPlayer.name}
           initialScore={selectedPlayer.score}
           onSave={handleSaveScore}
+          startColor={selectedPlayer.startColor || "#192C43"}
+          playerIcon={ICONS[selectedPlayer.id % ICONS.length] || ICONS[0]}
         />
       )}
     </>

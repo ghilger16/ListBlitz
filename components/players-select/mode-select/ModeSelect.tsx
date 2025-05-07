@@ -70,11 +70,16 @@ const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
                 borderColor: mode === GameMode.CHILL ? "#FFD700" : "#87CEFA",
                 backgroundColor:
                   mode === GameMode.CHILL ? "#FFD700" : "#87CEFA",
-                shadowOpacity: mode === GameMode.CHILL ? 1 : 0.3,
               },
             ]}
           >
-            <Text style={styles.modeText}>{MODES[mode]}</Text>
+            <View style={styles.arrowRow}>
+              <Text style={styles.arrow}>‹</Text>
+              <View style={styles.modeTextWrapper}>
+                <Text style={styles.modeText}>{MODES[mode]}</Text>
+              </View>
+              <Text style={styles.arrow}>›</Text>
+            </View>
           </View>
         </Animated.View>
       </TouchableWithoutFeedback>
@@ -99,10 +104,19 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     shadowColor: "#fff",
     shadowRadius: 10,
+    shadowOpacity: 0.3,
     elevation: 5,
   },
+  modeTextWrapper: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#192c43",
+    borderRadius: 50,
+    width: 85,
+    height: 85,
+  },
   modeText: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "bold",
     color: "white",
     fontFamily: "SourGummy",
@@ -111,5 +125,16 @@ const styles = StyleSheet.create({
     textShadowColor: "#333",
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 2,
+  },
+  arrowRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  arrow: {
+    color: "white",
+    fontSize: 32,
+    fontWeight: "bold",
+    marginHorizontal: 5,
+    marginBottom: 1,
   },
 });
