@@ -1,12 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import {
-  Text,
-  Animated,
-  SafeAreaView,
-  View,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { Text, Animated, SafeAreaView, View, StyleSheet } from "react-native";
 
 import { Player } from "@Context";
 import { PromptDisplay } from "components/prompt-display";
@@ -17,7 +10,7 @@ import { WinnerOverlay } from "./winner-overlay/WinningOverlay";
 interface BlitzModeProps {
   currentPrompt: string;
   handleNextPlayer: (score: number) => void;
-  players: { id: number; name: string; score: number }[];
+  players: { id: number; name: string; score: number | null }[];
   currentPlayer: Player;
   handleNextRound: () => void;
 }
@@ -162,5 +155,6 @@ const styles = StyleSheet.create({
   counterContainer: {
     flex: 1,
     justifyContent: "center",
+    marginLeft: 15,
   },
 });

@@ -205,24 +205,26 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
         >
           {index + 1}
         </Text>
-        <View
-          style={{
-            position: "absolute",
-            left: x - 30,
-            top: y - 15,
-            justifyContent: "center",
-            alignItems: "center",
-            opacity: isSelected ? 1 : 0.5,
-          }}
-        >
-          <LottieView
-            ref={lottieRef}
-            source={iconSource}
-            autoPlay={isSelected}
-            loop={isSelected}
-            style={{ width: 75, height: 75 }}
-          />
-        </View>
+        {iconSource && (
+          <View
+            style={{
+              position: "absolute",
+              left: x - 30,
+              top: y - 15,
+              justifyContent: "center",
+              alignItems: "center",
+              opacity: isSelected ? 1 : 0.5,
+            }}
+          >
+            <LottieView
+              ref={lottieRef}
+              source={iconSource}
+              autoPlay={isSelected}
+              loop={isSelected}
+              style={{ width: 75, height: 75 }}
+            />
+          </View>
+        )}
       </G>
     );
   };
@@ -240,6 +242,10 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
             ))}
           </Defs>
           <G x={RADIUS + 10} y={RADIUS + 25}>
+            <Circle cx={0} cy={0} r={RADIUS} fill="#192c43" />
+            {/* Background behind the wheel */}
+            <Circle cx={0} cy={0} r={RADIUS} fill="#192c43" />
+
             <G transform="rotate(165)">
               <Defs>
                 <Path
@@ -264,6 +270,7 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
                 </TextPath>
               </Text>
             </G>
+
             {arcs.map(renderSlice)}
             {highlightArcs.map((arc, index) =>
               arc ? (

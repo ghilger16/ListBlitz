@@ -17,11 +17,6 @@ const PackLibrary: React.FC = () => {
     router.push("/player-select");
   };
 
-  const rows = [];
-  for (let i = 0; i < blitzPacks.length; i += 3) {
-    rows.push(blitzPacks.slice(i, i + 3));
-  }
-
   return (
     <>
       <View style={styles.absoluteContainer}>
@@ -37,18 +32,37 @@ const PackLibrary: React.FC = () => {
         style={styles.scrollView}
       >
         <View style={styles.contentContainer}>
-          {rows.map((row, rowIndex) => (
-            <View style={styles.row} key={rowIndex}>
-              {row.map((pack, index) => (
+          <Text style={styles.sectionTitle}>Family & Kids</Text>
+          <View style={styles.row}>
+            {blitzPacks
+              .filter((pack) =>
+                ["Snack Attack", "Categorical Chaos"].includes(pack.title)
+              )
+              .map((pack, index) => (
                 <BlitzPack
                   key={pack.id}
                   title={pack.title}
                   onPress={() => handlePackPress(pack.title, pack.id)}
-                  index={rowIndex * 3 + index}
+                  index={index}
                 />
               ))}
-            </View>
-          ))}
+          </View>
+
+          <Text style={styles.sectionTitle}>Entertainment</Text>
+          <View style={styles.row}>
+            {blitzPacks
+              .filter((pack) =>
+                ["Big Screen Blitz", "Alpha Blitz"].includes(pack.title)
+              )
+              .map((pack, index) => (
+                <BlitzPack
+                  key={pack.id}
+                  title={pack.title}
+                  onPress={() => handlePackPress(pack.title, pack.id)}
+                  index={index}
+                />
+              ))}
+          </View>
         </View>
       </ScrollView>
     </>
@@ -88,6 +102,16 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     marginBottom: 10,
+  },
+  sectionTitle: {
+    fontFamily: "SourGummy",
+    fontSize: 20,
+    textTransform: "uppercase",
+    color: "#6BDFFF",
+    marginBottom: 10,
+    textAlign: "left",
+    alignSelf: "flex-start",
+    marginLeft: 20,
   },
 });
 

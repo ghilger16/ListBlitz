@@ -39,9 +39,10 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
 
   const slideAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   const sortedPlayers = [...players]
-    .filter((player) => player.score > 0)
+    .filter((p) => p.score !== null)
     .sort((a, b) => b.score - a.score);
 
   const winner = sortedPlayers[0];
@@ -64,6 +65,23 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
     }
   }, [isRoundOver]);
 
+  useEffect(() => {
+    if (winner) {
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.2,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [winner]);
+
   const handlePillPress = (player: (typeof players)[number]) => {
     setSelectedPlayer(player);
     setIsModalVisible(true);
@@ -78,6 +96,7 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
   };
 
   const renderPill = (player: (typeof players)[number], animated = false) => {
+    if (player.score === null) return null;
     const iconIndex = player.id % ICONS.length;
     const icon = ICONS[iconIndex] || ICONS[0];
     const animatedStyle = animated
@@ -99,7 +118,9 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
             ]}
           >
             <View style={styles.rankContainer}>
-              <Text style={styles.rank}>{player.score}</Text>
+              <Text style={styles.rank}>
+                {sortedPlayers.findIndex((p) => p.id === player.id) + 1}
+              </Text>
             </View>
             <Text style={styles.name}>{player.name}</Text>
             <LottieView
@@ -110,6 +131,22 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
                 marginLeft: 10,
               }}
             />
+            <Animated.View
+              style={
+                sortedPlayers[0].id === player.id
+                  ? [styles.pulseStyle, { transform: [{ scale: pulseAnim }] }]
+                  : {}
+              }
+            >
+              <Text
+                style={[
+                  styles.scoreText,
+                  { marginLeft: player.score < 10 ? 35 : 25 },
+                ]}
+              >
+                {player.score}
+              </Text>
+            </Animated.View>
           </View>
         </Animated.View>
       </TouchableOpacity>
@@ -173,5 +210,23 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginLeft: 50,
     fontFamily: "LuckiestGuy",
+  },
+  scoreText: {
+    fontSize: 35,
+    fontWeight: "bold",
+    color: "#fff",
+    marginLeft: 25,
+    marginTop: 8,
+    fontFamily: "LuckiestGuy",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+  },
+  pulseStyle: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
   },
 });

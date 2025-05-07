@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useLayoutEffect,
+} from "react";
 import {
   Animated,
   Easing,
@@ -8,7 +14,7 @@ import {
   SafeAreaView,
   View,
 } from "react-native";
-import { router, Stack } from "expo-router";
+import { router, Stack, useNavigation } from "expo-router";
 import { useGameplay, GameMode } from "@Context";
 import { FlashingText, PlayersSelect } from "@Components";
 import { ModeSelect } from "components/players-select/mode-select";
@@ -17,6 +23,8 @@ const PlayerSelect: React.FC = () => {
   const { setGameSettings, onGameStart, gameSettings } = useGameplay();
   const [selectedMode, setSelectedMode] = useState<GameMode>(gameSettings.mode);
   const [playerCount, setPlayerCount] = useState(1);
+
+  const navigation = useNavigation();
 
   const glowAnim = useRef(new Animated.Value(0)).current;
 
@@ -62,28 +70,36 @@ const PlayerSelect: React.FC = () => {
   }, [selectedMode, playerCount, setGameSettings, gameSettings]);
 
   const handleGameStart = () => {
-    if (playerCount > 0) onGameStart();
+    if (playerCount > 0) {
+      onGameStart();
+      router.push("/gameplay");
+    }
   };
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      animation: "none",
+      headerTitle: () => (
+        <Text style={styles.title}>{gameSettings.blitzPackTitle}</Text>
+      ),
+      headerStyle: {
+        backgroundColor: "#192c43",
+      },
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={{ paddingHorizontal: 15, paddingVertical: 5 }}
+        >
+          <Text style={{ fontSize: 30, color: "#fff", fontWeight: "700" }}>
+            ←
+          </Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, gameSettings.blitzPackTitle]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Stack.Screen
-        options={{
-          animation: "none",
-          headerTitle: () => (
-            <Text style={styles.title}>{gameSettings.blitzPackTitle}</Text>
-          ),
-          headerStyle: {
-            backgroundColor: "transparent",
-          },
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()}>
-              <Text style={styles.backButtonText}>←</Text>
-            </TouchableOpacity>
-          ),
-        }}
-      />
-
       <View style={styles.playersWrapper}>
         <Text style={styles.wheelTitle}>
           <FlashingText>Select Players</FlashingText>

@@ -13,7 +13,7 @@ export interface GameSettings {
 export interface Player {
   id: number;
   name: string;
-  score: number;
+  score: number | null;
   startColor: string;
   endColor: string;
 }

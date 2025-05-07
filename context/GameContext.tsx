@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, ReactNode } from "react";
-import { useRouter } from "expo-router";
+
 import { COLORS, GameMode, GameSettings, Player } from "./constants"; // Ensure this contains GameMode enums
 
 // Context Type
@@ -20,7 +20,6 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 
 // Provider Component
 export const GameProvider = ({ children }: { children: ReactNode }) => {
-  const router = useRouter();
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentPlayer, setCurrentPlayer] = useState<Player>({} as Player);
   const [gameSettings, setGameSettingsState] = useState<GameSettings>({
@@ -33,7 +32,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     const newPlayers = Array.from({ length: playerCount }, (_, index) => ({
       id: index + 1,
       name: `Player ${index + 1}`,
-      score: 0,
+      score: null,
       startColor: COLORS[index % COLORS.length][0],
       endColor: COLORS[index % COLORS.length][1],
     }));
@@ -84,12 +83,11 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     }
 
     initializePlayers(playerCount);
-    router.push("/gameplay");
   };
 
   const handleNextRound = () => {
     setPlayers((prevPlayers) =>
-      prevPlayers.map((player) => ({ ...player, score: 0 }))
+      prevPlayers.map((player) => ({ ...player, score: null }))
     );
 
     if (players.length > 0) {

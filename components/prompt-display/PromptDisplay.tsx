@@ -81,6 +81,7 @@ export const PromptDisplay: React.FC<{
                 transform: [{ scale: scaleValue }],
                 fontSize: 70,
                 color: "#fff",
+                marginTop: countdown ? 20 : 5,
               },
             ]}
           >
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#192c43",
     borderRadius: 30,
-    width: 325,
+    width: 350,
     height: 115,
     alignItems: "center",
     justifyContent: "center",
@@ -119,7 +120,6 @@ const styles = StyleSheet.create({
     fontFamily: "LuckiestGuy",
     fontSize: 23,
     fontWeight: "bold",
-    marginTop: 5,
     color: "#ffffff",
     textAlign: "center",
     textShadowColor: "rgba(0, 0, 0, 0.5)",

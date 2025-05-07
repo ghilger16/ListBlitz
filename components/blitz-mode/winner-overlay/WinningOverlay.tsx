@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import {
   Animated,
   View,
@@ -24,6 +24,26 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
   fadeAnim,
 }) => {
   const { data: ICONS = [] } = useGetIcons();
+
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.15,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
   return (
     <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
       <LinearGradient colors={["#6a11cb", "#2575fc"]} style={styles.gradient}>
@@ -39,11 +59,22 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
         fallSpeed={4000}
         explosionSpeed={400}
       />
+      <Animated.Text
+        style={[styles.winnerText, { transform: [{ scale: pulseAnim }] }]}
+      >
+        Winner!
+      </Animated.Text>
       <LottieView
         source={ICONS[3]}
         autoPlay
         loop={false}
-        style={{ marginTop: 50, width: 250, height: 250 }}
+        style={{
+          marginTop: -20,
+          marginBottom: 50,
+          width: 250,
+          height: 250,
+          alignSelf: "center",
+        }}
       />
       <View style={styles.rankingsContainer}>
         <ScoreRankings players={players} isRoundOver />
@@ -55,13 +86,13 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     position: "absolute",
-    top: 0,
+    top: -100,
     left: 0,
     right: 0,
-    bottom: 0,
+    bottom: -40,
     backgroundColor: "#192c43",
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "stretch",
   },
   gradient: {
     ...StyleSheet.absoluteFillObject,
@@ -83,8 +114,19 @@ const styles = StyleSheet.create({
   rankingsContainer: {
     flex: 1,
     justifyContent: "center",
-    marginTop: 200,
-    marginRight: 20,
+    marginTop: 85,
+    paddingHorizontal: 35,
     zIndex: 1,
+  },
+  winnerText: {
+    fontSize: 48,
+    fontWeight: "bold",
+    color: "#ffffff",
+    textAlign: "center",
+    marginTop: 100,
+    fontFamily: "LuckiestGuy",
+    textShadowColor: "#FFD700",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 15,
   },
 });
