@@ -1,7 +1,22 @@
-export const blitzPackIcons: Record<string, any> = {
-  "Categorically Speaking": require("@Assets/icons/category-chaos.png"),
-  "Snack Attack": require("@Assets/icons/snack-attack.png"),
-  // "Alpha Blitz": require("@Assets/icons/alpha-blitz.png"),
-  // "Big Screen Blitz": require("@Assets/icons/big-screen-blitz.png"),
-  // "The Thing Is": require("@Assets/icons/the-thing-is.png"),
+export const blitzPackIcons: Record<string, { icon: any; titleImage?: any }> = {
+  "Categorically Speaking": {
+    icon: require("@Assets/icons/category-chaos.png"),
+    titleImage: require("@Assets/icons/category-chaos-title.png"),
+  },
+  "Snack Attack": {
+    icon: require("@Assets/icons/snack-attack.png"),
+    titleImage: require("@Assets/icons/snack-attack-title.png"),
+  },
+  "Alpha Blitz": {
+    icon: require("@Assets/icons/alpha-blitz.png"),
+    titleImage: require("@Assets/icons/alpha-blitz-title.png"),
+  },
+  "Big Screen Blitz": {
+    icon: require("@Assets/icons/big-screen-blitz.png"),
+    titleImage: require("@Assets/icons/big-screen-blitz-title.png"),
+  },
+  "The Thing Is": {
+    icon: require("@Assets/icons/the-thing-is.png"),
+    titleImage: require("@Assets/icons/the-thing-is-title.png"),
+  },
 };

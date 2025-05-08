@@ -15,31 +15,37 @@ export const BlitzPack: React.FC<IBlitzPackProps> = ({
   index,
 }) => {
   const assignedColor = COLORS[index % COLORS.length];
-  const icon = blitzPackIcons[title];
+  const { icon, titleImage } = blitzPackIcons[title] || {};
   return (
     <TouchableOpacity style={styles.cardContainer} onPress={onPress}>
       <LinearGradient
         colors={assignedColor}
         style={styles.gradientBackground}
       />
-      {icon && <Image source={icon} style={styles.icon} resizeMode="contain" />}
-      {/* <Text style={styles.cardTitle}>{title}</Text> */}
+      <View style={styles.contentColumn}>
+        {titleImage && (
+          <Image
+            source={titleImage}
+            style={styles.titleImage}
+            resizeMode="contain"
+          />
+        )}
+
+        {icon && (
+          <Image source={icon} style={styles.icon} resizeMode="contain" />
+        )}
+      </View>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: 100,
-    height: 130,
+    width: 125,
+    height: 165,
     margin: 2,
-    borderRadius: 25,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
     elevation: 3,
     alignItems: "center",
-    justifyContent: "center",
     overflow: "hidden",
   },
   gradientBackground: {
@@ -47,15 +53,21 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     zIndex: -1,
   },
-  cardTitle: {
-    fontSize: 14,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginTop: 8,
-    color: "#333",
-  },
   icon: {
-    width: 100,
-    height: 130,
+    width: 95,
+    height: 95,
+    borderTopWidth: 1,
+    borderTopColor: "#000",
+  },
+  titleImage: {
+    width: "95%",
+    height: undefined,
+    aspectRatio: 1.5,
+    resizeMode: "contain",
+  },
+  contentColumn: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
