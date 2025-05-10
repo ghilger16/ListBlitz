@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import Svg, { G, Path as SvgPath, Text as SvgText } from "react-native-svg";
 import * as d3 from "d3-shape";
-import { COLORS, Player } from "@Context";
+import { Player } from "@Context";
 import { playSound } from "components/utils";
 import { tapSound } from "@Assets";
 import { useGetIcons } from "@Services";
@@ -26,8 +26,6 @@ interface BlitzCounterProps {
 }
 
 const RADIUS = 110;
-const INNER_RADIUS = 80;
-const BORDER_RADIUS = 140;
 const CENTER_RADIUS = 60;
 const MISSING_ANGLE = Math.PI * 0.3;
 
@@ -49,7 +47,7 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   const [displayTime, setDisplayTime] = useState(timer);
   const [fillAngle, setFillAngle] = useState(Math.PI * 1 - MISSING_ANGLE / 2);
 
-  const iconIndex = currentPlayer.id + (1 % ICONS.length);
+  const iconIndex = currentPlayer.id - 1;
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -134,7 +132,7 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
             <G>
               <LottieView
                 ref={lottieRef}
-                source={ICONS[iconIndex] ?? ICONS[0]}
+                source={ICONS[iconIndex]}
                 autoPlay
                 loop
                 style={{

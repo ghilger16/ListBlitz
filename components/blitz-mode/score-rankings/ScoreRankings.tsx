@@ -97,8 +97,8 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
 
   const renderPill = (player: (typeof players)[number], animated = false) => {
     if (player.score === null) return null;
-    const iconIndex = player.id % ICONS.length;
-    const icon = ICONS[iconIndex] || ICONS[0];
+    const iconIndex = player.id - 1;
+    const icon = ICONS[iconIndex];
     const animatedStyle = animated
       ? {
           transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
