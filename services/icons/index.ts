@@ -1,1 +1,1 @@
-export { useGetIcons } from "./icons-service";
+export { useGetIcons, useGetAlphabetIcons } from "./icons-service";

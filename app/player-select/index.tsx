@@ -101,9 +101,11 @@ const PlayerSelect: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.playersWrapper}>
-        <Text style={styles.wheelTitle}>
-          <FlashingText>Select Players</FlashingText>
-        </Text>
+        <View style={styles.textContainer}>
+          <FlashingText style={styles.selectPlayerText}>
+            Select Players
+          </FlashingText>
+        </View>
         <PlayersSelect onPlayerCountChange={handlePlayerCountChange} />
         <ModeSelect onModeChange={handleModeChange} mode={selectedMode} />
       </View>
@@ -150,8 +152,13 @@ const styles = StyleSheet.create({
     marginTop: 75,
     alignItems: "center",
   },
-  wheelTitle: {
-    marginBottom: 20,
+  textContainer: {
+    marginBottom: 50,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  selectPlayerText: {
+    fontSize: 20,
     letterSpacing: 2,
     textTransform: "uppercase",
     textShadowColor: "rgba(0, 191, 255, 0.7)",

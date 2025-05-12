@@ -110,8 +110,8 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
       .outerRadius(RADIUS + 10)
       .startAngle(fillAngle)
       .endAngle(endAngle);
-    return [fillArc, animatedFillArc];
-  }, [fillAngle]);
+    return { fillArc, animatedFillArc };
+  }, [fillAngle, isGameStarted]);
 
   const handleIncrement = () => {
     if (isCountdownActive) return;
@@ -148,16 +148,16 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
             </G>
           )}
           <AnimatedSvgPath
-            d={borderArcGenerator[0]({} as any) || ""}
+            d={borderArcGenerator.fillArc({} as any) || ""}
             fill="none"
-            stroke="#FFF"
+            stroke={isGameStarted ? "#FFF" : currentPlayer.startColor}
             strokeWidth={12}
             strokeLinecap="round"
           />
           <AnimatedSvgPath
-            d={borderArcGenerator[1]({} as any) || ""}
+            d={borderArcGenerator.animatedFillArc({} as any) || ""}
             fill="none"
-            stroke={currentPlayer.startColor}
+            stroke={isGameStarted ? currentPlayer.startColor : "transparent"}
             strokeWidth={12}
             strokeLinecap="round"
           />
@@ -182,9 +182,22 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
           >
             {formatTime(displayTime)}
           </SvgText>
+          {!isGameStarted && (
+            <SvgText
+              x="0"
+              y="150"
+              fontSize="20"
+              fontWeight="bold"
+              fill="#fff"
+              textAnchor="middle"
+              fontFamily="LuckiestGuy"
+            >
+              {currentPlayer.name}
+            </SvgText>
+          )}
         </G>
       </Svg>
-
+      {/* <Text style={styles.playerNameText}>{currentPlayer.name}</Text> */}
       <View style={styles.pillWrapper}>
         <Animated.View
           style={[styles.animatedPill, { backgroundColor: animatedColor }]}
@@ -225,5 +238,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 12,
     fontFamily: "LuckiestGuy",
+  },
+  playerNameText: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#fff",
+    marginTop: -10,
+    marginBottom: 10,
+    fontFamily: "LuckiestGuy",
+    zIndex: 2,
   },
 });

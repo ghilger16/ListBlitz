@@ -16,26 +16,32 @@ interface ScoreRankingsProps {
   players: {
     id: number;
     name: string;
-    score: number;
+    score: number | null;
     startColor?: string;
     endColor?: string;
   }[];
   isRoundOver?: boolean;
+  isGameStarted?: boolean;
 }
 
 export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
   players,
   isRoundOver,
+  isGameStarted,
 }) => {
   const [selectedPlayer, setSelectedPlayer] = useState<{
     id: number;
     name: string;
-    score: number;
+    score: number | null;
     startColor?: string;
   } | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { data: ICONS = [] } = useGetIcons();
   const { updatePlayerScore } = useGameplay();
+
+  const getPlayerIcon = (playerId: number) => {
+    return ICONS[playerId - 1];
+  };
 
   const slideAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -43,7 +49,7 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
 
   const sortedPlayers = [...players]
     .filter((p) => p.score !== null)
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
 
   const winner = sortedPlayers[0];
   const restPlayers = sortedPlayers.slice(1);
@@ -97,8 +103,7 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
 
   const renderPill = (player: (typeof players)[number], animated = false) => {
     if (player.score === null) return null;
-    const iconIndex = player.id - 1;
-    const icon = ICONS[iconIndex];
+    const icon = getPlayerIcon(player.id);
     const animatedStyle = animated
       ? {
           transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
@@ -126,9 +131,9 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
             <LottieView
               source={icon}
               style={{
-                width: 35,
-                height: 35,
-                marginLeft: 10,
+                width: 40,
+                height: 40,
+                marginLeft: 8,
               }}
             />
             <Animated.View
@@ -162,7 +167,7 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
         style={{ maxHeight: 170, overflow: "hidden" }}
         renderItem={({ item }) => renderPill(item)}
       />
-      {selectedPlayer && (
+      {selectedPlayer && !isGameStarted && (
         <EditScoreModal
           visible={isModalVisible}
           onClose={() => setIsModalVisible(false)}
@@ -170,7 +175,7 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
           initialScore={selectedPlayer.score}
           onSave={handleSaveScore}
           startColor={selectedPlayer.startColor || "#192C43"}
-          playerIcon={ICONS[selectedPlayer.id % ICONS.length] || ICONS[0]}
+          playerIcon={getPlayerIcon(selectedPlayer.id)}
         />
       )}
     </>

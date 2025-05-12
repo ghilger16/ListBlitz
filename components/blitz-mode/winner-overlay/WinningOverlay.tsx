@@ -13,7 +13,7 @@ import { ScoreRankings } from "../score-rankings";
 import { useGetIcons } from "@Services";
 
 interface WinnerOverlayProps {
-  players: { id: number; name: string; score: number }[];
+  players: { id: number; name: string; score: number | null }[];
   handleNextRound: () => void;
   fadeAnim: Animated.Value;
 }
@@ -23,7 +23,7 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
   handleNextRound,
   fadeAnim,
 }) => {
-  const { data: ICONS = [] } = useGetIcons();
+  const { data: ICONS = [] } = useGetIcons(true);
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -65,7 +65,7 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
         Winner!
       </Animated.Text>
       <LottieView
-        source={ICONS[3]}
+        source={ICONS[0]}
         autoPlay
         loop={false}
         style={{

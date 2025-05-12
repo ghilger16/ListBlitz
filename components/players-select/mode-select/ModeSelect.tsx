@@ -9,11 +9,6 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 
-const MODES = {
-  [GameMode.CHILL]: "Chill\nMode",
-  [GameMode.BLITZ]: "Blitz\nMode",
-};
-
 interface ModeSelectProps {
   onModeChange: (newMode: GameMode) => void;
   mode: GameMode;
@@ -75,9 +70,7 @@ const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
           >
             <View style={styles.arrowRow}>
               <Text style={styles.arrow}>‹</Text>
-              <View style={styles.modeTextWrapper}>
-                <Text style={styles.modeText}>{MODES[mode]}</Text>
-              </View>
+              {MODES[mode]}
               <Text style={styles.arrow}>›</Text>
             </View>
           </View>
@@ -107,24 +100,30 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     elevation: 5,
   },
-  modeTextWrapper: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#192c43",
-    borderRadius: 50,
-    width: 85,
-    height: 85,
-  },
   modeText: {
     fontSize: 26,
     fontWeight: "bold",
     color: "white",
-    fontFamily: "SourGummy",
+    fontFamily: "Avenir-Heavy",
     textAlign: "center",
     lineHeight: 30,
-    textShadowColor: "#333",
+    textShadowColor: "#000",
     textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 2,
+    textShadowRadius: 4,
+  },
+  iconEmoji: {
+    fontSize: 40,
+    marginBottom: 2,
+  },
+  modeLabel: {
+    fontSize: 26,
+    fontWeight: "bold",
+    color: "white",
+    fontFamily: "Avenir-Heavy",
+    textAlign: "center",
+    textShadowColor: "#000",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   arrowRow: {
     flexDirection: "row",
@@ -134,7 +133,22 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 32,
     fontWeight: "bold",
-    marginHorizontal: 5,
+    marginHorizontal: 15,
     marginBottom: 1,
   },
 });
+
+const MODES: Record<GameMode, React.ReactNode> = {
+  [GameMode.CHILL]: (
+    <View style={{ alignItems: "center" }}>
+      <Text style={styles.iconEmoji}>😎</Text>
+      <Text style={styles.modeLabel}>Chill</Text>
+    </View>
+  ),
+  [GameMode.BLITZ]: (
+    <View style={{ alignItems: "center" }}>
+      <Text style={styles.iconEmoji}>⚡</Text>
+      <Text style={styles.modeLabel}>Blitz</Text>
+    </View>
+  ),
+};

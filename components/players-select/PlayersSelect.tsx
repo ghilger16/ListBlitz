@@ -209,8 +209,8 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
           <View
             style={{
               position: "absolute",
-              left: x - 30,
-              top: y - 15,
+              left: x - 35,
+              top: y - 20,
               justifyContent: "center",
               alignItems: "center",
               opacity: isSelected ? 1 : 0.5,
@@ -221,7 +221,7 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
               source={iconSource}
               autoPlay={isSelected}
               loop={isSelected}
-              style={{ width: 75, height: 75 }}
+              style={{ width: 85, height: 85 }}
             />
           </View>
         )}

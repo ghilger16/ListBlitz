@@ -13,7 +13,7 @@ interface EditScoreModalProps {
   visible: boolean;
   onClose: () => void;
   playerName: string;
-  initialScore: number;
+  initialScore: number | null;
   onSave: (newScore: number) => void;
   startColor: string; // <-- Add this
   playerIcon: any;
@@ -28,7 +28,7 @@ export const EditScoreModal: React.FC<EditScoreModalProps> = ({
   startColor,
   playerIcon,
 }) => {
-  const [score, setScore] = useState(initialScore.toString());
+  const [score, setScore] = useState((initialScore ?? 0).toString());
 
   const handleSave = () => {
     const newScore = parseInt(score, 10);

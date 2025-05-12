@@ -5,12 +5,14 @@ import { PromptDisplay } from "components/prompt-display";
 import { NextPlayerPrompt } from "components/next-player-prompt";
 import { useGetIcons } from "@Services";
 import { Player } from "@Context";
+import { blitzPackIcons } from "components/blitz-packs/blitzPackIcons";
 
 interface ChillModeProps {
   currentPrompt: string;
   handleNextPlayer: (score: number) => void;
   currentPlayer: Player;
   players: Player[];
+  packTitle: string;
 }
 
 export const ChillMode: React.FC<ChillModeProps> = ({
@@ -18,11 +20,14 @@ export const ChillMode: React.FC<ChillModeProps> = ({
   handleNextPlayer,
   currentPlayer,
   players,
+  packTitle,
 }) => {
   const { data: ICONS = [] } = useGetIcons();
   const [score, setScore] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(true);
   const [showNextPlayerBubble, setShowNextPlayerBubble] = useState(false);
+
+  const titleImage = blitzPackIcons[packTitle]?.titleImage;
 
   const handleScoreIncrement = () => {
     if (isGameStarted && score < 5) {
@@ -37,20 +42,24 @@ export const ChillMode: React.FC<ChillModeProps> = ({
   }, [score]);
 
   const handleNextPlayerClick = () => {
+    console.log("Next player clicked, score:", score);
+
     handleNextPlayer(score);
     setShowNextPlayerBubble(false);
     setScore(0);
   };
 
-  const nextIconIndex = (currentPlayer.id + 1) % ICONS.length;
   const currentIndex = players.findIndex((p) => p.id === currentPlayer.id);
   const nextIndex = (currentIndex + 1) % players.length;
+  const nextIconIndex = (players[nextIndex]?.id ?? 1) - 1;
 
   return (
     <View style={styles.wrapper}>
       <PromptDisplay
         prompt={currentPrompt}
         playerColor={currentPlayer.startColor}
+        categoryBubble={titleImage}
+        isAlphaBlitz={packTitle === "Alpha Blitz"}
       />
       <Text style={styles.playerText}>Player {currentPlayer.id}</Text>
       <View style={styles.counterContainer}>
@@ -77,7 +86,6 @@ export const ChillMode: React.FC<ChillModeProps> = ({
 
 const styles = StyleSheet.create({
   wrapper: {
-    backgroundColor: "#192c43",
     flex: 1,
     paddingTop: 15,
   },
@@ -96,7 +104,7 @@ const styles = StyleSheet.create({
   },
   nextPlayerContainer: {
     position: "absolute",
-    top: 500,
-    left: 15,
+    top: 550,
+    left: 25,
   },
 });

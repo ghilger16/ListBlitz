@@ -1,4 +1,10 @@
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useEffect,
+} from "react";
 
 import { COLORS, GameMode, GameSettings, Player } from "./constants"; // Ensure this contains GameMode enums
 
@@ -27,6 +33,10 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     playerCount: 0,
   });
 
+  useEffect(() => {
+    console.log("Current player:", currentPlayer);
+  }, [currentPlayer]);
+
   // Initialize Players
   const initializePlayers = (playerCount: number) => {
     const newPlayers = Array.from({ length: playerCount }, (_, index) => ({
@@ -50,17 +60,21 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 
   // Move to the next player, updating their score before switching
   const handleNextPlayer = (score: number) => {
-    // Update the current player's score
-    setPlayers((prevPlayers) =>
-      prevPlayers.map((player) =>
+    setPlayers((prevPlayers) => {
+      const updatedPlayers = prevPlayers.map((player) =>
         player.id === currentPlayer.id ? { ...player, score } : player
-      )
-    );
+      );
 
-    const currentIndex = players.findIndex((p) => p.id === currentPlayer.id);
-    const nextIndex = (currentIndex + 1) % players.length; // Loops back to 0 when out of range
+      const currentIndex = updatedPlayers.findIndex(
+        (p) => p.id === currentPlayer.id
+      );
+      const nextIndex = (currentIndex + 1) % updatedPlayers.length;
 
-    setCurrentPlayer(players[nextIndex]);
+      // Move currentPlayer here to ensure it's synced with updated players
+      setCurrentPlayer(updatedPlayers[nextIndex]);
+
+      return updatedPlayers;
+    });
   };
 
   // Set Game Settings (Partial Update)

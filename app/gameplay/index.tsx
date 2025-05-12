@@ -125,6 +125,7 @@ const Gameplay: React.FC = () => {
               handleNextPlayer={handleNextPlayerAndPrompt}
               currentPlayer={currentPlayer}
               players={players}
+              packTitle={gameSettings.blitzPackTitle || ""}
             />
           ) : (
             <BlitzMode
@@ -133,6 +134,7 @@ const Gameplay: React.FC = () => {
               players={players}
               currentPlayer={currentPlayer}
               handleNextRound={handleNextRound}
+              packTitle={gameSettings.blitzPackTitle || ""}
             />
           )}
         </View>

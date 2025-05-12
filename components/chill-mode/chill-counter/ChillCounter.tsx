@@ -1,18 +1,14 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
-import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  Text,
-  Dimensions,
-} from "react-native";
-import Svg, { Defs, G, LinearGradient, Path, Stop } from "react-native-svg";
+import React, { useState, useRef, useMemo, useEffect } from "react";
+import { View, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
+import Svg, { G, Path, Text as SvgText } from "react-native-svg";
 import * as d3 from "d3-shape";
 import LottieView from "lottie-react-native";
 import { useGetIcons } from "@Services";
-import { Audio } from "expo-av";
 import { Player } from "@Context";
 import { FlashingText } from "components/flashing-text";
+
+import { playSound } from "components/utils";
+import { tapSound } from "@Assets";
 
 const RADIUS = 160;
 const INNER_RADIUS = 110;
@@ -37,30 +33,11 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   const [fillAngle, setFillAngle] = useState(0);
   const [isPlayerStartVisible, setIsPlayerStartVisible] = useState(true);
   const lottieRef = useRef<LottieView>(null);
-  const soundRef = useRef<Audio.Sound | null>(null);
 
   const iconIndex = (currentPlayer.id - 1) % ICONS.length;
 
-  useEffect(() => {
-    const loadSound = async () => {
-      const { sound } = await Audio.Sound.createAsync(
-        require("@Assets/sounds/tap.mp3")
-      );
-      soundRef.current = sound;
-    };
-    loadSound();
-
-    return () => {
-      soundRef.current?.unloadAsync();
-    };
-  }, []);
-
-  const playSound = async () => {
-    try {
-      await soundRef.current?.replayAsync();
-    } catch (error) {
-      console.error("Error playing sound:", error);
-    }
+  const playSoundEffect = () => {
+    playSound(tapSound);
   };
 
   useEffect(() => {
@@ -113,7 +90,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   );
 
   const handleIncrement = () => {
-    playSound();
+    playSoundEffect();
     onIncrement();
   };
 
@@ -125,21 +102,19 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
 
   return (
     <View style={styles.container}>
-      <Svg width={RADIUS * 2 + 40} height={RADIUS + 120}>
-        <Defs>
-          <LinearGradient
-            id={`grad-${currentPlayer.id}`}
-            x1="0%"
-            y1="0%"
-            x2="100%"
-            y2="0%"
+      <Svg width={RADIUS * 2 + 40} height={RADIUS + 140}>
+        <G x={RADIUS + 20} y={RADIUS + 50}>
+          <SvgText
+            x=""
+            y="-175"
+            fontSize="45"
+            fontWeight="bold"
+            fill="#fff"
+            textAnchor="middle"
+            fontFamily="LuckiestGuy"
           >
-            <Stop offset="0%" stopColor={currentPlayer.startColor} />
-            <Stop offset="100%" stopColor={currentPlayer.endColor} />
-          </LinearGradient>
-        </Defs>
-        <G x={RADIUS + 20} y={RADIUS + 20}>
-          <Text style={styles.scoreText}>{score}</Text>
+            {score}
+          </SvgText>
           <Path
             d={borderArcGenerator[0]({} as any) || ""}
             fill="none"
@@ -154,7 +129,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
           />
           <Path
             d={arcGenerator({} as any) || ""}
-            fill={`url(#grad-${currentPlayer.id})`}
+            fill={currentPlayer.startColor}
           />
           {Array.from({ length: SECTIONS_COUNT }).map((_, index) => (
             <Path
@@ -170,11 +145,12 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
 
       <TouchableOpacity
         onPress={handleIncrement}
+        activeOpacity={0.9}
         style={[
           styles.tapButton,
           {
             borderColor: currentPlayer.startColor,
-            top: RADIUS - CENTER_RADIUS + 10,
+            top: RADIUS - CENTER_RADIUS + 40,
           },
         ]}
       >
@@ -200,15 +176,6 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     justifyContent: "center",
-  },
-  scoreText: {
-    position: "absolute",
-    top: -20,
-    fontFamily: "LuckiestGuy",
-    fontSize: 45,
-    fontWeight: "bold",
-    color: "#fff",
-    textAlign: "center",
   },
   tapButton: {
     position: "absolute",

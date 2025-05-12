@@ -10,6 +10,8 @@ import {
   DinosaurIcon,
   StarIcon,
   SkateboardIcon,
+  trophy,
+  AIcon,
 } from "@Assets";
 
 const iconUrls = [
@@ -25,14 +27,26 @@ const iconUrls = [
   SkateboardIcon,
 ];
 
-const fetchIcons = async () => {
-  return iconUrls;
+const fetchIcons = async (filterTrophyOnly = false) => {
+  return filterTrophyOnly ? [trophy] : iconUrls;
 };
 
-export const useGetIcons = () => {
+export const useGetIcons = (filterTrophyOnly = false) => {
   return useQuery({
-    queryKey: ["icons"],
-    queryFn: fetchIcons,
+    queryKey: ["icons", filterTrophyOnly],
+    queryFn: () => fetchIcons(filterTrophyOnly),
     staleTime: 1000 * 60 * 60,
   });
+};
+
+export const useGetAlphabetIcons = (index: number) => {
+  const alphabetIcons: Record<number, any> = {
+    0: AIcon,
+  };
+
+  const icon = alphabetIcons[index];
+
+  return {
+    icon,
+  };
 };
