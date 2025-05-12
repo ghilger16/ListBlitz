@@ -12,6 +12,7 @@ import {
   SkateboardIcon,
   trophy,
   AIcon,
+  BIcon,
 } from "@Assets";
 
 const iconUrls = [
@@ -42,6 +43,7 @@ export const useGetIcons = (filterTrophyOnly = false) => {
 export const useGetAlphabetIcons = (index: number) => {
   const alphabetIcons: Record<number, any> = {
     0: AIcon,
+    1: BIcon,
   };
 
   const icon = alphabetIcons[index];

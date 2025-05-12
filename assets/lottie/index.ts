@@ -8,4 +8,5 @@ export const ControllerIcon = require("./controller.lottie");
 export const DinosaurIcon = require("./dinosaur.lottie");
 export const StarIcon = require("./star.lottie");
 export const SkateboardIcon = require("./skateboard.lottie");
-export const AIcon = require("./a-icon.lottie");
+export const AIcon = require("./A.lottie");
+export const BIcon = require("./B.lottie");

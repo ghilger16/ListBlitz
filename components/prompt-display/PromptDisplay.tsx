@@ -31,13 +31,12 @@ export const PromptDisplay: React.FC<{
   isAlphaBlitz,
   selectedCategory,
 }) => {
-  console.log("🚀 ~ selectedCategory:", selectedCategory);
   const [bounceValue] = useState(new Animated.Value(1));
   const [fadeValue] = useState(new Animated.Value(0));
   const [scaleValue] = useState(new Animated.Value(0.8));
   const [hasPlayedSound, setHasPlayedSound] = useState(false);
 
-  const { icon: alphaIcon } = useGetAlphabetIcons(0);
+  const { icon: alphaIcon } = useGetAlphabetIcons(1);
 
   useEffect(() => {
     if (typeof countdown === "number" && !hasPlayedSound) {
@@ -90,12 +89,82 @@ export const PromptDisplay: React.FC<{
   return (
     <View style={{ alignItems: "center" }}>
       <View style={containerStyle}>
-        {isAlphaBlitz ? (
-          <Animated.Text
-            style={[styles.promptText, { transform: [{ scale: bounceValue }] }]}
-          >
-            {selectedCategory}
-          </Animated.Text>
+        {isAlphaBlitz && selectedCategory ? (
+          <>
+            <View
+              style={{ position: "absolute", top: 15, alignItems: "center" }}
+            >
+              <Animated.View
+                style={{
+                  transform: [{ scale: bounceValue }],
+                }}
+              >
+                <Text style={[styles.promptText]}>List {selectedCategory}</Text>
+                <Text style={[styles.promptText]}>
+                  that start with the letter
+                </Text>
+              </Animated.View>
+            </View>
+            <View
+              style={{ position: "absolute", bottom: -5, alignItems: "center" }}
+            >
+              {countdown !== null ? (
+                <Animated.Text
+                  style={[
+                    styles.promptText,
+                    {
+                      opacity: fadeValue,
+                      transform: [{ scale: scaleValue }],
+                      fontSize: 45,
+                      color: "#fff",
+                      marginTop: countdown ? 20 : 5,
+                    },
+                  ]}
+                >
+                  {countdown}
+                </Animated.Text>
+              ) : !isObscured ? (
+                <LottieView
+                  source={alphaIcon}
+                  autoPlay
+                  loop={false}
+                  style={[styles.alphaIcon, { marginTop: 20 }]}
+                />
+              ) : (
+                <Text
+                  style={[
+                    styles.promptText,
+                    {
+                      fontSize: 45,
+                      color: "#fff",
+                      fontFamily: "LuckiestGuy",
+                    },
+                  ]}
+                >
+                  ?
+                </Text>
+              )}
+            </View>
+          </>
+        ) : isAlphaBlitz && isObscured ? (
+          countdown !== null ? (
+            <Animated.Text
+              style={[
+                styles.promptText,
+                {
+                  opacity: fadeValue,
+                  transform: [{ scale: scaleValue }],
+                  fontSize: 70,
+                  color: "#fff",
+                  marginTop: countdown ? 20 : 5,
+                },
+              ]}
+            >
+              {countdown}
+            </Animated.Text>
+          ) : (
+            <Text style={styles.promptText}>List Blitz</Text>
+          )
         ) : isObscured ? (
           countdown !== null ? (
             <Animated.Text
@@ -123,46 +192,8 @@ export const PromptDisplay: React.FC<{
           </Animated.Text>
         )}
       </View>
-      {selectedCategory ? (
-        <View style={[styles.letterBubble, { borderColor: playerColor }]}>
-          {isObscured ? (
-            <Text
-              style={{
-                fontSize: 40,
-                color: "#fff",
-                fontWeight: "bold",
-                fontFamily: "LuckiestGuy",
-              }}
-            >
-              ?
-            </Text>
-          ) : (
-            <LottieView
-              source={alphaIcon}
-              autoPlay
-              loop={false}
-              style={styles.alphaIcon}
-            />
-          )}
-        </View>
-      ) : categoryBubble ? (
+      {categoryBubble && (
         <Image source={categoryBubble} style={styles.bubbleImage} />
-      ) : null}
-
-      {isAlphaBlitz && isObscured && countdown !== null && (
-        <View style={[styles.letterBubble, { borderColor: playerColor }]}>
-          <Text
-            style={{
-              fontSize: 40,
-              color: "#fff",
-              fontWeight: "bold",
-              fontFamily: "LuckiestGuy",
-              marginTop: 10,
-            }}
-          >
-            {countdown}
-          </Text>
-        </View>
       )}
     </View>
   );
@@ -202,13 +233,9 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   alphaIcon: {
-    width: 75,
-    height: 75,
-    position: "absolute",
-    // bottom: 110,
-    // left: 140,
+    width: 55,
+    height: 60,
     color: "#fff",
-    marginBottom: 5,
   },
   letterBubble: {
     position: "absolute",
