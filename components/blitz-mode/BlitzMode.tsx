@@ -1,5 +1,12 @@
-import React, { useEffect, useState, useRef } from "react";
-import { Text, Animated, SafeAreaView, View, StyleSheet } from "react-native";
+import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
+import {
+  Text,
+  Animated,
+  SafeAreaView,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 
 import { Player } from "@Context";
 import { PromptDisplay } from "components/prompt-display";
@@ -8,6 +15,7 @@ import { ScoreRankings } from "./score-rankings";
 import { WinnerOverlay } from "./winner-overlay/WinningOverlay";
 import { blitzPackIcons } from "components/blitz-packs/blitzPackIcons";
 import { AlphaCategorySelect } from "components/alpha-category-select";
+import { router, useNavigation } from "expo-router";
 
 interface BlitzModeProps {
   currentPrompt: string;
@@ -18,7 +26,11 @@ interface BlitzModeProps {
   packTitle: string;
 }
 
-const TIMER_DURATION = 5;
+const TIMER_DURATION = 1;
+
+const AnimatedImageBackground = Animated.createAnimatedComponent(
+  require("react-native").ImageBackground
+);
 
 export const BlitzMode: React.FC<BlitzModeProps> = ({
   currentPrompt,
@@ -36,7 +48,7 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [showWinnerOverlay, setShowWinnerOverlay] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  console.log("🚀 ~ selectedCategory:", selectedCategory);
+  const navigation = useNavigation();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -68,6 +80,29 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
       resetGameState();
     }
   }, [isGameStarted, timer]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      animation: "none",
+      headerTransparent: true,
+      headerTitle: "",
+      headerStyle: {
+        backgroundColor: "transparent",
+        elevation: 0,
+        shadowOpacity: 0,
+      },
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={{ paddingHorizontal: 15, paddingVertical: 5 }}
+        >
+          <Text style={{ fontSize: 30, color: "#fff", fontWeight: "700" }}>
+            ←
+          </Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
   const handleScoreIncrement = () => {
     if (isGameStarted) {
@@ -137,48 +172,52 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   }
 
   return (
-    <SafeAreaView style={styles.wrapper}>
-      <PromptDisplay
-        prompt={currentPrompt}
-        playerColor={currentPlayer.startColor}
-        categoryBubble={titleImage}
-        isObscured={!isGameStarted}
-        countdown={isCountdownActive ? countdown : null}
-        isAlphaBlitz={packTitle === "Alpha Blitz"}
-        selectedCategory={selectedCategory}
-      />
-
-      {packTitle === "Alpha Blitz" && !selectedCategory ? (
-        <AlphaCategorySelect
-          onSelectCategory={handleSelectCategory}
-          onPickRandom={handlePickRandom}
+    <AnimatedImageBackground
+      source={require("assets/images/blitz-bg.png")}
+      resizeMode="cover"
+      style={StyleSheet.absoluteFillObject}
+    >
+      <SafeAreaView style={styles.wrapper}>
+        <PromptDisplay
+          prompt={currentPrompt}
+          playerColor={currentPlayer.startColor}
+          categoryBubble={titleImage}
+          isObscured={!isGameStarted}
+          countdown={isCountdownActive ? countdown : null}
+          isAlphaBlitz={packTitle === "Alpha Blitz"}
+          selectedCategory={selectedCategory}
         />
-      ) : (
-        <View style={styles.counterContainer}>
-          <BlitzCounter
-            score={score}
-            onIncrement={handleScoreIncrement}
-            currentPlayer={currentPlayer}
-            onStart={handleStartGame}
-            timer={timer}
-            isGameStarted={isGameStarted}
-            isCountdownActive={isCountdownActive}
+
+        {packTitle === "Alpha Blitz" && !selectedCategory ? (
+          <AlphaCategorySelect
+            onSelectCategory={handleSelectCategory}
+            onPickRandom={handlePickRandom}
           />
-          <ScoreRankings
-            players={players}
-            isGameStarted={isGameStarted || isCountdownActive}
-          />
-        </View>
-      )}
-    </SafeAreaView>
+        ) : (
+          <View style={styles.counterContainer}>
+            <BlitzCounter
+              score={score}
+              onIncrement={handleScoreIncrement}
+              currentPlayer={currentPlayer}
+              onStart={handleStartGame}
+              timer={timer}
+              isGameStarted={isGameStarted}
+              isCountdownActive={isCountdownActive}
+            />
+            <ScoreRankings
+              players={players}
+              isGameStarted={isGameStarted || isCountdownActive}
+            />
+          </View>
+        )}
+      </SafeAreaView>
+    </AnimatedImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    justifyContent: "center",
-    paddingTop: 50,
   },
   playerLabel: {
     color: "#fff",

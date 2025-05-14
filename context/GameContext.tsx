@@ -33,10 +33,6 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     playerCount: 0,
   });
 
-  useEffect(() => {
-    console.log("Current player:", currentPlayer);
-  }, [currentPlayer]);
-
   // Initialize Players
   const initializePlayers = (playerCount: number) => {
     const newPlayers = Array.from({ length: playerCount }, (_, index) => ({

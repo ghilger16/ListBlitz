@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Animated,
@@ -13,6 +13,7 @@ import { playSound } from "components/utils";
 import { countdownSound } from "@Assets";
 import LottieView from "lottie-react-native";
 import { useGetAlphabetIcons } from "@Services";
+import { getUniqueRandomLetter, ALL_LETTERS } from "./utils";
 
 export const PromptDisplay: React.FC<{
   prompt: string;
@@ -36,7 +37,20 @@ export const PromptDisplay: React.FC<{
   const [scaleValue] = useState(new Animated.Value(0.8));
   const [hasPlayedSound, setHasPlayedSound] = useState(false);
 
-  const { icon: alphaIcon } = useGetAlphabetIcons(1);
+  const [letterIndex, setLetterIndex] = useState<string>("A");
+  const hasSetLetterRef = useRef(false);
+
+  const { icon: alphaIcon } = useGetAlphabetIcons(letterIndex);
+
+  useEffect(() => {
+    if (isObscured && isAlphaBlitz && !hasSetLetterRef.current) {
+      const letter = getUniqueRandomLetter();
+      console.log("🚀 ~ useEffect ~ letter:", letter);
+
+      setLetterIndex(letter);
+      hasSetLetterRef.current = true;
+    }
+  }, [isObscured, isAlphaBlitz]);
 
   useEffect(() => {
     if (typeof countdown === "number" && !hasPlayedSound) {
@@ -46,6 +60,7 @@ export const PromptDisplay: React.FC<{
 
     if (countdown === null) {
       setHasPlayedSound(false);
+      hasSetLetterRef.current = false;
     }
   }, [countdown, hasPlayedSound]);
 

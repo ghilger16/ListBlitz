@@ -1,24 +1,11 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
-import { Stack, useRouter, useNavigation } from "expo-router";
-import {
-  Text,
-  SafeAreaView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Animated,
-} from "react-native";
+import React, { useState, useEffect } from "react";
+import { Text, SafeAreaView, StyleSheet, View } from "react-native";
 
 import { GameMode, useGameplay } from "@Context";
 import { Prompt, useGetPromptsByBlitzPack } from "@Services";
 import { ChillMode, BlitzMode } from "@Components";
 
-const AnimatedImageBackground = Animated.createAnimatedComponent(
-  require("react-native").ImageBackground
-);
-
 const Gameplay: React.FC = () => {
-  const router = useRouter();
   const {
     players,
     currentPlayer,
@@ -49,8 +36,6 @@ const Gameplay: React.FC = () => {
   const [usedPrompts, setUsedPrompts] = useState(new Set());
   const [availablePrompts, setAvailablePrompts] = useState<Prompt[]>([]);
 
-  const navigation = useNavigation();
-
   useEffect(() => {
     if (prompts.length > 0) {
       const newPrompts = prompts.filter(
@@ -79,74 +64,38 @@ const Gameplay: React.FC = () => {
     );
   };
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      animation: "none",
-      headerTransparent: true,
-      headerTitle: "",
-      headerLeft: () => (
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{ paddingHorizontal: 15, paddingVertical: 5 }}
-        >
-          <Text style={{ fontSize: 30, color: "#fff", fontWeight: "700" }}>
-            ←
-          </Text>
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
-
-  const imageOpacity = useRef(new Animated.Value(0)).current;
-
-  const onImageLoad = () => {
-    Animated.timing(imageOpacity, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  };
-
   if (isLoading || !currentPlayer) return <Text>Loading...</Text>;
   if (error) return <Text>Error loading prompts.</Text>;
 
   return (
-    <AnimatedImageBackground
-      source={require("assets/images/blitz-bg.png")}
-      style={{ flex: 1, opacity: imageOpacity }}
-      resizeMode="cover"
-      onLoadEnd={onImageLoad}
-    >
-      <SafeAreaView style={styles.wrapper}>
-        <View style={styles.modeView}>
-          {mode === GameMode.CHILL ? (
-            <ChillMode
-              currentPrompt={currentPrompt}
-              handleNextPlayer={handleNextPlayerAndPrompt}
-              currentPlayer={currentPlayer}
-              players={players}
-              packTitle={gameSettings.blitzPackTitle || ""}
-            />
-          ) : (
-            <BlitzMode
-              currentPrompt={currentPrompt}
-              handleNextPlayer={handleNextPlayerAndPrompt}
-              players={players}
-              currentPlayer={currentPlayer}
-              handleNextRound={handleNextRound}
-              packTitle={gameSettings.blitzPackTitle || ""}
-            />
-          )}
-        </View>
-      </SafeAreaView>
-    </AnimatedImageBackground>
+    <SafeAreaView style={styles.wrapper}>
+      <View style={styles.modeView}>
+        {mode === GameMode.CHILL ? (
+          <ChillMode
+            currentPrompt={currentPrompt}
+            handleNextPlayer={handleNextPlayerAndPrompt}
+            currentPlayer={currentPlayer}
+            players={players}
+            packTitle={gameSettings.blitzPackTitle || ""}
+          />
+        ) : (
+          <BlitzMode
+            currentPrompt={currentPrompt}
+            handleNextPlayer={handleNextPlayerAndPrompt}
+            players={players}
+            currentPlayer={currentPlayer}
+            handleNextRound={handleNextRound}
+            packTitle={gameSettings.blitzPackTitle || ""}
+          />
+        )}
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: "transparent",
   },
   modeView: {
     flex: 1,

@@ -13,6 +13,30 @@ import {
   trophy,
   AIcon,
   BIcon,
+  CIcon,
+  DIcon,
+  EIcon,
+  FIcon,
+  GIcon,
+  HIcon,
+  IIcon,
+  JIcon,
+  KIcon,
+  LIcon,
+  MIcon,
+  NIcon,
+  OIcon,
+  PIcon,
+  QIcon,
+  RIcon,
+  SIcon,
+  TIcon,
+  UIcon,
+  VIcon,
+  WIcon,
+  XIcon,
+  YIcon,
+  ZIcon,
 } from "@Assets";
 
 const iconUrls = [
@@ -40,13 +64,33 @@ export const useGetIcons = (filterTrophyOnly = false) => {
   });
 };
 
-export const useGetAlphabetIcons = (index: number) => {
-  const alphabetIcons: Record<number, any> = {
-    0: AIcon,
-    1: BIcon,
+export const useGetAlphabetIcons = (letter: string) => {
+  const alphabetIcons: Record<string, any> = {
+    A: AIcon,
+    B: BIcon,
+    C: CIcon,
+    D: DIcon,
+    E: EIcon,
+    F: FIcon,
+    G: GIcon,
+    H: HIcon,
+    I: IIcon,
+    J: JIcon,
+    K: KIcon,
+    L: LIcon,
+    M: MIcon,
+    N: NIcon,
+    O: OIcon,
+    P: PIcon,
+    R: RIcon,
+    S: SIcon,
+    T: TIcon,
+    U: UIcon,
+    W: WIcon,
+    Y: YIcon,
   };
 
-  const icon = alphabetIcons[index];
+  const icon = alphabetIcons[letter] || null;
 
   return {
     icon,

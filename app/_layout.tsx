@@ -5,13 +5,7 @@ import { GameProvider } from "@Context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import {
-  View,
-  ActivityIndicator,
-  Image,
-  ImageBackground,
-  StatusBar,
-} from "react-native";
+import { View, ActivityIndicator, StatusBar } from "react-native";
 
 const headerGif = require("@Assets/gifs/header.gif");
 const backgroundImage = require("assets/images/blitz-bg.png");
@@ -55,33 +49,17 @@ const Layout: React.FC = () => {
     );
   }
 
-  const isGameplayRoute = pathname.includes("gameplay");
-
   return (
     <View style={{ flex: 1 }}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <QueryClientProvider client={queryClient}>
           <GameProvider>
             <StatusBar hidden />
-            {isGameplayRoute ? (
-              <ImageBackground
-                source={backgroundImage}
-                style={{ flex: 1 }}
-                resizeMode="cover"
-              >
-                <Stack
-                  screenOptions={{
-                    animation: "none",
-                  }}
-                />
-              </ImageBackground>
-            ) : (
-              <Stack
-                screenOptions={{
-                  animation: "none",
-                }}
-              />
-            )}
+            <Stack
+              screenOptions={{
+                animation: "none",
+              }}
+            />
           </GameProvider>
         </QueryClientProvider>
       </GestureHandlerRootView>

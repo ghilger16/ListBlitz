@@ -1,3 +1,4 @@
-import Trophy from "./trophy.svg";
+const Trophy = require("./trophy.svg");
+const BlitzModeSplash = require("./blitz-splash.png");
 
-export { Trophy };
+export { Trophy, BlitzModeSplash };
