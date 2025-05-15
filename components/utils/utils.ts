@@ -1,4 +1,5 @@
 import { Audio } from "expo-av"; // Import Audio from expo-av
+import { Asset } from "expo-asset";
 
 export const playSound = async (soundFile: any) => {
   try {
@@ -20,4 +21,11 @@ export const playSound = async (soundFile: any) => {
   } catch (error) {
     console.error("Error playing sound:", error);
   }
+};
+
+export const preloadAssets = async (assets: number[]): Promise<void> => {
+  const assetPromises = assets.map((asset) =>
+    Asset.fromModule(asset).downloadAsync()
+  );
+  await Promise.all(assetPromises);
 };

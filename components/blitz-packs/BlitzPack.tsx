@@ -17,7 +17,11 @@ export const BlitzPack: React.FC<IBlitzPackProps> = ({
   const assignedColor = COLORS[index % COLORS.length];
   const { icon, titleImage } = blitzPackIcons[title] || {};
   return (
-    <TouchableOpacity style={styles.cardContainer} onPress={onPress}>
+    <TouchableOpacity
+      style={styles.cardContainer}
+      onPress={onPress}
+      activeOpacity={0.9}
+    >
       <LinearGradient
         colors={assignedColor}
         style={styles.gradientBackground}

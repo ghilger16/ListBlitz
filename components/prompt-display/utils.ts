@@ -6,7 +6,6 @@ export function getUniqueRandomLetter(): string {
     (l) => !usedLetters.has(l)
   );
   if (availableLetters.length === 0) {
-    console.log("All letters have been used. Resetting...");
     usedLetters.clear();
     return getUniqueRandomLetter();
   }

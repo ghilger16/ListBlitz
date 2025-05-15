@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, StyleSheet } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  ImageBackground,
+  SafeAreaView,
+} from "react-native";
 import { ChillCounter } from "./chill-counter";
 import { PromptDisplay } from "components/prompt-display";
 import { NextPlayerPrompt } from "components/next-player-prompt";
@@ -54,33 +60,41 @@ export const ChillMode: React.FC<ChillModeProps> = ({
   const nextIconIndex = (players[nextIndex]?.id ?? 1) - 1;
 
   return (
-    <View style={styles.wrapper}>
-      <PromptDisplay
-        prompt={currentPrompt}
-        playerColor={currentPlayer.startColor}
-        categoryBubble={titleImage}
-        isAlphaBlitz={packTitle === "Alpha Blitz"}
-      />
-      <Text style={styles.playerText}>Player {currentPlayer.id}</Text>
-      <View style={styles.counterContainer}>
-        <ChillCounter
-          onIncrement={handleScoreIncrement}
-          onStart={() => setIsGameStarted(true)}
-          score={score}
-          currentPlayer={currentPlayer}
-        />
-      </View>
-
-      {showNextPlayerBubble && (
-        <View style={styles.nextPlayerContainer}>
-          <NextPlayerPrompt
-            onNextPlayerClick={handleNextPlayerClick}
-            iconSource={ICONS[nextIconIndex]}
-            nextPlayer={players[nextIndex]}
+    <ImageBackground
+      source={require("assets/images/chill-bg.png")}
+      resizeMode="cover"
+      style={StyleSheet.absoluteFill}
+    >
+      <SafeAreaView style={styles.wrapper}>
+        <View style={styles.promptWrapper}>
+          <PromptDisplay
+            prompt={currentPrompt}
+            playerColor={currentPlayer.startColor}
+            categoryBubble={titleImage}
+            isAlphaBlitz={packTitle === "Alpha Blitz"}
           />
         </View>
-      )}
-    </View>
+        <Text style={styles.playerText}>Player {currentPlayer.id}</Text>
+        <View style={styles.counterContainer}>
+          <ChillCounter
+            onIncrement={handleScoreIncrement}
+            onStart={() => setIsGameStarted(true)}
+            score={score}
+            currentPlayer={currentPlayer}
+          />
+        </View>
+
+        {showNextPlayerBubble && (
+          <View style={styles.nextPlayerContainer}>
+            <NextPlayerPrompt
+              onNextPlayerClick={handleNextPlayerClick}
+              iconSource={ICONS[nextIconIndex]}
+              nextPlayer={players[nextIndex]}
+            />
+          </View>
+        )}
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
@@ -88,6 +102,9 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     paddingTop: 15,
+  },
+  promptWrapper: {
+    marginTop: 15,
   },
   playerText: {
     color: "#fff",
@@ -98,13 +115,15 @@ const styles = StyleSheet.create({
   },
   counterContainer: {
     position: "absolute",
-    top: 220,
+    top: 100,
     left: 0,
     right: 0,
+    bottom: 0,
+    justifyContent: "center",
   },
   nextPlayerContainer: {
     position: "absolute",
-    top: 550,
-    left: 25,
+    top: 650,
+    left: 50,
   },
 });

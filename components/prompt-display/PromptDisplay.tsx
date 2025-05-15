@@ -5,7 +5,6 @@ import {
   Text,
   StyleSheet,
   ViewStyle,
-  TextStyle,
   Image,
   ImageSourcePropType,
 } from "react-native";
@@ -13,7 +12,7 @@ import { playSound } from "components/utils";
 import { countdownSound } from "@Assets";
 import LottieView from "lottie-react-native";
 import { useGetAlphabetIcons } from "@Services";
-import { getUniqueRandomLetter, ALL_LETTERS } from "./utils";
+import { getUniqueRandomLetter } from "./utils";
 
 export const PromptDisplay: React.FC<{
   prompt: string;
@@ -37,15 +36,16 @@ export const PromptDisplay: React.FC<{
   const [scaleValue] = useState(new Animated.Value(0.8));
   const [hasPlayedSound, setHasPlayedSound] = useState(false);
 
-  const [letterIndex, setLetterIndex] = useState<string>("A");
+  const [letterIndex, setLetterIndex] = useState<string | null>("A");
   const hasSetLetterRef = useRef(false);
 
-  const { icon: alphaIcon } = useGetAlphabetIcons(letterIndex);
+  const { icon: alphaIcon } = letterIndex
+    ? useGetAlphabetIcons(letterIndex)
+    : { icon: null };
 
   useEffect(() => {
     if (isObscured && isAlphaBlitz && !hasSetLetterRef.current) {
       const letter = getUniqueRandomLetter();
-      console.log("🚀 ~ useEffect ~ letter:", letter);
 
       setLetterIndex(letter);
       hasSetLetterRef.current = true;
@@ -96,6 +96,21 @@ export const PromptDisplay: React.FC<{
     }
   }, [countdown]);
 
+  useEffect(() => {
+    Animated.sequence([
+      Animated.spring(bounceValue, {
+        toValue: 1.2,
+        friction: 3,
+        useNativeDriver: true,
+      }),
+      Animated.spring(bounceValue, {
+        toValue: 1,
+        friction: 3,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [prompt]);
+
   const containerStyle: ViewStyle = {
     ...styles.container,
     borderColor: playerColor,
@@ -138,7 +153,7 @@ export const PromptDisplay: React.FC<{
                 >
                   {countdown}
                 </Animated.Text>
-              ) : !isObscured ? (
+              ) : !isObscured && alphaIcon ? (
                 <LottieView
                   source={alphaIcon}
                   autoPlay
@@ -218,7 +233,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#192c43",
     borderRadius: 30,
-    width: 350,
+    width: 375,
     height: 115,
     alignItems: "center",
     justifyContent: "center",

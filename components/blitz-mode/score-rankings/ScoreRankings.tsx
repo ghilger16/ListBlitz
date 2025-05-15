@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingLeft: 5,
     paddingRight: 5,
-    left: "4%",
+    left: "3%",
   },
   rankContainer: {
     width: 30,

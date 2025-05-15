@@ -5,15 +5,30 @@ import { GameProvider } from "@Context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { View, ActivityIndicator, StatusBar } from "react-native";
+import { View, StatusBar } from "react-native";
+import { SplashScreen, preloadAssets } from "@Components";
 
-const headerGif = require("@Assets/gifs/header.gif");
-const backgroundImage = require("assets/images/blitz-bg.png");
+const allAssets = [
+  require("@Assets/gifs/header.gif"),
+  require("assets/images/blitz-bg.png"),
+  require("assets/images/blitz-splash.png"),
+  require("@Assets/icons/category-chaos.png"),
+  require("@Assets/icons/category-chaos-title.png"),
+  require("@Assets/icons/snack-attack.png"),
+  require("@Assets/icons/snack-attack-title.png"),
+  require("@Assets/icons/alpha-blitz.png"),
+  require("@Assets/icons/alpha-blitz-title.png"),
+  require("@Assets/icons/big-screen-blitz.png"),
+  require("@Assets/icons/big-screen-blitz-title.png"),
+  require("@Assets/icons/the-thing-is.png"),
+  require("@Assets/icons/the-thing-is-title.png"),
+];
 
 const Layout: React.FC = () => {
   const pathname = usePathname();
   const queryClient = new QueryClient();
-  const [gifLoaded, setGifLoaded] = useState(false);
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   const [fontsLoaded] = useFonts({
     LuckiestGuy: require("@Assets/fonts/LuckiestGuy-Regular.ttf"),
@@ -21,31 +36,27 @@ const Layout: React.FC = () => {
   });
 
   useEffect(() => {
-    async function preloadAssets() {
+    async function load() {
       try {
-        const gifAsset = Asset.fromModule(headerGif);
-        const bgAsset = Asset.fromModule(backgroundImage);
-        await Promise.all([gifAsset.downloadAsync(), bgAsset.downloadAsync()]);
-        setGifLoaded(true); // ✅ Only show after all assets are loaded
+        await preloadAssets(allAssets);
+        setAssetsLoaded(true);
       } catch (error) {
         console.error("Error preloading assets:", error);
       }
     }
-    preloadAssets();
+    load();
   }, []);
 
-  if (!fontsLoaded || !gifLoaded) {
+  if (showSplash) {
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: "#192c43",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <ActivityIndicator size="large" color="#ffffff" />
-      </View>
+      <>
+        <StatusBar hidden />
+        <SplashScreen
+          backgroundPath="landing"
+          isReady={fontsLoaded && assetsLoaded}
+          onFinish={() => setShowSplash(false)}
+        />
+      </>
     );
   }
 

@@ -158,7 +158,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
           ref={lottieRef}
           source={ICONS[iconIndex] ?? ICONS[0]}
           autoPlay
-          loop={false}
+          loop
           style={styles.lottie}
         />
       </TouchableOpacity>

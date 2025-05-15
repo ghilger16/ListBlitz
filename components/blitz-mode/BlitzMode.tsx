@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import SplashScreen from "components/splash-screen/SplashScreen";
 import {
-  Text,
   Animated,
   SafeAreaView,
   View,
   StyleSheet,
-  TouchableOpacity,
+  ImageBackground,
 } from "react-native";
 
 import { Player } from "@Context";
@@ -15,7 +15,7 @@ import { ScoreRankings } from "./score-rankings";
 import { WinnerOverlay } from "./winner-overlay/WinningOverlay";
 import { blitzPackIcons } from "components/blitz-packs/blitzPackIcons";
 import { AlphaCategorySelect } from "components/alpha-category-select";
-import { router, useNavigation } from "expo-router";
+import { preloadAssets } from "components/utils/utils";
 
 interface BlitzModeProps {
   currentPrompt: string;
@@ -26,11 +26,7 @@ interface BlitzModeProps {
   packTitle: string;
 }
 
-const TIMER_DURATION = 1;
-
-const AnimatedImageBackground = Animated.createAnimatedComponent(
-  require("react-native").ImageBackground
-);
+const TIMER_DURATION = 30;
 
 export const BlitzMode: React.FC<BlitzModeProps> = ({
   currentPrompt,
@@ -48,7 +44,6 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [showWinnerOverlay, setShowWinnerOverlay] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const navigation = useNavigation();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -80,29 +75,6 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
       resetGameState();
     }
   }, [isGameStarted, timer]);
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      animation: "none",
-      headerTransparent: true,
-      headerTitle: "",
-      headerStyle: {
-        backgroundColor: "transparent",
-        elevation: 0,
-        shadowOpacity: 0,
-      },
-      headerLeft: () => (
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{ paddingHorizontal: 15, paddingVertical: 5 }}
-        >
-          <Text style={{ fontSize: 30, color: "#fff", fontWeight: "700" }}>
-            ←
-          </Text>
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
 
   const handleScoreIncrement = () => {
     if (isGameStarted) {
@@ -172,21 +144,23 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   }
 
   return (
-    <AnimatedImageBackground
+    <ImageBackground
       source={require("assets/images/blitz-bg.png")}
       resizeMode="cover"
-      style={StyleSheet.absoluteFillObject}
+      style={StyleSheet.absoluteFill}
     >
       <SafeAreaView style={styles.wrapper}>
-        <PromptDisplay
-          prompt={currentPrompt}
-          playerColor={currentPlayer.startColor}
-          categoryBubble={titleImage}
-          isObscured={!isGameStarted}
-          countdown={isCountdownActive ? countdown : null}
-          isAlphaBlitz={packTitle === "Alpha Blitz"}
-          selectedCategory={selectedCategory}
-        />
+        <View style={styles.promptWrapper}>
+          <PromptDisplay
+            prompt={currentPrompt}
+            playerColor={currentPlayer.startColor}
+            categoryBubble={titleImage}
+            isObscured={!isGameStarted}
+            countdown={isCountdownActive ? countdown : null}
+            isAlphaBlitz={packTitle === "Alpha Blitz"}
+            selectedCategory={selectedCategory}
+          />
+        </View>
 
         {packTitle === "Alpha Blitz" && !selectedCategory ? (
           <AlphaCategorySelect
@@ -211,13 +185,16 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
           </View>
         )}
       </SafeAreaView>
-    </AnimatedImageBackground>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
+  },
+  promptWrapper: {
+    marginTop: 15,
   },
   playerLabel: {
     color: "#fff",
@@ -230,6 +207,7 @@ const styles = StyleSheet.create({
   counterContainer: {
     flex: 1,
     justifyContent: "center",
-    marginLeft: 15,
+    marginLeft: 40,
+    marginBottom: 65,
   },
 });

@@ -64,7 +64,7 @@ export const useGetIcons = (filterTrophyOnly = false) => {
   });
 };
 
-export const useGetAlphabetIcons = (letter: string) => {
+export const useGetAlphabetIcons = (letter: string | null) => {
   const alphabetIcons: Record<string, any> = {
     A: AIcon,
     B: BIcon,
@@ -89,10 +89,11 @@ export const useGetAlphabetIcons = (letter: string) => {
     W: WIcon,
     Y: YIcon,
   };
-
-  const icon = alphabetIcons[letter] || null;
+  if (!letter || !(letter in alphabetIcons)) {
+    return { icon: null };
+  }
 
   return {
-    icon,
+    icon: alphabetIcons[letter],
   };
 };
