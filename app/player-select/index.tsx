@@ -14,11 +14,10 @@ import {
   SafeAreaView,
   View,
 } from "react-native";
-import { router, Stack, useNavigation } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { useGameplay, GameMode } from "@Context";
 import { FlashingText, PlayersSelect } from "@Components";
 import { ModeSelect } from "components/players-select/mode-select";
-import ColorPickerWebView from "components/color-picker-web-view/ColorPickerWebView";
 
 const PlayerSelect: React.FC = () => {
   const { setGameSettings, onGameStart, gameSettings } = useGameplay();
@@ -102,35 +101,31 @@ const PlayerSelect: React.FC = () => {
     });
   }, [navigation, gameSettings.blitzPackTitle]);
 
-  const colors = ["#fff312", "#0d63f8", "#ff0088"];
-  const [selectedColor, setSelectedColor] = useState(colors[1]);
-
   return (
-    // <SafeAreaView style={styles.safeArea}>
-    //   <View style={styles.playersWrapper}>
-    //     <View style={styles.textContainer}>
-    //       <FlashingText style={styles.selectPlayerText}>
-    //         Select Players
-    //       </FlashingText>
-    //     </View>
-    //     <PlayersSelect onPlayerCountChange={handlePlayerCountChange} />
-    //     <ModeSelect onModeChange={handleModeChange} mode={selectedMode} />
-    //   </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.playersWrapper}>
+        <View style={styles.textContainer}>
+          <FlashingText style={styles.selectPlayerText}>
+            Select Players
+          </FlashingText>
+        </View>
+        <PlayersSelect onPlayerCountChange={handlePlayerCountChange} />
+        <ModeSelect onModeChange={handleModeChange} mode={selectedMode} />
+      </View>
 
-    //   <TouchableOpacity
-    //     style={[styles.startButton, { opacity: playerCount < 1 ? 0.5 : 1 }]}
-    //     onPress={handleGameStart}
-    //     disabled={playerCount < 1}
-    //     activeOpacity={0.7}
-    //   >
-    //     <Animated.Text
-    //       style={[styles.startText, { textShadowColor: glowInterpolation }]}
-    //     >
-    //       Start
-    //     </Animated.Text>
-    //   </TouchableOpacity>
-    // </SafeAreaView>
-    <ColorPickerWebView selectedColor={selectedColor} />
+      <TouchableOpacity
+        style={[styles.startButton, { opacity: playerCount < 1 ? 0.5 : 1 }]}
+        onPress={handleGameStart}
+        disabled={playerCount < 1}
+        activeOpacity={0.7}
+      >
+        <Animated.Text
+          style={[styles.startText, { textShadowColor: glowInterpolation }]}
+        >
+          Start
+        </Animated.Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 };
 

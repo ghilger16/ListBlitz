@@ -1,2 +1,1 @@
-export { playSound } from "./utils";
-export { preloadAssets } from "./utils";
+export { playSound, preloadAssets } from "./utils";
