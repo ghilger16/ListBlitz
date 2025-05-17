@@ -26,7 +26,7 @@ interface BlitzModeProps {
   packTitle: string;
 }
 
-const TIMER_DURATION = 30;
+const TIMER_DURATION = 3;
 
 export const BlitzMode: React.FC<BlitzModeProps> = ({
   currentPrompt,
@@ -181,6 +181,7 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
             <ScoreRankings
               players={players}
               isGameStarted={isGameStarted || isCountdownActive}
+              isRoundOver
             />
           </View>
         )}

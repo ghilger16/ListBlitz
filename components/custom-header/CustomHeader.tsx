@@ -1,14 +1,26 @@
-import React from "react";
-import { View, Image, StyleSheet, Dimensions } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Image, StyleSheet } from "react-native";
 import { BlurView } from "expo-blur";
-
-const headerGif = require("@Assets/gifs/header.gif");
+import { Asset } from "expo-asset";
 
 const CustomHeader: React.FC = () => {
+  const [headerUri, setHeaderUri] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadHeaderGif = async () => {
+      const asset = Asset.fromModule(require("@Assets/gifs/header.gif"));
+      await asset.downloadAsync();
+      setHeaderUri(asset.uri);
+    };
+
+    loadHeaderGif();
+  }, []);
+
+  if (!headerUri) return null;
+
   return (
     <View style={styles.headerContainer}>
-      <Image source={headerGif} style={styles.headerImage} />
-      <BlurView intensity={10} tint="dark" style={styles.blurOverlay} />
+      <Image source={{ uri: headerUri }} style={styles.headerImage} />
     </View>
   );
 };
@@ -28,13 +40,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     resizeMode: "cover",
-  },
-  blurOverlay: {
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
-    height: 10,
-    backgroundColor: "rgba(0, 0, 0, 0.2)",
   },
 });
 

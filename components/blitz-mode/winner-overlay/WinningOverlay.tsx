@@ -9,7 +9,6 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import ConfettiCannon from "react-native-confetti-cannon";
 import LottieView from "lottie-react-native";
-import { ScoreRankings } from "../score-rankings";
 import { useGetIcons } from "@Services";
 
 interface WinnerOverlayProps {
@@ -48,7 +47,7 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
     <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
       <LinearGradient colors={["#6a11cb", "#2575fc"]} style={styles.gradient}>
         <TouchableOpacity style={styles.button} onPress={handleNextRound}>
-          <Text style={styles.buttonText}>Play Next Round</Text>
+          <Text style={styles.buttonText}>NEXT ROUND</Text>
         </TouchableOpacity>
       </LinearGradient>
 
@@ -62,23 +61,20 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
       <Animated.Text
         style={[styles.winnerText, { transform: [{ scale: pulseAnim }] }]}
       >
-        Winner!
+        PLAYER {players[0]?.id ?? ""} WINS!
       </Animated.Text>
       <LottieView
         source={ICONS[0]}
         autoPlay
         loop={false}
         style={{
-          marginTop: -20,
-          marginBottom: 50,
-          width: 250,
-          height: 250,
+          marginTop: 20,
+          marginBottom: 30,
+          width: 200,
+          height: 200,
           alignSelf: "center",
         }}
       />
-      <View style={styles.rankingsContainer}>
-        <ScoreRankings players={players} isRoundOver />
-      </View>
     </Animated.View>
   );
 };
@@ -111,22 +107,16 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000",
   },
-  rankingsContainer: {
-    flex: 1,
-    justifyContent: "center",
-    marginTop: 85,
-    paddingHorizontal: 35,
-    zIndex: 1,
-  },
   winnerText: {
-    fontSize: 48,
+    fontSize: 40,
     fontWeight: "bold",
-    color: "#ffffff",
+    color: "#ffcc00",
     textAlign: "center",
     marginTop: 100,
-    fontFamily: "LuckiestGuy",
-    textShadowColor: "#FFD700",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 15,
+    fontFamily: "SourGummy",
+    textShadowColor: "#000",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
+    textTransform: "uppercase",
   },
 });

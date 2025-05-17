@@ -23,7 +23,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({
   backgroundPath,
   isReady,
   onFinish,
-  minDisplayTime = 3000, // default to 1.5 seconds
+  minDisplayTime = 3000,
 }) => {
   const imageSource = imageMap[backgroundPath];
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -35,7 +35,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({
       timeout = setTimeout(() => {
         Animated.timing(fadeAnim, {
           toValue: 0,
-          duration: 600,
+          duration: 700,
           useNativeDriver: true,
         }).start(() => {
           onFinish();

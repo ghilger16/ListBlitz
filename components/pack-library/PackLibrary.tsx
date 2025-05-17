@@ -1,5 +1,13 @@
-import React from "react";
-import { View, Text, ScrollView, StyleSheet, Dimensions } from "react-native";
+import React, { useEffect, useRef } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+  Animated,
+  Easing,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useGetBlitzPacks } from "@Services";
 import { useGameplay } from "@Context";
@@ -11,6 +19,37 @@ const PackLibrary: React.FC = () => {
   const router = useRouter();
   const { setGameSettings } = useGameplay();
   const { data: blitzPacks = [] } = useGetBlitzPacks();
+  const animatedValues = useRef<Animated.Value[]>([]).current;
+
+  const headerFadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(headerFadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  useEffect(() => {
+    blitzPacks.forEach((_, i) => {
+      if (!animatedValues[i]) {
+        animatedValues[i] = new Animated.Value(0);
+      }
+    });
+
+    Animated.stagger(
+      150,
+      animatedValues.map((val) =>
+        Animated.timing(val, {
+          toValue: 1,
+          duration: 700,
+          useNativeDriver: true,
+        })
+      )
+    ).start();
+  }, [blitzPacks]);
 
   const handlePackPress = (title: string, id: number) => {
     setGameSettings({ blitzPackId: id, blitzPackTitle: title });
@@ -24,11 +63,13 @@ const PackLibrary: React.FC = () => {
 
   return (
     <>
-      <View style={styles.absoluteContainer}>
-        <Text style={styles.title}>Blitz Packs</Text>
-      </View>
+      <View style={styles.absoluteContainer}></View>
 
-      <CustomHeader />
+      <View style={{ position: "absolute", top: 0, width: "100%", zIndex: 2 }}>
+        <Animated.View style={{ opacity: headerFadeAnim }}>
+          <CustomHeader />
+        </Animated.View>
+      </View>
 
       <ScrollView
         horizontal={false}
@@ -36,16 +77,32 @@ const PackLibrary: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         style={styles.scrollView}
       >
+        <Text style={styles.title}>Blitz Packs</Text>
         <View style={styles.contentContainer}>
           {rows.map((row, rowIndex) => (
             <View style={styles.row} key={rowIndex}>
               {row.map((pack, index) => (
-                <BlitzPack
+                <Animated.View
                   key={pack.id}
-                  title={pack.title}
-                  onPress={() => handlePackPress(pack.title, pack.id)}
-                  index={rowIndex * 3 + index}
-                />
+                  style={{
+                    opacity: animatedValues[rowIndex * 3 + index] || 0,
+                    transform: [
+                      {
+                        scale:
+                          animatedValues[rowIndex * 3 + index]?.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0.6, 1],
+                          }) || 1,
+                      },
+                    ],
+                  }}
+                >
+                  <BlitzPack
+                    title={pack.title}
+                    onPress={() => handlePackPress(pack.title, pack.id)}
+                    index={rowIndex * 3 + index}
+                  />
+                </Animated.View>
               ))}
             </View>
           ))}
@@ -57,28 +114,27 @@ const PackLibrary: React.FC = () => {
 
 const styles = StyleSheet.create({
   absoluteContainer: {
-    position: "absolute",
-    width: "100%",
-    top: 200,
-    zIndex: 3,
-    alignItems: "center",
+    // position: "absolute",
+    // width: "100%",
+    // top: 200,
+    // zIndex: 3,
+    // alignItems: "center",
   },
   title: {
     fontFamily: "SourGummy",
-    fontSize: 28,
+    fontSize: 25,
+    color: "#61D4FF",
     textTransform: "uppercase",
-    color: "#ffffff",
-    textShadowColor: "rgba(0, 191, 255, 0.7)",
-    textShadowOffset: { width: 0, height: 4 },
-    textShadowRadius: 10,
-    letterSpacing: 2,
+    letterSpacing: 1.5,
+    textAlign: "center",
+    marginBottom: 20,
   },
   scrollView: {
     flex: 1,
     zIndex: 1,
   },
   scrollContent: {
-    paddingTop: 200,
+    paddingTop: 175,
     justifyContent: "center",
     alignItems: "center",
   },

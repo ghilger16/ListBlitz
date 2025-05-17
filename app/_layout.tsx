@@ -6,7 +6,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { View, StatusBar } from "react-native";
-import { SplashScreen, preloadAssets } from "@Components";
+import { CustomHeader, SplashScreen } from "@Components";
+
+async function preloadAssets(assets: number[]) {
+  return Promise.all(
+    assets.map((asset) => Asset.fromModule(asset).downloadAsync())
+  );
+}
 
 const allAssets = [
   require("@Assets/gifs/header.gif"),

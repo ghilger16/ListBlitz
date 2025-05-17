@@ -27,6 +27,7 @@ const PlayerSelect: React.FC = () => {
   const navigation = useNavigation();
 
   const glowAnim = useRef(new Animated.Value(0)).current;
+  const entryAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.loop(
@@ -45,6 +46,15 @@ const PlayerSelect: React.FC = () => {
         }),
       ])
     ).start();
+  }, []);
+
+  useEffect(() => {
+    Animated.timing(entryAnim, {
+      toValue: 1,
+      duration: 600,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
   }, []);
 
   const glowInterpolation = glowAnim.interpolate({
@@ -83,7 +93,7 @@ const PlayerSelect: React.FC = () => {
     navigation.setOptions({
       animation: "none",
       headerTitle: () => (
-        <Text style={styles.title}>{gameSettings.blitzPackTitle}</Text>
+        <Text style={styles.title}>✨ {gameSettings.blitzPackTitle}</Text>
       ),
       headerStyle: {
         backgroundColor: "#192c43",
@@ -109,8 +119,37 @@ const PlayerSelect: React.FC = () => {
             Select Players
           </FlashingText>
         </View>
-        <PlayersSelect onPlayerCountChange={handlePlayerCountChange} />
-        <ModeSelect onModeChange={handleModeChange} mode={selectedMode} />
+        <Animated.View
+          style={{
+            opacity: entryAnim,
+            transform: [
+              {
+                scale: entryAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.8, 1],
+                }),
+              },
+            ],
+          }}
+        >
+          <PlayersSelect onPlayerCountChange={handlePlayerCountChange} />
+          <View style={{ alignItems: "center", justifyContent: "center" }}>
+            <Animated.View
+              style={{
+                transform: [
+                  {
+                    rotateX: entryAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ["180deg", "0deg"],
+                    }),
+                  },
+                ],
+              }}
+            >
+              <ModeSelect onModeChange={handleModeChange} mode={selectedMode} />
+            </Animated.View>
+          </View>
+        </Animated.View>
       </View>
 
       <TouchableOpacity
@@ -136,15 +175,24 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: "SourGummy",
-    fontSize: 25,
+    fontSize: 15,
     textTransform: "uppercase",
-    color: "#ffffff",
-    textShadowColor: "rgba(0, 191, 255, 0.7)",
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-    letterSpacing: 2,
+    color: "#fff",
+    backgroundColor: "#0B3D91",
+    paddingHorizontal: 25,
+    paddingBottom: 5,
+    borderRadius: 20,
+    overflow: "hidden",
     textAlign: "center",
     alignSelf: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+    letterSpacing: 1.5,
+    borderWidth: 2,
+    borderColor: "#61D4FF",
   },
   backButtonText: {
     fontSize: 20,
@@ -173,7 +221,7 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 175,
+    marginTop: 100,
     elevation: 8,
     shadowColor: "rgba(255, 165, 0, 0.5)",
     shadowOffset: { width: 0, height: 6 },
