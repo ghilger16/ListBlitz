@@ -9,8 +9,9 @@ import {
 } from "react-native";
 import { GameMode, useGameplay } from "@Context";
 import { Prompt, useGetPromptsByBlitzPack } from "@Services";
-import { ChillMode, BlitzMode, preloadAssets } from "@Components";
+import { ChillMode, BlitzMode } from "@Components";
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
+import { Asset } from "expo-asset";
 
 const PROMPT_LIMIT = 10;
 
@@ -78,19 +79,11 @@ const Gameplay: React.FC = () => {
   const [assetsLoaded, setAssetsLoaded] = useState(false);
 
   useEffect(() => {
-    const allAssets = [
-      require("assets/images/blitz-bg.png"),
-      require("assets/images/chill-bg.png"),
-    ];
-    async function load() {
-      try {
-        await preloadAssets(allAssets);
-        setAssetsLoaded(true);
-      } catch (error) {
-        console.error("Error preloading assets:", error);
-      }
+    const blitz = Asset.fromModule(require("assets/images/blitz-bg.png"));
+    const chill = Asset.fromModule(require("assets/images/chill-bg.png"));
+    if (blitz.localUri && chill.localUri) {
+      setAssetsLoaded(true);
     }
-    load();
   }, []);
   const { currentPrompt, isLoading, error, nextPrompt } = usePromptManager(
     blitzPackId!

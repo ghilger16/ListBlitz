@@ -82,15 +82,20 @@ export const useGetAlphabetIcons = (letter: string | null) => {
     N: NIcon,
     O: OIcon,
     P: PIcon,
+    Q: QIcon,
     R: RIcon,
     S: SIcon,
     T: TIcon,
     U: UIcon,
+    V: VIcon,
     W: WIcon,
+    X: XIcon,
     Y: YIcon,
+    Z: ZIcon,
   };
+
   if (!letter || !(letter in alphabetIcons)) {
-    return { icon: null };
+    return { icon: undefined };
   }
 
   return {

@@ -163,11 +163,9 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
         />
       </TouchableOpacity>
 
-      {isPlayerStartVisible && (
-        <View style={styles.tapTextWrapper}>
-          <FlashingText>Tap to Score</FlashingText>
-        </View>
-      )}
+      <View style={styles.tapTextWrapper}>
+        {isPlayerStartVisible && <FlashingText>Tap to Score</FlashingText>}
+      </View>
     </View>
   );
 };
@@ -196,7 +194,10 @@ const styles = StyleSheet.create({
     height: CENTER_RADIUS * 2,
   },
   tapTextWrapper: {
+    height: 40,
     marginTop: -35,
-    marginLeft: -80,
+    marginLeft: 0,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

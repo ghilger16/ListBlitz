@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from "react";
+import { useNavigation } from "expo-router";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
 import { View, Image, StyleSheet, Dimensions, Animated } from "react-native";
 
 interface SplashScreenProps {
@@ -27,17 +28,40 @@ const SplashScreen: React.FC<SplashScreenProps> = ({
 }) => {
   const imageSource = imageMap[backgroundPath];
   const fadeAnim = useRef(new Animated.Value(1)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+      animation: "none",
+    });
+
+    return () => {
+      navigation.setOptions({
+        headerShown: true,
+      });
+    };
+  }, []);
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
 
     if (isReady) {
       timeout = setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 700,
-          useNativeDriver: true,
-        }).start(() => {
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleAnim, {
+            toValue: 1.1,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
           onFinish();
         });
       }, minDisplayTime);
@@ -57,7 +81,10 @@ const SplashScreen: React.FC<SplashScreenProps> = ({
     <View style={styles.overlay}>
       <AnimatedImageBackground
         source={imageSource}
-        style={[styles.image, { opacity: fadeAnim }]}
+        style={[
+          styles.image,
+          { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
+        ]}
         resizeMode="cover"
       />
     </View>

@@ -7,13 +7,8 @@ const CustomHeader: React.FC = () => {
   const [headerUri, setHeaderUri] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadHeaderGif = async () => {
-      const asset = Asset.fromModule(require("@Assets/gifs/header.gif"));
-      await asset.downloadAsync();
-      setHeaderUri(asset.uri);
-    };
-
-    loadHeaderGif();
+    const asset = Asset.fromModule(require("@Assets/gifs/header.gif"));
+    setHeaderUri(asset.localUri || asset.uri);
   }, []);
 
   if (!headerUri) return null;

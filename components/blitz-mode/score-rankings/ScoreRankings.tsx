@@ -59,7 +59,7 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
       Animated.parallel([
         Animated.timing(slideAnim, {
           toValue: -250,
-          duration: 1000,
+          duration: 1100,
           useNativeDriver: true,
         }),
         Animated.spring(scaleAnim, {

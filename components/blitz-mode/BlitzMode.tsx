@@ -16,6 +16,7 @@ import { WinnerOverlay } from "./winner-overlay/WinningOverlay";
 import { blitzPackIcons } from "components/blitz-packs/blitzPackIcons";
 import { AlphaCategorySelect } from "components/alpha-category-select";
 import { preloadAssets } from "components/utils/utils";
+import { Asset } from "expo-asset";
 
 interface BlitzModeProps {
   currentPrompt: string;
@@ -44,10 +45,16 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [showWinnerOverlay, setShowWinnerOverlay] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [bgUri, setBgUri] = useState<string | null>(null);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const { titleImage } = blitzPackIcons[packTitle] || {};
+
+  useEffect(() => {
+    const asset = Asset.fromModule(require("assets/images/blitz-bg.png"));
+    setBgUri(asset.localUri || asset.uri);
+  }, []);
 
   useEffect(() => {
     if (isCountdownActive) {
@@ -144,49 +151,52 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   }
 
   return (
-    <ImageBackground
-      source={require("assets/images/blitz-bg.png")}
-      resizeMode="cover"
-      style={StyleSheet.absoluteFill}
-    >
-      <SafeAreaView style={styles.wrapper}>
-        <View style={styles.promptWrapper}>
-          <PromptDisplay
-            prompt={currentPrompt}
-            playerColor={currentPlayer.startColor}
-            categoryBubble={titleImage}
-            isObscured={!isGameStarted}
-            countdown={isCountdownActive ? countdown : null}
-            isAlphaBlitz={packTitle === "Alpha Blitz"}
-            selectedCategory={selectedCategory}
-          />
-        </View>
+    <>
+      {bgUri && (
+        <ImageBackground
+          source={{ uri: bgUri }}
+          resizeMode="cover"
+          style={StyleSheet.absoluteFill}
+        >
+          <SafeAreaView style={styles.wrapper}>
+            <View style={styles.promptWrapper}>
+              <PromptDisplay
+                prompt={currentPrompt}
+                playerColor={currentPlayer.startColor}
+                categoryBubble={titleImage}
+                isObscured={!isGameStarted}
+                countdown={isCountdownActive ? countdown : null}
+                isAlphaBlitz={packTitle === "Alpha Blitz"}
+                selectedCategory={selectedCategory}
+              />
+            </View>
 
-        {packTitle === "Alpha Blitz" && !selectedCategory ? (
-          <AlphaCategorySelect
-            onSelectCategory={handleSelectCategory}
-            onPickRandom={handlePickRandom}
-          />
-        ) : (
-          <View style={styles.counterContainer}>
-            <BlitzCounter
-              score={score}
-              onIncrement={handleScoreIncrement}
-              currentPlayer={currentPlayer}
-              onStart={handleStartGame}
-              timer={timer}
-              isGameStarted={isGameStarted}
-              isCountdownActive={isCountdownActive}
-            />
-            <ScoreRankings
-              players={players}
-              isGameStarted={isGameStarted || isCountdownActive}
-              isRoundOver
-            />
-          </View>
-        )}
-      </SafeAreaView>
-    </ImageBackground>
+            {packTitle === "Alpha Blitz" && !selectedCategory ? (
+              <AlphaCategorySelect
+                onSelectCategory={handleSelectCategory}
+                onPickRandom={handlePickRandom}
+              />
+            ) : (
+              <View style={styles.counterContainer}>
+                <BlitzCounter
+                  score={score}
+                  onIncrement={handleScoreIncrement}
+                  currentPlayer={currentPlayer}
+                  onStart={handleStartGame}
+                  timer={timer}
+                  isGameStarted={isGameStarted}
+                  isCountdownActive={isCountdownActive}
+                />
+                <ScoreRankings
+                  players={players}
+                  isGameStarted={isGameStarted || isCountdownActive}
+                />
+              </View>
+            )}
+          </SafeAreaView>
+        </ImageBackground>
+      )}
+    </>
   );
 };
 

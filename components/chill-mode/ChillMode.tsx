@@ -12,6 +12,7 @@ import { NextPlayerPrompt } from "components/next-player-prompt";
 import { useGetIcons } from "@Services";
 import { Player } from "@Context";
 import { blitzPackIcons } from "components/blitz-packs/blitzPackIcons";
+import { Asset } from "expo-asset";
 
 interface ChillModeProps {
   currentPrompt: string;
@@ -34,6 +35,13 @@ export const ChillMode: React.FC<ChillModeProps> = ({
   const [showNextPlayerBubble, setShowNextPlayerBubble] = useState(false);
 
   const titleImage = blitzPackIcons[packTitle]?.titleImage;
+
+  const [bgUri, setBgUri] = useState<string | null>(null);
+
+  useEffect(() => {
+    const asset = Asset.fromModule(require("assets/images/chill-bg.png"));
+    setBgUri(asset.localUri || asset.uri);
+  }, []);
 
   const handleScoreIncrement = () => {
     if (isGameStarted && score < 5) {
@@ -60,41 +68,45 @@ export const ChillMode: React.FC<ChillModeProps> = ({
   const nextIconIndex = (players[nextIndex]?.id ?? 1) - 1;
 
   return (
-    <ImageBackground
-      source={require("assets/images/chill-bg.png")}
-      resizeMode="cover"
-      style={StyleSheet.absoluteFill}
-    >
-      <SafeAreaView style={styles.wrapper}>
-        <View style={styles.promptWrapper}>
-          <PromptDisplay
-            prompt={currentPrompt}
-            playerColor={currentPlayer.startColor}
-            categoryBubble={titleImage}
-            isAlphaBlitz={packTitle === "Alpha Blitz"}
-          />
-        </View>
-        <Text style={styles.playerText}>Player {currentPlayer.id}</Text>
-        <View style={styles.counterContainer}>
-          <ChillCounter
-            onIncrement={handleScoreIncrement}
-            onStart={() => setIsGameStarted(true)}
-            score={score}
-            currentPlayer={currentPlayer}
-          />
-        </View>
+    <>
+      {bgUri && (
+        <ImageBackground
+          source={{ uri: bgUri }}
+          resizeMode="cover"
+          style={StyleSheet.absoluteFill}
+        >
+          <SafeAreaView style={styles.wrapper}>
+            <View style={styles.promptWrapper}>
+              <PromptDisplay
+                prompt={currentPrompt}
+                playerColor={currentPlayer.startColor}
+                categoryBubble={titleImage}
+                isAlphaBlitz={packTitle === "Alpha Blitz"}
+              />
+            </View>
+            <Text style={styles.playerText}>Player {currentPlayer.id}</Text>
+            <View style={styles.counterContainer}>
+              <ChillCounter
+                onIncrement={handleScoreIncrement}
+                onStart={() => setIsGameStarted(true)}
+                score={score}
+                currentPlayer={currentPlayer}
+              />
+            </View>
 
-        {showNextPlayerBubble && (
-          <View style={styles.nextPlayerContainer}>
-            <NextPlayerPrompt
-              onNextPlayerClick={handleNextPlayerClick}
-              iconSource={ICONS[nextIconIndex]}
-              nextPlayer={players[nextIndex]}
-            />
-          </View>
-        )}
-      </SafeAreaView>
-    </ImageBackground>
+            {showNextPlayerBubble && (
+              <View style={styles.nextPlayerContainer}>
+                <NextPlayerPrompt
+                  onNextPlayerClick={handleNextPlayerClick}
+                  iconSource={ICONS[nextIconIndex]}
+                  nextPlayer={players[nextIndex]}
+                />
+              </View>
+            )}
+          </SafeAreaView>
+        </ImageBackground>
+      )}
+    </>
   );
 };
 

@@ -5,10 +5,12 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Easing,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import ConfettiCannon from "react-native-confetti-cannon";
 import LottieView from "lottie-react-native";
+import { ScoreRankings } from "../score-rankings";
 import { useGetIcons } from "@Services";
 
 interface WinnerOverlayProps {
@@ -25,6 +27,7 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
   const { data: ICONS = [] } = useGetIcons(true);
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const glowAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.loop(
@@ -43,11 +46,39 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
     ).start();
   }, []);
 
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, {
+          toValue: 1,
+          duration: 1200,
+          easing: Easing.ease,
+          useNativeDriver: false,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 0,
+          duration: 1200,
+          easing: Easing.ease,
+          useNativeDriver: false,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  const glowInterpolation = glowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["rgba(255, 255, 255, 0.3)", "rgba(255, 255, 255, 1)"],
+  });
+
   return (
     <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
       <LinearGradient colors={["#6a11cb", "#2575fc"]} style={styles.gradient}>
-        <TouchableOpacity style={styles.button} onPress={handleNextRound}>
-          <Text style={styles.buttonText}>NEXT ROUND</Text>
+        <TouchableOpacity style={styles.startButton} onPress={handleNextRound}>
+          <Animated.Text
+            style={[styles.startText, { textShadowColor: glowInterpolation }]}
+          >
+            Next Round
+          </Animated.Text>
         </TouchableOpacity>
       </LinearGradient>
 
@@ -55,26 +86,29 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
         count={100}
         origin={{ x: -10, y: 0 }}
         fadeOut
-        fallSpeed={4000}
-        explosionSpeed={400}
+        fallSpeed={5000}
+        explosionSpeed={500}
       />
       <Animated.Text
         style={[styles.winnerText, { transform: [{ scale: pulseAnim }] }]}
       >
-        PLAYER {players[0]?.id ?? ""} WINS!
+        Winner!
       </Animated.Text>
       <LottieView
         source={ICONS[0]}
         autoPlay
         loop={false}
         style={{
-          marginTop: 20,
-          marginBottom: 30,
-          width: 200,
-          height: 200,
+          marginTop: -20,
+          marginBottom: 50,
+          width: 250,
+          height: 250,
           alignSelf: "center",
         }}
       />
+      <View style={styles.rankingsContainer}>
+        <ScoreRankings players={players} isRoundOver />
+      </View>
     </Animated.View>
   );
 };
@@ -82,7 +116,7 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     position: "absolute",
-    top: -100,
+    top: -25,
     left: 0,
     right: 0,
     bottom: -40,
@@ -95,28 +129,48 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  button: {
-    backgroundColor: "#ffcc00",
+  startButton: {
+    backgroundColor: "#FF6600",
+    borderRadius: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
     paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 10,
-    zIndex: 2,
+    paddingHorizontal: 40,
+    elevation: 8,
+    shadowColor: "rgba(255, 165, 0, 0.5)",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    borderWidth: 3,
+    borderColor: "#FFCC00",
   },
-  buttonText: {
-    fontSize: 18,
+  startText: {
+    fontSize: 28,
     fontWeight: "bold",
-    color: "#000",
+    color: "white",
+    textTransform: "uppercase",
+    textAlign: "center",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+    fontFamily: "SourGummy",
+  },
+  rankingsContainer: {
+    flex: 1,
+    justifyContent: "center",
+    marginTop: 50,
+    paddingHorizontal: 35,
+    zIndex: 1,
   },
   winnerText: {
-    fontSize: 40,
+    fontSize: 48,
     fontWeight: "bold",
-    color: "#ffcc00",
+    color: "#ffffff",
     textAlign: "center",
     marginTop: 100,
-    fontFamily: "SourGummy",
-    textShadowColor: "#000",
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 6,
-    textTransform: "uppercase",
+    fontFamily: "LuckiestGuy",
+    textShadowColor: "#FFD700",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 15,
   },
 });
