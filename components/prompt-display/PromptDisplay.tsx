@@ -153,22 +153,20 @@ export const PromptDisplay: React.FC<{
                 >
                   {countdown}
                 </Animated.Text>
-              ) : !isObscured && alphaIcon ? (
-                <LottieView
-                  source={alphaIcon}
-                  autoPlay
-                  loop={false}
-                  style={[styles.alphaIcon, { marginTop: 20 }]}
-                />
+              ) : !isObscured ? (
+                alphaIcon ? (
+                  <LottieView
+                    source={alphaIcon}
+                    autoPlay
+                    loop={false}
+                    style={[styles.alphaIcon, { marginTop: 20 }]}
+                  />
+                ) : null
               ) : (
                 <Text
                   style={[
                     styles.promptText,
-                    {
-                      fontSize: 45,
-                      color: "#fff",
-                      fontFamily: "LuckiestGuy",
-                    },
+                    { fontSize: 45, color: "#FFF", fontFamily: "LuckiestGuy" },
                   ]}
                 >
                   ?

@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { GameMode, useGameplay } from "@Context";
 import { Prompt, useGetPromptsByBlitzPack } from "@Services";
-import { ChillMode, BlitzMode } from "@Components";
+import { ChillMode, BlitzMode, BattleMode } from "@Components";
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
 import { Asset } from "expo-asset";
 
@@ -74,6 +74,7 @@ const Gameplay: React.FC = () => {
   const navigation = useNavigation();
   const params = useLocalSearchParams();
   const mode = params.mode as string;
+  console.log("Gameplay mode:", mode);
 
   const [showSplash, setShowSplash] = useState(true);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
@@ -125,7 +126,8 @@ const Gameplay: React.FC = () => {
         backgroundPath={mode}
         isReady={
           players.length > 0 &&
-          (blitzPackTitle === "Alpha Blitz" ||
+          (mode === GameMode.BATTLE ||
+            blitzPackTitle === "Alpha Blitz" ||
             currentPrompt !== "Loading...") &&
           assetsLoaded
         }
@@ -142,7 +144,12 @@ const Gameplay: React.FC = () => {
     nextPrompt();
   };
 
-  const ModeComponent = mode === GameMode.CHILL ? ChillMode : BlitzMode;
+  const ModeComponent =
+    mode === GameMode.CHILL
+      ? ChillMode
+      : mode === GameMode.BLITZ
+      ? BlitzMode
+      : BattleMode;
 
   return (
     <View style={styles.wrapper}>

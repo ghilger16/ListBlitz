@@ -1,6 +1,7 @@
 export enum GameMode {
   CHILL = "chill",
   BLITZ = "blitz",
+  BATTLE = "battle",
 }
 
 export interface GameSettings {

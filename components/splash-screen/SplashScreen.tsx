@@ -17,7 +17,7 @@ const imageMap: Record<string, any> = {
   landing: require("assets/images/landing-splash.png"),
   blitz: require("assets/images/blitz-splash.png"),
   chill: require("assets/images/chill-splash.png"),
-  // battle: require("assets/images/battle-bg.png"),
+  battle: require("assets/images/battle-splash.png"),
 };
 
 const SplashScreen: React.FC<SplashScreenProps> = ({

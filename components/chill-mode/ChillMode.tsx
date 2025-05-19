@@ -124,6 +124,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: "center",
     marginTop: 15,
+    letterSpacing: 1,
+    textShadowColor: "#000",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   counterContainer: {
     position: "absolute",

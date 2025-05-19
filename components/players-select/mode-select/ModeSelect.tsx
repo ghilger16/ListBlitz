@@ -51,7 +51,14 @@ const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
       }),
     ]).start();
 
-    onModeChange(mode === GameMode.CHILL ? GameMode.BLITZ : GameMode.CHILL);
+    const nextMode =
+      mode === GameMode.CHILL
+        ? GameMode.BLITZ
+        : mode === GameMode.BLITZ
+        ? GameMode.BATTLE
+        : GameMode.CHILL;
+
+    onModeChange(nextMode);
   };
 
   return (
@@ -62,9 +69,18 @@ const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
             style={[
               styles.circle,
               {
-                borderColor: mode === GameMode.CHILL ? "#FFD700" : "#87CEFA",
+                borderColor:
+                  mode === GameMode.CHILL
+                    ? "#FFD700"
+                    : mode === GameMode.BLITZ
+                    ? "#87CEFA"
+                    : "#FF4C4C",
                 backgroundColor:
-                  mode === GameMode.CHILL ? "#FFD700" : "#87CEFA",
+                  mode === GameMode.CHILL
+                    ? "#FFD700"
+                    : mode === GameMode.BLITZ
+                    ? "#87CEFA"
+                    : "#FF4C4C",
               },
             ]}
           >
@@ -149,6 +165,12 @@ const MODES: Record<GameMode, React.ReactNode> = {
     <View style={{ alignItems: "center" }}>
       <Text style={styles.iconEmoji}>⚡</Text>
       <Text style={styles.modeLabel}>Blitz</Text>
+    </View>
+  ),
+  [GameMode.BATTLE]: (
+    <View style={{ alignItems: "center" }}>
+      <Text style={styles.iconEmoji}>⚔️</Text>
+      <Text style={[styles.modeLabel, { fontSize: 22 }]}>Battle</Text>
     </View>
   ),
 };
