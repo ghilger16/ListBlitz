@@ -56,8 +56,6 @@ export const ChillMode: React.FC<ChillModeProps> = ({
   }, [score]);
 
   const handleNextPlayerClick = () => {
-    console.log("Next player clicked, score:", score);
-
     handleNextPlayer(score);
     setShowNextPlayerBubble(false);
     setScore(0);

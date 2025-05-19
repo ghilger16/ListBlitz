@@ -21,6 +21,8 @@ interface BattleTimerProps {
   onIncrement: () => void;
   onStart: () => void;
   isGameStarted: boolean;
+  isCountdownActive: boolean;
+  onTimeOut: () => void;
 }
 
 const RADIUS = 75;
@@ -34,6 +36,8 @@ export const BattleTimer: React.FC<BattleTimerProps> = ({
   onIncrement,
   onStart,
   isGameStarted,
+  isCountdownActive,
+  onTimeOut,
 }) => {
   const { data: ICONS = [] } = useGetIcons();
   const lottieRef = useRef<LottieView>(null);
@@ -46,7 +50,9 @@ export const BattleTimer: React.FC<BattleTimerProps> = ({
   const iconIndex = currentPlayer.id - 1;
 
   useEffect(() => {
-    if (isGameStarted) {
+    if (isGameStarted && isCountdownActive) {
+      setDisplayTime(timer);
+      setFillAngle(Math.PI * 2);
       animatedTimer.setValue(timer);
       Animated.timing(animatedTimer, {
         toValue: 0,
@@ -55,12 +61,16 @@ export const BattleTimer: React.FC<BattleTimerProps> = ({
         useNativeDriver: false,
       }).start();
     }
-  }, [isGameStarted]);
+  }, [isCountdownActive, isGameStarted, score]);
 
   useEffect(() => {
     const listenerId = animatedTimer.addListener(({ value }) => {
       setDisplayTime(Math.ceil(value));
       setFillAngle((value / timer) * Math.PI * 2);
+
+      if (value <= 0) {
+        onTimeOut();
+      }
     });
     return () => {
       animatedTimer.removeListener(listenerId);

@@ -7,7 +7,7 @@ import {
   View,
   TouchableOpacity,
 } from "react-native";
-import { GameMode, useGameplay } from "@Context";
+import { GameMode, Player, useGameplay } from "@Context";
 import { Prompt, useGetPromptsByBlitzPack } from "@Services";
 import { ChillMode, BlitzMode, BattleMode } from "@Components";
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
@@ -68,13 +68,19 @@ const Gameplay: React.FC = () => {
     gameSettings,
     handleNextPlayer,
     handleNextRound,
+    bracketQueue,
+    currentMatch,
+    setupBattleMode,
+    startNextMatch,
+    setBattleWinner,
   } = useGameplay();
+  console.log("🚀 ~ currentMatch:", currentMatch);
 
   const { blitzPackId, blitzPackTitle } = gameSettings;
   const navigation = useNavigation();
   const params = useLocalSearchParams();
   const mode = params.mode as string;
-  console.log("Gameplay mode:", mode);
+  console.log("🚀 ~ mode:", mode);
 
   const [showSplash, setShowSplash] = useState(true);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
@@ -86,6 +92,9 @@ const Gameplay: React.FC = () => {
       setAssetsLoaded(true);
     }
   }, []);
+
+  // setupBattleMode will now be triggered from BattleMode on mount instead
+
   const { currentPrompt, isLoading, error, nextPrompt } = usePromptManager(
     blitzPackId!
   );
@@ -144,24 +153,39 @@ const Gameplay: React.FC = () => {
     nextPrompt();
   };
 
-  const ModeComponent =
-    mode === GameMode.CHILL
-      ? ChillMode
-      : mode === GameMode.BLITZ
-      ? BlitzMode
-      : BattleMode;
-
   return (
     <View style={styles.wrapper}>
       <View style={styles.modeView}>
-        <ModeComponent
-          currentPrompt={currentPrompt}
-          handleNextPlayer={handleNextPlayerAndPrompt}
-          currentPlayer={currentPlayer}
-          players={players}
-          handleNextRound={handleNextRound}
-          packTitle={blitzPackTitle || ""}
-        />
+        {mode === GameMode.BATTLE ? (
+          <BattleMode
+            currentPrompt={currentPrompt}
+            handleNextPlayer={handleNextPlayerAndPrompt}
+            players={players}
+            handleNextRound={handleNextRound}
+            packTitle={blitzPackTitle || ""}
+            currentMatch={currentMatch}
+            setBattleWinner={setBattleWinner}
+            startNextMatch={startNextMatch}
+            setupBattleMode={setupBattleMode}
+          />
+        ) : mode === GameMode.BLITZ ? (
+          <BlitzMode
+            currentPrompt={currentPrompt}
+            handleNextPlayer={handleNextPlayerAndPrompt}
+            players={players}
+            handleNextRound={handleNextRound}
+            packTitle={blitzPackTitle || ""}
+            currentPlayer={currentPlayer}
+          />
+        ) : (
+          <ChillMode
+            currentPrompt={currentPrompt}
+            handleNextPlayer={handleNextPlayerAndPrompt}
+            players={players}
+            packTitle={blitzPackTitle || ""}
+            currentPlayer={currentPlayer}
+          />
+        )}
       </View>
     </View>
   );
