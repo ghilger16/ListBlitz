@@ -17,40 +17,39 @@ import { PlayerCard } from "./player-card";
 interface BattleModeProps {
   currentPrompt: string;
   packTitle: string;
-  handleNextPlayer: (score: number) => void;
-  players: Player[];
-  handleNextRound: () => void;
   currentMatch: Player[] | null;
   setBattleWinner: (winner: Player) => void;
-  startNextMatch: () => void;
   setupBattleMode: () => void;
+  hasStarted: boolean;
+  setHasStarted: (started: boolean) => void;
 }
 
 export const BattleMode: React.FC<BattleModeProps> = ({
   currentPrompt,
   packTitle,
-  handleNextPlayer,
-  players,
-  handleNextRound,
   currentMatch,
   setBattleWinner,
-  startNextMatch,
   setupBattleMode,
+  hasStarted,
+  setHasStarted,
 }) => {
   const titleImage = blitzPackIcons[packTitle]?.titleImage;
   const [bgUri, setBgUri] = useState<string | null>(null);
-
-  useEffect(() => {
-    console.log("Updated currentMatch:", currentMatch);
-  }, [currentMatch]);
-
   const [score, setScore] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [turnIndex, setTurnIndex] = useState(0);
   const [isTimerActive, setIsTimerActive] = useState(false);
 
   useEffect(() => {
-    setupBattleMode();
+    const asset = Asset.fromModule(require("assets/images/battle-bg.png"));
+    setBgUri(asset.localUri || asset.uri);
+  }, []);
+
+  useEffect(() => {
+    if (!hasStarted) {
+      setupBattleMode();
+      setHasStarted(true);
+    }
   }, []);
 
   const handleScoreIncrement = () => {
@@ -60,7 +59,7 @@ export const BattleMode: React.FC<BattleModeProps> = ({
   };
 
   const handleStartRound = () => {
-    startNextMatch();
+    if (!currentMatch || currentMatch.length < 2) return;
     setScore(0);
     setTurnIndex(0);
     setIsTimerActive(true);
@@ -70,26 +69,23 @@ export const BattleMode: React.FC<BattleModeProps> = ({
   const handlePlayerSelect = () => {
     if (!isGameStarted) return;
     setTurnIndex((prev) => (prev === 0 ? 1 : 0));
-    setScore(0); // reset score so timer restarts
+    setScore(0);
     setIsTimerActive(false);
-    setTimeout(() => setIsTimerActive(true), 10); // allow timer to reset
+    setTimeout(() => setIsTimerActive(true), 10);
   };
 
-  useEffect(() => {
-    const asset = Asset.fromModule(require("assets/images/battle-bg.png"));
-    setBgUri(asset.localUri || asset.uri);
-  }, []);
+  const handleTimeout = () => {
+    setIsGameStarted(false);
+    setIsTimerActive(false);
 
-  useEffect(() => {
-    if (isGameStarted && score >= 10) {
-      setIsTimerActive(false);
-      setIsGameStarted(false);
-      const winningPlayer = currentMatch?.[turnIndex === 0 ? 1 : 0];
-      if (winningPlayer) {
-        setBattleWinner(winningPlayer);
-      }
+    const loserIndex = turnIndex;
+    const winnerIndex = loserIndex === 0 ? 0 : 1;
+
+    const winner = currentMatch?.[winnerIndex];
+    if (winner) {
+      setBattleWinner(winner);
     }
-  }, [score]);
+  };
 
   if (!currentMatch || currentMatch.length < 2) return null;
 
@@ -116,23 +112,10 @@ export const BattleMode: React.FC<BattleModeProps> = ({
             onStart={handleStartRound}
             isGameStarted={isGameStarted}
             isCountdownActive={isTimerActive}
-            onTimeOut={() => {
-              setIsGameStarted(false);
-              setIsTimerActive(false);
-              const winningPlayer = currentMatch[turnIndex === 0 ? 1 : 0];
-              if (winningPlayer) {
-                setBattleWinner(winningPlayer);
-              }
-            }}
+            onTimeOut={handleTimeout}
           />
         </View>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-around",
-            marginTop: -15,
-          }}
-        >
+        <View style={styles.playerRow}>
           <PlayerCard
             player={currentMatch[0]}
             onPress={turnIndex === 0 ? handlePlayerSelect : undefined}
@@ -150,7 +133,7 @@ export const BattleMode: React.FC<BattleModeProps> = ({
               style={styles.startButton}
               onPress={handleStartRound}
             >
-              <Text style={styles.startButtonText}>START</Text>
+              <Text style={styles.startButtonText}>START ROUND</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -170,6 +153,11 @@ const styles = StyleSheet.create({
   timerContainer: {
     alignItems: "center",
     marginTop: -25,
+  },
+  playerRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: -15,
   },
   startButtonWrapper: {
     alignItems: "center",

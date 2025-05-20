@@ -68,11 +68,12 @@ const Gameplay: React.FC = () => {
     gameSettings,
     handleNextPlayer,
     handleNextRound,
-    bracketQueue,
     currentMatch,
     setupBattleMode,
     startNextMatch,
     setBattleWinner,
+    hasStarted,
+    setHasStarted,
   } = useGameplay();
   console.log("🚀 ~ currentMatch:", currentMatch);
 
@@ -80,7 +81,6 @@ const Gameplay: React.FC = () => {
   const navigation = useNavigation();
   const params = useLocalSearchParams();
   const mode = params.mode as string;
-  console.log("🚀 ~ mode:", mode);
 
   const [showSplash, setShowSplash] = useState(true);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
@@ -93,7 +93,12 @@ const Gameplay: React.FC = () => {
     }
   }, []);
 
-  // setupBattleMode will now be triggered from BattleMode on mount instead
+  // Ensure setupBattleMode is called during splash screen loading so currentMatch is set before BattleMode renders.
+  useEffect(() => {
+    if (mode === GameMode.BATTLE && players.length > 0 && !currentMatch) {
+      setupBattleMode();
+    }
+  }, [mode, players, currentMatch]);
 
   const { currentPrompt, isLoading, error, nextPrompt } = usePromptManager(
     blitzPackId!
@@ -135,9 +140,10 @@ const Gameplay: React.FC = () => {
         backgroundPath={mode}
         isReady={
           players.length > 0 &&
-          (mode === GameMode.BATTLE ||
-            blitzPackTitle === "Alpha Blitz" ||
-            currentPrompt !== "Loading...") &&
+          (mode === GameMode.BATTLE
+            ? currentMatch !== null && assetsLoaded
+            : blitzPackTitle === "Alpha Blitz" ||
+              currentPrompt !== "Loading...") &&
           assetsLoaded
         }
         onFinish={() => setShowSplash(false)}
@@ -159,14 +165,12 @@ const Gameplay: React.FC = () => {
         {mode === GameMode.BATTLE ? (
           <BattleMode
             currentPrompt={currentPrompt}
-            handleNextPlayer={handleNextPlayerAndPrompt}
-            players={players}
-            handleNextRound={handleNextRound}
             packTitle={blitzPackTitle || ""}
             currentMatch={currentMatch}
             setBattleWinner={setBattleWinner}
-            startNextMatch={startNextMatch}
             setupBattleMode={setupBattleMode}
+            hasStarted={hasStarted}
+            setHasStarted={setHasStarted}
           />
         ) : mode === GameMode.BLITZ ? (
           <BlitzMode
