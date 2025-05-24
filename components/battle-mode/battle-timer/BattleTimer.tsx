@@ -1,24 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import {
-  View,
-  TouchableOpacity,
-  Animated,
-  Easing,
-  StyleSheet,
-  Text,
-} from "react-native";
+import { View, Animated, Easing, StyleSheet } from "react-native";
 import Svg, { G, Path as SvgPath, Text as SvgText } from "react-native-svg";
 import * as d3 from "d3-shape";
 import { Player } from "@Context";
-import { playSound } from "components/utils";
-import { tapSound } from "@Assets";
-import { useGetIcons } from "@Services";
-import LottieView from "lottie-react-native";
 
 interface BattleTimerProps {
-  score: number;
   currentPlayer: Player;
-  onIncrement: () => void;
   onStart: () => void;
   isGameStarted: boolean;
   isCountdownActive: boolean;
@@ -26,28 +13,20 @@ interface BattleTimerProps {
 }
 
 const RADIUS = 75;
-const CENTER_RADIUS = 30;
 
 const AnimatedSvgPath = Animated.createAnimatedComponent(SvgPath);
 
 export const BattleTimer: React.FC<BattleTimerProps> = ({
-  score,
   currentPlayer,
-  onIncrement,
-  onStart,
   isGameStarted,
   isCountdownActive,
   onTimeOut,
 }) => {
-  const { data: ICONS = [] } = useGetIcons();
-  const lottieRef = useRef<LottieView>(null);
   const timer = 10;
   const animatedTimer = useRef(new Animated.Value(timer)).current;
   const flashAnim = useRef(new Animated.Value(0)).current;
   const [displayTime, setDisplayTime] = useState(timer);
   const [fillAngle, setFillAngle] = useState(Math.PI * 2);
-
-  const iconIndex = currentPlayer.id - 1;
 
   useEffect(() => {
     if (isGameStarted && isCountdownActive) {
@@ -61,7 +40,7 @@ export const BattleTimer: React.FC<BattleTimerProps> = ({
         useNativeDriver: false,
       }).start();
     }
-  }, [isCountdownActive, isGameStarted, score]);
+  }, [isCountdownActive, isGameStarted]);
 
   useEffect(() => {
     const listenerId = animatedTimer.addListener(({ value }) => {
@@ -77,22 +56,11 @@ export const BattleTimer: React.FC<BattleTimerProps> = ({
     };
   }, []);
 
-  const triggerFlash = () => {
-    flashAnim.setValue(1);
-    Animated.timing(flashAnim, {
-      toValue: 0,
-      duration: 300,
-      easing: Easing.linear,
-      useNativeDriver: false,
-    }).start();
-  };
-
   const animatedColor = flashAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [`${currentPlayer.startColor}`, "#ffffff"],
   });
 
-  // Animate fill arc from white to player color when game starts
   const fillStrokeColor = isGameStarted ? animatedColor : "transparent";
 
   const borderArcGenerator = useMemo(() => {
@@ -110,16 +78,6 @@ export const BattleTimer: React.FC<BattleTimerProps> = ({
       .endAngle(fillAngle);
     return { fillArc, animatedFillArc };
   }, [fillAngle]);
-
-  const handleIncrement = () => {
-    if (isGameStarted) {
-      onIncrement();
-      triggerFlash();
-      playSound(tapSound);
-    } else {
-      onStart();
-    }
-  };
 
   return (
     <View style={styles.container}>

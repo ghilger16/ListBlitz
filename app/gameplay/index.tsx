@@ -70,12 +70,9 @@ const Gameplay: React.FC = () => {
     handleNextRound,
     currentMatch,
     setupBattleMode,
-    startNextMatch,
-    setBattleWinner,
-    hasStarted,
-    setHasStarted,
+    handleBattleTimeout,
   } = useGameplay();
-  console.log("🚀 ~ currentMatch:", currentMatch);
+  // console.log("🚀 ~ currentMatch:", currentMatch);
 
   const { blitzPackId, blitzPackTitle } = gameSettings;
   const navigation = useNavigation();
@@ -93,12 +90,12 @@ const Gameplay: React.FC = () => {
     }
   }, []);
 
-  // Ensure setupBattleMode is called during splash screen loading so currentMatch is set before BattleMode renders.
   useEffect(() => {
-    if (mode === GameMode.BATTLE && players.length > 0 && !currentMatch) {
+    if (mode === GameMode.BATTLE && !assetsLoaded) {
+      console.log("Loading battle assets...");
       setupBattleMode();
     }
-  }, [mode, players, currentMatch]);
+  }, [players]);
 
   const { currentPrompt, isLoading, error, nextPrompt } = usePromptManager(
     blitzPackId!
@@ -167,10 +164,8 @@ const Gameplay: React.FC = () => {
             currentPrompt={currentPrompt}
             packTitle={blitzPackTitle || ""}
             currentMatch={currentMatch}
-            setBattleWinner={setBattleWinner}
-            setupBattleMode={setupBattleMode}
-            hasStarted={hasStarted}
-            setHasStarted={setHasStarted}
+            onTimeout={handleBattleTimeout}
+            onRestart={setupBattleMode}
           />
         ) : mode === GameMode.BLITZ ? (
           <BlitzMode
