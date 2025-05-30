@@ -14,9 +14,9 @@ export interface GameSettings {
 export interface Player {
   id: number;
   name: string;
+  iconIndex: number;
   score: number | null;
   startColor: string;
-  endColor: string;
 }
 
 export const COLORS: ReadonlyArray<[string, string]> = [

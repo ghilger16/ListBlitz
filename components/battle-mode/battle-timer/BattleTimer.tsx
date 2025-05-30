@@ -86,7 +86,7 @@ export const BattleTimer: React.FC<BattleTimerProps> = ({
           <AnimatedSvgPath
             d={borderArcGenerator.fillArc({} as any) || ""}
             fill="none"
-            stroke="#FFF"
+            stroke={isGameStarted ? "#FFF" : currentPlayer.startColor}
             strokeWidth={12}
             strokeLinecap="round"
           />

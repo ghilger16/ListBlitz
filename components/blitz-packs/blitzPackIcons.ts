@@ -1,5 +1,5 @@
 export const blitzPackIcons: Record<string, { icon: any; titleImage?: any }> = {
-  "Categorically Speaking": {
+  "Category Chaos": {
     icon: require("@Assets/icons/category-chaos.png"),
     titleImage: require("@Assets/icons/category-chaos-title.png"),
   },

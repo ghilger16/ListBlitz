@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import {
   View,
   Text,
@@ -22,6 +22,14 @@ const PackLibrary: React.FC = () => {
   const animatedValues = useRef<Animated.Value[]>([]).current;
 
   const headerFadeAnim = useRef(new Animated.Value(0)).current;
+
+  useMemo(() => {
+    if (blitzPacks.length && animatedValues.length === 0) {
+      blitzPacks.forEach((_, i) => {
+        animatedValues[i] = new Animated.Value(0);
+      });
+    }
+  }, [blitzPacks]);
 
   useEffect(() => {
     Animated.timing(headerFadeAnim, {
@@ -81,29 +89,32 @@ const PackLibrary: React.FC = () => {
         <View style={styles.contentContainer}>
           {rows.map((row, rowIndex) => (
             <View style={styles.row} key={rowIndex}>
-              {row.map((pack, index) => (
-                <Animated.View
-                  key={pack.id}
-                  style={{
-                    opacity: animatedValues[rowIndex * 3 + index] || 0,
-                    transform: [
-                      {
-                        scale:
-                          animatedValues[rowIndex * 3 + index]?.interpolate({
+              {row.map((pack, index) => {
+                return (
+                  <Animated.View
+                    key={pack.id}
+                    style={{
+                      opacity: animatedValues[rowIndex * 3 + index],
+                      transform: [
+                        {
+                          scale: animatedValues[
+                            rowIndex * 3 + index
+                          ].interpolate({
                             inputRange: [0, 1],
                             outputRange: [0.6, 1],
-                          }) || 1,
-                      },
-                    ],
-                  }}
-                >
-                  <BlitzPack
-                    title={pack.title}
-                    onPress={() => handlePackPress(pack.title, pack.id)}
-                    index={rowIndex * 3 + index}
-                  />
-                </Animated.View>
-              ))}
+                          }),
+                        },
+                      ],
+                    }}
+                  >
+                    <BlitzPack
+                      title={pack.title}
+                      onPress={() => handlePackPress(pack.title, pack.id)}
+                      index={rowIndex * 3 + index}
+                    />
+                  </Animated.View>
+                );
+              })}
             </View>
           ))}
         </View>

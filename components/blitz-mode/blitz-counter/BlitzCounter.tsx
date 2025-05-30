@@ -12,7 +12,7 @@ import * as d3 from "d3-shape";
 import { Player } from "@Context";
 import { playSound } from "components/utils";
 import { tapSound } from "@Assets";
-import { useGetIcons } from "@Services";
+import { useGetPlayerIcons } from "@Services";
 import LottieView from "lottie-react-native";
 
 interface BlitzCounterProps {
@@ -40,14 +40,14 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   timer,
   isCountdownActive,
 }) => {
-  const { data: ICONS = [] } = useGetIcons();
+  const { data: ICONS = [] } = useGetPlayerIcons();
   const lottieRef = useRef<LottieView>(null);
   const animatedTimer = useRef(new Animated.Value(timer)).current;
   const flashAnim = useRef(new Animated.Value(0)).current;
   const [displayTime, setDisplayTime] = useState(timer);
   const [fillAngle, setFillAngle] = useState(Math.PI * 1 - MISSING_ANGLE / 2);
 
-  const iconIndex = currentPlayer.id - 1;
+  const iconIndex = currentPlayer.iconIndex;
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);

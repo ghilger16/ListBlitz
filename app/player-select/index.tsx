@@ -20,9 +20,12 @@ import { FlashingText, PlayersSelect } from "@Components";
 import { ModeSelect } from "components/players-select/mode-select";
 
 const PlayerSelect: React.FC = () => {
-  const { setGameSettings, onGameStart, gameSettings } = useGameplay();
+  const { setGameSettings, onGameStart, gameSettings, initializePlayers } =
+    useGameplay();
   const [selectedMode, setSelectedMode] = useState<GameMode>(gameSettings.mode);
-  const [playerCount, setPlayerCount] = useState(1);
+  const [playersData, setPlayersData] = useState<
+    { id: number; iconIndex: number }[]
+  >([]);
 
   const navigation = useNavigation();
 
@@ -62,9 +65,12 @@ const PlayerSelect: React.FC = () => {
     outputRange: ["rgba(255, 255, 255, 0.3)", "rgba(255, 255, 255, 1)"],
   });
 
-  const handlePlayerCountChange = useCallback((count: number) => {
-    setPlayerCount(count);
-  }, []);
+  const handlePlayerCountChange = useCallback(
+    (players: { id: number; iconIndex: number }[]) => {
+      setPlayersData(players);
+    },
+    []
+  );
 
   const handleModeChange = useCallback((mode: GameMode) => {
     setSelectedMode(mode);
@@ -72,15 +78,16 @@ const PlayerSelect: React.FC = () => {
 
   useEffect(() => {
     if (
-      gameSettings.playerCount !== playerCount ||
+      gameSettings.playerCount !== playersData.length ||
       gameSettings.mode !== selectedMode
     ) {
-      setGameSettings({ mode: selectedMode, playerCount });
+      setGameSettings({ mode: selectedMode, playerCount: playersData.length });
     }
-  }, [selectedMode, playerCount, setGameSettings, gameSettings]);
+  }, [selectedMode, playersData, setGameSettings, gameSettings]);
 
   const handleGameStart = () => {
-    if (playerCount > 0) {
+    if (playersData.length > 0) {
+      initializePlayers(playersData);
       onGameStart();
       router.push({
         pathname: "/gameplay",
@@ -153,9 +160,12 @@ const PlayerSelect: React.FC = () => {
       </View>
 
       <TouchableOpacity
-        style={[styles.startButton, { opacity: playerCount < 1 ? 0.5 : 1 }]}
+        style={[
+          styles.startButton,
+          { opacity: playersData.length < 1 ? 0.5 : 1 },
+        ]}
         onPress={handleGameStart}
-        disabled={playerCount < 1}
+        disabled={playersData.length < 1}
         activeOpacity={0.7}
       >
         <Animated.Text

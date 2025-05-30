@@ -1,15 +1,18 @@
-import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import * as React from "react";
+import { useMemo } from "react";
 import { IBlitzPack } from "../types";
-import { getBlitzPacks } from "./blitz-packs-service";
 
-type UseGetBlitzPacks = UseQueryResult<IBlitzPack[], unknown>;
-
-export const useGetBlitzPacks = (): UseGetBlitzPacks => {
-  const result = useQuery<IBlitzPack[], unknown>({
-    queryKey: ["blitz-packs"],
-    queryFn: getBlitzPacks,
-  });
-
-  return result;
+const BLITZ_PACKS: IBlitzPack[] = [
+  { id: 1, title: "Category Chaos", key: "category_chaos" },
+  { id: 2, title: "The Thing Is", key: "the_thing_is" },
+  { id: 3, title: "Alpha Blitz", key: "alpha_blitz" },
+  { id: 4, title: "Snack Attack", key: "snack_attack" },
+  { id: 5, title: "Big Screen Blitz", key: "big_screen_blitz" },
+];
+export const useGetBlitzPacks = (): {
+  data: IBlitzPack[];
+  isLoading: boolean;
+  error: null;
+} => {
+  const data = useMemo(() => BLITZ_PACKS, []);
+  return { data, isLoading: false, error: null };
 };

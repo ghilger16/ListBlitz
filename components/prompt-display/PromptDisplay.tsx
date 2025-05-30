@@ -7,7 +7,9 @@ import {
   ViewStyle,
   Image,
   ImageSourcePropType,
+  TouchableWithoutFeedback,
 } from "react-native";
+import Svg, { Path, Text as SvgText } from "react-native-svg";
 import { playSound } from "components/utils";
 import { countdownSound } from "@Assets";
 import LottieView from "lottie-react-native";
@@ -21,7 +23,9 @@ export const PromptDisplay: React.FC<{
   countdown?: number | null;
   categoryBubble?: ImageSourcePropType;
   isAlphaBlitz?: boolean;
+  isBlitzMode?: boolean;
   selectedCategory?: string | null;
+  handleSkipPrompt?: () => void;
 }> = ({
   prompt,
   playerColor,
@@ -29,7 +33,9 @@ export const PromptDisplay: React.FC<{
   countdown,
   categoryBubble,
   isAlphaBlitz,
+  isBlitzMode,
   selectedCategory,
+  handleSkipPrompt,
 }) => {
   const [bounceValue] = useState(new Animated.Value(1));
   const [fadeValue] = useState(new Animated.Value(0));
@@ -213,16 +219,50 @@ export const PromptDisplay: React.FC<{
             <Text style={styles.promptText}>List Blitz</Text>
           )
         ) : (
-          <Animated.Text
-            style={[styles.promptText, { transform: [{ scale: bounceValue }] }]}
-          >
-            {selectedCategory ? selectedCategory : prompt}
-          </Animated.Text>
+          <View style={styles.promptBubble}>
+            <Animated.Text
+              style={[
+                styles.promptText,
+                { transform: [{ scale: bounceValue }] },
+              ]}
+            >
+              {selectedCategory ? selectedCategory : prompt}
+            </Animated.Text>
+          </View>
         )}
       </View>
+      {prompt && !isObscured && !isAlphaBlitz && !isBlitzMode && (
+        <TouchableWithoutFeedback onPress={handleSkipPrompt}>
+          <Svg
+            height="50"
+            width="60"
+            style={{
+              position: "absolute",
+              bottom: 5,
+              right: 18,
+            }}
+          >
+            <Path d="M0,50 L45,50 Q60,50 60,35 L60,0 Z" fill={playerColor} />
+            <SvgText
+              x="22"
+              y="45"
+              fill="#000"
+              fontSize="15"
+              fontWeight="bold"
+              fontFamily="LuckiestGuy"
+              transform="rotate(-45, 30, 30)"
+            >
+              Skip
+            </SvgText>
+          </Svg>
+        </TouchableWithoutFeedback>
+      )}
       {categoryBubble && (
         <Image source={categoryBubble} style={styles.bubbleImage} />
       )}
+      {/* <View style={styles.skipButtonContainer}>
+        <Text style={styles.skipButtonText}>Skip</Text>
+      </View> */}
     </View>
   );
 };
@@ -277,5 +317,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 4,
     zIndex: 2,
+  },
+  skipButtonContainer: {
+    position: "absolute",
+    bottom: 10,
+    right: 20,
+    backgroundColor: "#ffffff22",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+  },
+  skipButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    fontFamily: "LuckiestGuy",
+  },
+  promptBubble: {
+    position: "relative",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

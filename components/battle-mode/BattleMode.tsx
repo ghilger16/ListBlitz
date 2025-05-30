@@ -16,7 +16,7 @@ import { Asset } from "expo-asset";
 import { Player } from "@Context";
 import { BattleTimer } from "./battle-timer";
 import { PlayerCard } from "./player-card";
-import { useGetIcons } from "@Services";
+import { useGetPlayerIcons } from "@Services";
 import LottieView from "lottie-react-native";
 import { useGameplay } from "@Context";
 
@@ -35,11 +35,10 @@ export const BattleMode: React.FC<BattleModeProps> = ({
   onTimeout,
   onRestart,
 }) => {
-  const matchRef = React.useRef<Player[] | null>(null);
-  const titleImage = blitzPackIcons[packTitle]?.titleImage;
-  const [bgUri, setBgUri] = useState<string | null>(null);
+  const matchRef = useRef<Player[] | null>(null);
+  const turnIndexRef = useRef(0);
   const [turnIndex, setTurnIndex] = useState(0);
-  const turnIndexRef = React.useRef(0);
+  const [bgUri, setBgUri] = useState<string | null>(null);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isWinnerAnnounced, setIsWinnerAnnounced] = useState(false);
@@ -47,13 +46,12 @@ export const BattleMode: React.FC<BattleModeProps> = ({
 
   const { globalMatchIndex, totalMatches, getMatchLabel } = useGameplay();
 
-  // Winner's icon logic
-  const { data: ICONS = [] } = useGetIcons();
+  const { data: ICONS = [] } = useGetPlayerIcons();
 
   const vsScale = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    vsScale.setValue(2.5); // Start big
+    vsScale.setValue(2.5);
     Animated.spring(vsScale, {
       toValue: 1.5,
       useNativeDriver: true,
@@ -71,6 +69,19 @@ export const BattleMode: React.FC<BattleModeProps> = ({
     matchRef.current = currentMatch;
   }, [currentMatch]);
 
+  useEffect(() => {
+    turnIndexRef.current = turnIndex;
+  }, [turnIndex]);
+
+  const isFinalMatch = globalMatchIndex === totalMatches;
+
+  const getDisplayWinner = () => {
+    if (isFinalMatch) return finalWinner;
+    const match = matchRef.current;
+    if (!match) return null;
+    return match[turnIndexRef.current === 0 ? 1 : 0];
+  };
+
   const handleStartRound = () => {
     setIsTimerActive(true);
     setIsGameStarted(true);
@@ -87,21 +98,12 @@ export const BattleMode: React.FC<BattleModeProps> = ({
     setTimeout(() => setIsTimerActive(true), 10);
   };
 
-  // Helper to check if this is the final match using globalMatchIndex and totalMatches
-  const match = matchRef.current;
-  const currentTurnIndex = turnIndexRef.current;
-  const loserIndex = currentTurnIndex;
-  const winnerIndex = loserIndex === 0 ? 1 : 0;
-  const isFinalMatch = globalMatchIndex === totalMatches;
-
   const handleTimeout = () => {
     setIsGameStarted(false);
     setIsTimerActive(false);
 
-    const currentTurnIndex = turnIndexRef.current;
-    const loserIndex = currentTurnIndex;
+    const loserIndex = turnIndexRef.current;
     const winnerIndex = loserIndex === 0 ? 1 : 0;
-
     const match = matchRef.current;
     const winner = match?.[winnerIndex];
 
@@ -109,27 +111,17 @@ export const BattleMode: React.FC<BattleModeProps> = ({
       setIsWinnerAnnounced(true);
       if (isFinalMatch) {
         setFinalWinner(winner);
-        return; // Do not auto-dismiss final match
+        return;
       }
       setTimeout(() => {
         turnIndexRef.current = 0;
         setTurnIndex(0);
         onTimeout(winner);
         setIsWinnerAnnounced(false);
-      }, 3000); // 2.5 second animation duration
+      }, 3000);
     }
   };
 
-  if (!currentMatch) return null;
-
-  const displayWinner = isFinalMatch
-    ? finalWinner
-    : matchRef.current?.[turnIndexRef.current === 0 ? 1 : 0];
-  const displayIconIndex = displayWinner
-    ? (displayWinner.id - 1) % ICONS.length
-    : 0;
-
-  // Handle restart for the next round/final match
   const handleRestart = () => {
     setIsWinnerAnnounced(false);
     setIsGameStarted(false);
@@ -140,6 +132,11 @@ export const BattleMode: React.FC<BattleModeProps> = ({
     onRestart();
   };
 
+  if (!currentMatch) return null;
+
+  const displayWinner = getDisplayWinner();
+  const displayIconIndex = displayWinner ? displayWinner.iconIndex : 0;
+
   return (
     <ImageBackground
       source={bgUri ? { uri: bgUri } : undefined}
@@ -147,13 +144,13 @@ export const BattleMode: React.FC<BattleModeProps> = ({
       style={StyleSheet.absoluteFill}
     >
       <SafeAreaView style={styles.wrapper}>
-        {!isWinnerAnnounced && (
+        {!isWinnerAnnounced ? (
           <>
             <View style={styles.promptWrapper}>
               <PromptDisplay
                 prompt={currentPrompt}
                 playerColor={currentMatch[turnIndex].startColor}
-                categoryBubble={titleImage}
+                categoryBubble={blitzPackIcons[packTitle]?.titleImage}
                 isAlphaBlitz={packTitle === "Alpha Blitz"}
               />
             </View>
@@ -167,15 +164,13 @@ export const BattleMode: React.FC<BattleModeProps> = ({
               />
             </View>
             <View style={styles.matchSection}>
-              {!isWinnerAnnounced &&
-                !isGameStarted &&
-                currentMatch.length === 2 && (
-                  <View style={styles.matchLabelContainer}>
-                    <Text style={styles.matchLabelText}>
-                      {getMatchLabel(globalMatchIndex, totalMatches)}
-                    </Text>
-                  </View>
-                )}
+              {!isGameStarted && currentMatch.length === 2 && (
+                <View style={styles.matchLabelContainer}>
+                  <Text style={styles.matchLabelText}>
+                    {getMatchLabel(globalMatchIndex, totalMatches)}
+                  </Text>
+                </View>
+              )}
               <View style={styles.playerRow}>
                 <PlayerCard
                   player={currentMatch[0]}
@@ -207,26 +202,27 @@ export const BattleMode: React.FC<BattleModeProps> = ({
               )}
             </View>
           </>
-        )}
-        {isWinnerAnnounced && (
+        ) : (
           <View style={styles.winnerOverlay}>
             {displayWinner && (
               <>
-                <Text style={styles.winnerHeaderText}>
-                  {displayWinner.name.toUpperCase()}
-                </Text>
-                <LottieView
-                  source={ICONS[displayIconIndex]}
-                  autoPlay
-                  loop
-                  style={{ width: 150, height: 150 }}
-                />
-                <Text style={styles.winnerText}>
-                  {isFinalMatch ? "WINS!" : "ADVANCES"}
-                </Text>
+                <View style={styles.winnerSection}>
+                  <Text style={styles.winnerHeaderText}>
+                    {displayWinner.name.toUpperCase()}
+                  </Text>
+                  <LottieView
+                    source={ICONS[displayIconIndex]}
+                    autoPlay
+                    loop
+                    style={{ width: 150, height: 150 }}
+                  />
+                  <Text style={styles.winnerText}>
+                    {isFinalMatch ? "WINS!" : "ADVANCES"}
+                  </Text>
+                </View>
                 {isFinalMatch && (
                   <TouchableOpacity
-                    style={styles.startButton}
+                    style={[styles.startButton, { marginTop: 80 }]}
                     onPress={handleRestart}
                   >
                     <Text style={styles.startButtonText}>START NEXT ROUND</Text>
@@ -244,11 +240,11 @@ export const BattleMode: React.FC<BattleModeProps> = ({
 const styles = StyleSheet.create({
   wrapper: { flex: 1, paddingTop: 15 },
   promptWrapper: { marginTop: 15 },
-  timerContainer: { alignItems: "center", marginTop: -25 },
+  timerContainer: { alignItems: "center", marginTop: -30 },
   playerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 10, // 👈 cleaner and predictable
+    marginTop: 10,
   },
   vsText: {
     fontSize: 60,
@@ -284,7 +280,6 @@ const styles = StyleSheet.create({
   },
   winnerOverlay: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
     backgroundColor: "transparent",
     zIndex: 10,
@@ -324,5 +319,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-end",
     marginTop: -65,
+  },
+  winnerSection: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    marginTop: 130,
   },
 });

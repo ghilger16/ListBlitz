@@ -15,19 +15,23 @@ import { ScoreRankings } from "./score-rankings";
 import { WinnerOverlay } from "./winner-overlay/WinningOverlay";
 import { blitzPackIcons } from "components/blitz-packs/blitzPackIcons";
 import { AlphaCategorySelect } from "components/alpha-category-select";
-import { preloadAssets } from "components/utils/utils";
 import { Asset } from "expo-asset";
 
 interface BlitzModeProps {
   currentPrompt: string;
   handleNextPlayer: (score: number) => void;
-  players: { id: number; name: string; score: number | null }[];
-  currentPlayer: Player;
+  players: {
+    id: number;
+    name: string;
+    score: number | null;
+    iconIndex: number;
+  }[];
+  currentPlayer: Player & { iconIndex: number };
   handleNextRound: () => void;
   packTitle: string;
 }
 
-const TIMER_DURATION = 3;
+const TIMER_DURATION = 30;
 
 export const BlitzMode: React.FC<BlitzModeProps> = ({
   currentPrompt,
@@ -167,6 +171,7 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
                 isObscured={!isGameStarted}
                 countdown={isCountdownActive ? countdown : null}
                 isAlphaBlitz={packTitle === "Alpha Blitz"}
+                isBlitzMode
                 selectedCategory={selectedCategory}
               />
             </View>

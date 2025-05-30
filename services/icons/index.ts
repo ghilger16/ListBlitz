@@ -1,1 +1,5 @@
-export { useGetIcons, useGetAlphabetIcons } from "./icons-service";
+export {
+  useGetTrophyIcon,
+  useGetPlayerIcons,
+  useGetAlphabetIcons,
+} from "./icons-service";

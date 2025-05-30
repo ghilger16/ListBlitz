@@ -18,7 +18,7 @@ export const BlitzPack: React.FC<IBlitzPackProps> = ({
   const { icon, titleImage } = blitzPackIcons[title] || {};
   return (
     <TouchableOpacity
-      style={styles.cardContainer}
+      style={[styles.cardContainer, { borderColor: assignedColor[0] }]}
       onPress={onPress}
       activeOpacity={0.9}
     >
@@ -51,6 +51,9 @@ const styles = StyleSheet.create({
     elevation: 3,
     alignItems: "center",
     overflow: "hidden",
+    borderWidth: 3,
+    borderRadius: 25,
+    backgroundColor: "#fff",
   },
   gradientBackground: {
     ...StyleSheet.absoluteFillObject,

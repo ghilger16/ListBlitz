@@ -52,14 +52,18 @@ const iconUrls = [
   SkateboardIcon,
 ];
 
-const fetchIcons = async (filterTrophyOnly = false) => {
-  return filterTrophyOnly ? [trophy] : iconUrls;
+export const useGetTrophyIcon = () => {
+  return useQuery({
+    queryKey: ["trophy-icon"],
+    queryFn: async () => trophy,
+    staleTime: 1000 * 60 * 60,
+  });
 };
 
-export const useGetIcons = (filterTrophyOnly = false) => {
+export const useGetPlayerIcons = () => {
   return useQuery({
-    queryKey: ["icons", filterTrophyOnly],
-    queryFn: () => fetchIcons(filterTrophyOnly),
+    queryKey: ["player-icons"],
+    queryFn: async () => iconUrls,
     staleTime: 1000 * 60 * 60,
   });
 };
@@ -94,11 +98,11 @@ export const useGetAlphabetIcons = (letter: string | null) => {
     Z: ZIcon,
   };
 
-  if (!letter || !(letter in alphabetIcons)) {
+  if (!letter) {
     return { icon: undefined };
   }
 
   return {
-    icon: alphabetIcons[letter],
+    icon: alphabetIcons[letter] ?? undefined,
   };
 };

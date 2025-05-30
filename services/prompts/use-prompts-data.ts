@@ -1,15 +1,27 @@
-import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { LIST_PROMPTS_BY_PACK, BLITZ_TITLE_TO_KEY_MAP } from "../../data";
 
-import { Prompt } from "../types";
-import { getPromptsByBlitzPack } from "./prompt-service";
+const shuffleArray = (array: string[]): string[] => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
 
-export const useGetPromptsByBlitzPack = (
-  blitzPackId: number,
-  limit: number
-): UseQueryResult<Prompt[], Error> => {
-  return useQuery<Prompt[], Error>({
-    queryKey: ["prompts", blitzPackId, limit],
-    queryFn: () => getPromptsByBlitzPack(blitzPackId, limit),
-    refetchOnWindowFocus: false,
-  });
+export const useGetPromptsByBlitzPack = (blitzPackTitle: string): string[] => {
+  const [prompts, setPrompts] = useState<string[]>([]);
+
+  useEffect(() => {
+    const packKey = BLITZ_TITLE_TO_KEY_MAP[
+      blitzPackTitle
+    ] as keyof typeof LIST_PROMPTS_BY_PACK;
+    const fetchedPrompts = LIST_PROMPTS_BY_PACK[packKey] || [];
+
+    const shuffledPrompts = shuffleArray(fetchedPrompts);
+    setPrompts(shuffledPrompts);
+  }, [blitzPackTitle]);
+
+  return prompts;
 };

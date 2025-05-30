@@ -3,7 +3,7 @@ import { View, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import Svg, { G, Path, Text as SvgText } from "react-native-svg";
 import * as d3 from "d3-shape";
 import LottieView from "lottie-react-native";
-import { useGetIcons } from "@Services";
+import { useGetPlayerIcons } from "@Services";
 import { Player } from "@Context";
 import { FlashingText } from "components/flashing-text";
 
@@ -29,12 +29,12 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   onIncrement,
   onStart,
 }) => {
-  const { data: ICONS = [] } = useGetIcons();
+  const { data: ICONS = [] } = useGetPlayerIcons();
   const [fillAngle, setFillAngle] = useState(0);
   const [isPlayerStartVisible, setIsPlayerStartVisible] = useState(true);
   const lottieRef = useRef<LottieView>(null);
 
-  const iconIndex = (currentPlayer.id - 1) % ICONS.length;
+  const iconIndex = currentPlayer.iconIndex;
 
   const playSoundEffect = () => {
     playSound(tapSound);

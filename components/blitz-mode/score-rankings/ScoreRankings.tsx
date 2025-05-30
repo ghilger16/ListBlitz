@@ -9,16 +9,16 @@ import {
 } from "react-native";
 import { EditScoreModal } from "./EditScoreModal";
 import { useGameplay } from "@Context";
-import { useGetIcons } from "@Services";
+import { useGetPlayerIcons } from "@Services";
 import LottieView from "lottie-react-native";
 
 interface ScoreRankingsProps {
   players: {
     id: number;
     name: string;
+    iconIndex: number;
     score: number | null;
     startColor?: string;
-    endColor?: string;
   }[];
   isRoundOver?: boolean;
   isGameStarted?: boolean;
@@ -32,15 +32,16 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
   const [selectedPlayer, setSelectedPlayer] = useState<{
     id: number;
     name: string;
+    iconIndex: number;
     score: number | null;
     startColor?: string;
   } | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const { data: ICONS = [] } = useGetIcons();
+  const { data: ICONS = [] } = useGetPlayerIcons();
   const { updatePlayerScore } = useGameplay();
 
-  const getPlayerIcon = (playerId: number) => {
-    return ICONS[playerId - 1];
+  const getPlayerIcon = (playerIconIndex: number) => {
+    return ICONS[playerIconIndex];
   };
 
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -103,7 +104,7 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
 
   const renderPill = (player: (typeof players)[number], animated = false) => {
     if (player.score === null) return null;
-    const icon = getPlayerIcon(player.id);
+    const icon = getPlayerIcon(player.iconIndex);
     const animatedStyle = animated
       ? {
           transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
@@ -175,7 +176,7 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
           initialScore={selectedPlayer.score}
           onSave={handleSaveScore}
           startColor={selectedPlayer.startColor || "#192C43"}
-          playerIcon={getPlayerIcon(selectedPlayer.id)}
+          playerIcon={getPlayerIcon(selectedPlayer.iconIndex)}
         />
       )}
     </>

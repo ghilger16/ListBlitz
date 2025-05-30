@@ -11,10 +11,15 @@ import { LinearGradient } from "expo-linear-gradient";
 import ConfettiCannon from "react-native-confetti-cannon";
 import LottieView from "lottie-react-native";
 import { ScoreRankings } from "../score-rankings";
-import { useGetIcons } from "@Services";
+import { useGetTrophyIcon } from "@Services";
 
 interface WinnerOverlayProps {
-  players: { id: number; name: string; score: number | null }[];
+  players: {
+    id: number;
+    name: string;
+    score: number | null;
+    iconIndex: number;
+  }[];
   handleNextRound: () => void;
   fadeAnim: Animated.Value;
 }
@@ -24,7 +29,7 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
   handleNextRound,
   fadeAnim,
 }) => {
-  const { data: ICONS = [] } = useGetIcons(true);
+  const { data: trophyIcon } = useGetTrophyIcon();
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
@@ -95,7 +100,7 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
         Winner!
       </Animated.Text>
       <LottieView
-        source={ICONS[0]}
+        source={trophyIcon}
         autoPlay
         loop={false}
         style={{

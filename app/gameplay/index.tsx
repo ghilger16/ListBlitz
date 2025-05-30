@@ -13,54 +13,6 @@ import { ChillMode, BlitzMode, BattleMode } from "@Components";
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
 import { Asset } from "expo-asset";
 
-const PROMPT_LIMIT = 10;
-
-const usePromptManager = (blitzPackId: number) => {
-  const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
-  const [usedPrompts, setUsedPrompts] = useState(new Set());
-  const [availablePrompts, setAvailablePrompts] = useState<Prompt[]>([]);
-
-  const {
-    data: prompts = [],
-    isLoading,
-    error,
-    refetch,
-  } = blitzPackId !== undefined
-    ? useGetPromptsByBlitzPack(blitzPackId, PROMPT_LIMIT)
-    : { data: [], isLoading: false, error: null, refetch: () => {} };
-
-  useEffect(() => {
-    if (prompts.length > 0) {
-      const newPrompts = prompts.filter(
-        (prompt) => !usedPrompts.has(prompt.id)
-      );
-      setAvailablePrompts((prev) => [...prev, ...newPrompts]);
-      const updatedUsedPrompts = new Set(usedPrompts);
-      newPrompts.forEach((prompt) => updatedUsedPrompts.add(prompt.id));
-      setUsedPrompts(updatedUsedPrompts);
-    }
-  }, [prompts]);
-
-  useEffect(() => {
-    if (currentPromptIndex >= availablePrompts.length - 1) {
-      refetch();
-    }
-  }, [currentPromptIndex]);
-
-  const currentPrompt =
-    availablePrompts[currentPromptIndex]?.promptText || "Loading...";
-
-  const nextPrompt = () =>
-    setCurrentPromptIndex((prev) => (prev + 1) % availablePrompts.length);
-
-  return {
-    currentPrompt,
-    isLoading,
-    error,
-    nextPrompt,
-  };
-};
-
 const Gameplay: React.FC = () => {
   const {
     players,
@@ -72,7 +24,6 @@ const Gameplay: React.FC = () => {
     setupBattleMode,
     handleBattleTimeout,
   } = useGameplay();
-  // console.log("🚀 ~ currentMatch:", currentMatch);
 
   const { blitzPackId, blitzPackTitle } = gameSettings;
   const navigation = useNavigation();
@@ -97,9 +48,16 @@ const Gameplay: React.FC = () => {
     }
   }, [players]);
 
-  const { currentPrompt, isLoading, error, nextPrompt } = usePromptManager(
-    blitzPackId!
-  );
+  const prompts = useGetPromptsByBlitzPack(blitzPackTitle!);
+  console.log("🚀 ~ prompts:", prompts);
+  const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
+  const currentPrompt = prompts[currentPromptIndex] || "Loading...";
+  const nextPrompt = () =>
+    setCurrentPromptIndex((prev) => (prev + 1) % prompts.length);
+
+  const handleSkipPrompt = () => {
+    nextPrompt();
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -148,11 +106,18 @@ const Gameplay: React.FC = () => {
     );
   }
 
-  if (isLoading || !currentPlayer) return <Text>Loading...</Text>;
-  if (error) return <Text>Error loading prompts.</Text>;
-
   const handleNextPlayerAndPrompt = (score: number) => {
     handleNextPlayer(score);
+    nextPrompt();
+  };
+
+  const handleTimeout = (winner: Player) => {
+    handleBattleTimeout(winner);
+    nextPrompt();
+  };
+
+  const handleOnRestart = () => {
+    setupBattleMode();
     nextPrompt();
   };
 
@@ -164,8 +129,8 @@ const Gameplay: React.FC = () => {
             currentPrompt={currentPrompt}
             packTitle={blitzPackTitle || ""}
             currentMatch={currentMatch}
-            onTimeout={handleBattleTimeout}
-            onRestart={setupBattleMode}
+            onTimeout={handleTimeout}
+            onRestart={handleOnRestart}
           />
         ) : mode === GameMode.BLITZ ? (
           <BlitzMode
@@ -183,6 +148,7 @@ const Gameplay: React.FC = () => {
             players={players}
             packTitle={blitzPackTitle || ""}
             currentPlayer={currentPlayer}
+            handleSkipPrompt={handleSkipPrompt}
           />
         )}
       </View>

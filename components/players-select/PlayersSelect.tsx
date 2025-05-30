@@ -13,7 +13,7 @@ import Svg, {
 } from "react-native-svg";
 import LottieView from "lottie-react-native";
 import * as d3 from "d3-shape";
-import { useGetIcons } from "@Services";
+import { useGetPlayerIcons } from "@Services";
 import { COLORS } from "../../context/constants";
 import { Audio } from "expo-av";
 
@@ -42,17 +42,16 @@ const calculateSliceIndex = (
 };
 
 interface PlayersSelectProps {
-  onPlayerCountChange: (count: number) => void; // Callback to handle player count
+  onPlayerCountChange: (players: { id: number; iconIndex: number }[]) => void;
 }
 
 export const PlayersSelect: React.FC<PlayersSelectProps> = ({
   onPlayerCountChange,
 }) => {
-  const { data: ICONS = [] } = useGetIcons();
-  const [selectedSlices, setSelectedSlices] = useState<Set<number>>(
-    new Set([0])
-  );
-  const currentSliceRef = useRef<number | null>(null);
+  const { data: ICONS = [] } = useGetPlayerIcons();
+  const [playerAssignments, setPlayerAssignments] = useState<
+    { sliceIndex: number; playerNumber: number }[]
+  >([]);
 
   const arcGenerator = d3.arc().outerRadius(RADIUS).innerRadius(0);
   const pieGenerator = d3
@@ -66,7 +65,8 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
   );
 
   const highlightArcs = arcs.map((arc, index) => {
-    if (selectedSlices.has(index)) {
+    const assignment = playerAssignments.find((p) => p.sliceIndex === index);
+    if (assignment) {
       return { ...arc };
     }
     return null;
@@ -105,6 +105,10 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    console.log("Player Assignments:", playerAssignments);
+  }, [playerAssignments]);
+
   const playClickSound = async () => {
     if (soundRef.current) {
       try {
@@ -115,51 +119,58 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
     }
   };
 
-  const handleRangeSelection = (endIndex: number) => {
-    const newSelection = new Set<number>([0]);
-    for (let i = 0; i <= endIndex; i++) {
-      newSelection.add(i);
-    }
+  const handleSliceTap = (sliceIndex: number) => {
+    const existing = playerAssignments.find((p) => p.sliceIndex === sliceIndex);
 
-    // Check if a new slice was added or removed
-    const added = [...newSelection].filter((x) => !selectedSlices.has(x));
-    const removed = [...selectedSlices].filter((x) => !newSelection.has(x));
+    if (existing) {
+      const updated = playerAssignments.filter(
+        (p) => p.sliceIndex !== sliceIndex
+      );
+      setPlayerAssignments(updated);
+      onPlayerCountChange(
+        updated.map((p) => ({
+          id: p.playerNumber,
+          iconIndex: p.sliceIndex,
+        }))
+      );
+      playClickSound();
+    } else {
+      if (playerAssignments.length >= SECTIONS_COUNT) return;
+      const assignedNumber = (() => {
+        for (let i = 1; i <= SECTIONS_COUNT; i++) {
+          if (!playerAssignments.find((p) => p.playerNumber === i)) {
+            return i;
+          }
+        }
+        return SECTIONS_COUNT + 1;
+      })();
 
-    // Play sound only for changes
-    if (added.length > 0 || removed.length > 0) {
+      const updated = [
+        ...playerAssignments,
+        { sliceIndex, playerNumber: assignedNumber },
+      ];
+      setPlayerAssignments(updated);
+
+      onPlayerCountChange(
+        updated.map((p) => ({
+          id: p.playerNumber,
+          iconIndex: p.sliceIndex,
+        }))
+      );
       playClickSound();
     }
-
-    setSelectedSlices(newSelection);
-    onPlayerCountChange(newSelection.size); // Pass the player count to the parent component
   };
 
-  const panGesture = Gesture.Pan()
-    .onBegin((event) => {
-      const sliceIndex = calculateSliceIndex(
-        event.x,
-        event.y,
-        RADIUS,
-        SECTIONS_COUNT
-      );
-      if (sliceIndex === null) return;
-      currentSliceRef.current = sliceIndex;
-      handleRangeSelection(sliceIndex);
-    })
-    .onUpdate((event) => {
-      const sliceIndex = calculateSliceIndex(
-        event.x,
-        event.y,
-        RADIUS,
-        SECTIONS_COUNT
-      );
-      if (sliceIndex === null || currentSliceRef.current === sliceIndex) return;
-      currentSliceRef.current = sliceIndex;
-      handleRangeSelection(sliceIndex);
-    })
-    .onEnd(() => {
-      currentSliceRef.current = null;
-    });
+  const panGesture = Gesture.Tap().onEnd((event) => {
+    const sliceIndex = calculateSliceIndex(
+      event.x,
+      event.y,
+      RADIUS,
+      SECTIONS_COUNT
+    );
+    if (sliceIndex === null) return;
+    handleSliceTap(sliceIndex);
+  });
 
   const transformToSVGCoordinates = (labelX: number, labelY: number) => {
     return {
@@ -172,7 +183,10 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
     const path = arcGenerator(arc) || "";
     const [labelX, labelY] = arcGenerator.centroid(arc);
     const { x, y } = transformToSVGCoordinates(labelX, labelY);
-    const isSelected = selectedSlices.has(index);
+    const assignment = playerAssignments.find((p) => p.sliceIndex === index);
+    const isSelected = !!assignment;
+    const playerNumber = assignment?.playerNumber;
+    // Always show the corresponding icon for this slice's index
     const iconSource = ICONS[index % ICONS.length];
 
     const lottieRef = useRef<LottieView>(null);
@@ -203,7 +217,7 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
           textAnchor="middle"
           alignmentBaseline="middle"
         >
-          {index + 1}
+          {playerNumber ?? ""}
         </Text>
         {iconSource && (
           <View
@@ -230,7 +244,7 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
   };
 
   return (
-    <View>
+    <View pointerEvents="box-none">
       <GestureDetector gesture={panGesture}>
         <Svg width={RADIUS * 2 + 20} height={RADIUS * 2 + 35}>
           <Defs>
@@ -254,7 +268,7 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
                   fill="none"
                 />
               </Defs>
-              <Text
+              {/* <Text
                 fill="white"
                 fontSize="15"
                 fontWeight="bold"
@@ -268,7 +282,7 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
                 >
                   Assign players clockwise from you →
                 </TextPath>
-              </Text>
+              </Text> */}
             </G>
 
             {arcs.map(renderSlice)}

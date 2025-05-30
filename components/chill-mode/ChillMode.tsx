@@ -9,7 +9,7 @@ import {
 import { ChillCounter } from "./chill-counter";
 import { PromptDisplay } from "components/prompt-display";
 import { NextPlayerPrompt } from "components/next-player-prompt";
-import { useGetIcons } from "@Services";
+import { useGetPlayerIcons } from "@Services";
 import { Player } from "@Context";
 import { blitzPackIcons } from "components/blitz-packs/blitzPackIcons";
 import { Asset } from "expo-asset";
@@ -17,6 +17,7 @@ import { Asset } from "expo-asset";
 interface ChillModeProps {
   currentPrompt: string;
   handleNextPlayer: (score: number) => void;
+  handleSkipPrompt: () => void;
   currentPlayer: Player;
   players: Player[];
   packTitle: string;
@@ -28,8 +29,9 @@ export const ChillMode: React.FC<ChillModeProps> = ({
   currentPlayer,
   players,
   packTitle,
+  handleSkipPrompt,
 }) => {
-  const { data: ICONS = [] } = useGetIcons();
+  const { data: ICONS = [] } = useGetPlayerIcons();
   const [score, setScore] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(true);
   const [showNextPlayerBubble, setShowNextPlayerBubble] = useState(false);
@@ -63,7 +65,6 @@ export const ChillMode: React.FC<ChillModeProps> = ({
 
   const currentIndex = players.findIndex((p) => p.id === currentPlayer.id);
   const nextIndex = (currentIndex + 1) % players.length;
-  const nextIconIndex = (players[nextIndex]?.id ?? 1) - 1;
 
   return (
     <>
@@ -80,6 +81,7 @@ export const ChillMode: React.FC<ChillModeProps> = ({
                 playerColor={currentPlayer.startColor}
                 categoryBubble={titleImage}
                 isAlphaBlitz={packTitle === "Alpha Blitz"}
+                handleSkipPrompt={handleSkipPrompt}
               />
             </View>
             <Text style={styles.playerText}>Player {currentPlayer.id}</Text>
@@ -96,7 +98,7 @@ export const ChillMode: React.FC<ChillModeProps> = ({
               <View style={styles.nextPlayerContainer}>
                 <NextPlayerPrompt
                   onNextPlayerClick={handleNextPlayerClick}
-                  iconSource={ICONS[nextIconIndex]}
+                  iconSource={ICONS[players[nextIndex].iconIndex]}
                   nextPlayer={players[nextIndex]}
                 />
               </View>
