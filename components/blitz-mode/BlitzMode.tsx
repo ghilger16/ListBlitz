@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import SplashScreen from "components/splash-screen/SplashScreen";
 import {
   Animated,
   SafeAreaView,
@@ -31,7 +30,7 @@ interface BlitzModeProps {
   packTitle: string;
 }
 
-const TIMER_DURATION = 30;
+const TIMER_DURATION = 5;
 
 export const BlitzMode: React.FC<BlitzModeProps> = ({
   currentPrompt,
@@ -49,6 +48,7 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [showWinnerOverlay, setShowWinnerOverlay] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isShuffleActive, setIsShuffleActive] = useState(false);
   const [bgUri, setBgUri] = useState<string | null>(null);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -84,6 +84,9 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
       handleNextPlayer(score);
       setCurrentPlayerIndex((prevIndex) => prevIndex + 1);
       resetGameState();
+      if (isShuffleActive) {
+        handlePickRandom();
+      }
     }
   }, [isGameStarted, timer]);
 
@@ -128,6 +131,7 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   };
 
   const handleSelectCategory = (category: string) => {
+    setIsShuffleActive(false);
     setSelectedCategory(category);
   };
 
@@ -135,12 +139,13 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
     const categories = [
       "Animals",
       "Foods",
-      "Books",
+      "Occupations",
       "Countries",
       "Movies",
-      "Nature",
+      "Famous People",
     ];
     const random = categories[Math.floor(Math.random() * categories.length)];
+    setIsShuffleActive(true);
     setSelectedCategory(random);
   };
 
@@ -171,7 +176,6 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
                 isObscured={!isGameStarted}
                 countdown={isCountdownActive ? countdown : null}
                 isAlphaBlitz={packTitle === "Alpha Blitz"}
-                isBlitzMode
                 selectedCategory={selectedCategory}
               />
             </View>

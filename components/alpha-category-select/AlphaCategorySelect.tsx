@@ -1,15 +1,15 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS } from "../../context/constants";
 
 const CATEGORIES = [
-  { label: "Animals", icon: require("@Assets/icons/alpha-blitz.png") },
-  { label: "Foods", icon: require("@Assets/icons/alpha-blitz.png") },
-  { label: "Occupations", icon: require("@Assets/icons/alpha-blitz.png") },
-  { label: "Countries", icon: require("@Assets/icons/alpha-blitz.png") },
-  { label: "Movies", icon: require("@Assets/icons/alpha-blitz.png") },
-  { label: "Famous People", icon: require("@Assets/icons/alpha-blitz.png") },
+  { label: "Animals", icon: "🐾" },
+  { label: "Foods", icon: "🍔" },
+  { label: "Occupations", icon: "💼" },
+  { label: "Countries", icon: "🌍" },
+  { label: "Movies", icon: "🎬" },
+  { label: "Famous People", icon: "🌟" },
 ];
 interface AlphaCategorySelectProps {
   onSelectCategory: (category: string) => void;
@@ -41,7 +41,7 @@ export const AlphaCategorySelect: React.FC<AlphaCategorySelectProps> = ({
                       colors={COLORS[(rowIndex * 3 + colIndex) % COLORS.length]}
                       style={StyleSheet.absoluteFill}
                     />
-                    <Image source={icon} style={styles.icon} />
+                    <Text style={styles.emoji}>{icon}</Text>
                     <Text style={styles.cardLabel}>{label}</Text>
                   </TouchableOpacity>
                 )
@@ -52,7 +52,7 @@ export const AlphaCategorySelect: React.FC<AlphaCategorySelectProps> = ({
       </View>
 
       <TouchableOpacity style={styles.button} onPress={onPickRandom}>
-        <Text style={styles.buttonText}>PICK FOR ME</Text>
+        <Text style={styles.buttonText}>SHUFFLE</Text>
       </TouchableOpacity>
     </View>
   );
@@ -96,10 +96,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  icon: {
-    width: 40,
-    height: 40,
-    resizeMode: "contain",
+  emoji: {
+    fontSize: 40,
     marginBottom: 8,
   },
   cardLabel: {

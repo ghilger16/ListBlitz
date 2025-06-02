@@ -16,7 +16,7 @@ import { Asset } from "expo-asset";
 import { Player } from "@Context";
 import { BattleTimer } from "./battle-timer";
 import { PlayerCard } from "./player-card";
-import { useGetPlayerIcons } from "@Services";
+import { playerIcons } from "@Services";
 import LottieView from "lottie-react-native";
 import { useGameplay } from "@Context";
 
@@ -26,6 +26,7 @@ interface BattleModeProps {
   currentMatch: Player[] | null;
   onTimeout: (winner: Player) => void;
   onRestart: () => void;
+  handleSkipPrompt: () => void;
 }
 
 export const BattleMode: React.FC<BattleModeProps> = ({
@@ -34,6 +35,7 @@ export const BattleMode: React.FC<BattleModeProps> = ({
   currentMatch,
   onTimeout,
   onRestart,
+  handleSkipPrompt,
 }) => {
   const matchRef = useRef<Player[] | null>(null);
   const turnIndexRef = useRef(0);
@@ -45,8 +47,6 @@ export const BattleMode: React.FC<BattleModeProps> = ({
   const [finalWinner, setFinalWinner] = useState<Player | null>(null);
 
   const { globalMatchIndex, totalMatches, getMatchLabel } = useGameplay();
-
-  const { data: ICONS = [] } = useGetPlayerIcons();
 
   const vsScale = useRef(new Animated.Value(0)).current;
 
@@ -152,6 +152,7 @@ export const BattleMode: React.FC<BattleModeProps> = ({
                 playerColor={currentMatch[turnIndex].startColor}
                 categoryBubble={blitzPackIcons[packTitle]?.titleImage}
                 isAlphaBlitz={packTitle === "Alpha Blitz"}
+                {...(!isGameStarted ? { handleSkipPrompt } : {})}
               />
             </View>
             <View style={styles.timerContainer}>
@@ -211,7 +212,7 @@ export const BattleMode: React.FC<BattleModeProps> = ({
                     {displayWinner.name.toUpperCase()}
                   </Text>
                   <LottieView
-                    source={ICONS[displayIconIndex]}
+                    source={playerIcons[displayIconIndex]}
                     autoPlay
                     loop
                     style={{ width: 150, height: 150 }}

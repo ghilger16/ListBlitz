@@ -40,7 +40,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentPlayer, setCurrentPlayer] = useState<Player>({} as Player);
   const [gameSettings, setGameSettingsState] = useState<GameSettings>({
-    mode: GameMode.CHILL,
+    mode: GameMode.BLITZ,
     playerCount: 0,
   });
 
@@ -51,10 +51,6 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 
   const [globalMatchIndex, setGlobalMatchIndex] = useState(1);
   const [totalMatches, setTotalMatches] = useState(0);
-
-  useEffect(() => {
-    console.log("Players initialized:", players);
-  }, [players]);
 
   const initializePlayers = (
     playersData: { id: number; iconIndex: number }[]

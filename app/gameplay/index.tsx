@@ -49,7 +49,7 @@ const Gameplay: React.FC = () => {
   }, [players]);
 
   const prompts = useGetPromptsByBlitzPack(blitzPackTitle!);
-  console.log("🚀 ~ prompts:", prompts);
+
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const currentPrompt = prompts[currentPromptIndex] || "Loading...";
   const nextPrompt = () =>
@@ -131,6 +131,7 @@ const Gameplay: React.FC = () => {
             currentMatch={currentMatch}
             onTimeout={handleTimeout}
             onRestart={handleOnRestart}
+            handleSkipPrompt={handleSkipPrompt}
           />
         ) : mode === GameMode.BLITZ ? (
           <BlitzMode

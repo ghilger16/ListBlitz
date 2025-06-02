@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { EditScoreModal } from "./EditScoreModal";
 import { useGameplay } from "@Context";
-import { useGetPlayerIcons } from "@Services";
+import { playerIcons } from "@Services";
 import LottieView from "lottie-react-native";
 
 interface ScoreRankingsProps {
@@ -37,11 +37,10 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
     startColor?: string;
   } | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const { data: ICONS = [] } = useGetPlayerIcons();
   const { updatePlayerScore } = useGameplay();
 
   const getPlayerIcon = (playerIconIndex: number) => {
-    return ICONS[playerIconIndex];
+    return playerIcons[playerIconIndex];
   };
 
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -90,8 +89,10 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
   }, [winner]);
 
   const handlePillPress = (player: (typeof players)[number]) => {
-    setSelectedPlayer(player);
-    setIsModalVisible(true);
+    if (!isGameStarted) {
+      setSelectedPlayer(player);
+      setIsModalVisible(true);
+    }
   };
 
   const handleSaveScore = (newScore: number) => {

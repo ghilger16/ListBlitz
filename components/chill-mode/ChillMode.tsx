@@ -9,7 +9,7 @@ import {
 import { ChillCounter } from "./chill-counter";
 import { PromptDisplay } from "components/prompt-display";
 import { NextPlayerPrompt } from "components/next-player-prompt";
-import { useGetPlayerIcons } from "@Services";
+import { playerIcons } from "@Services";
 import { Player } from "@Context";
 import { blitzPackIcons } from "components/blitz-packs/blitzPackIcons";
 import { Asset } from "expo-asset";
@@ -31,7 +31,6 @@ export const ChillMode: React.FC<ChillModeProps> = ({
   packTitle,
   handleSkipPrompt,
 }) => {
-  const { data: ICONS = [] } = useGetPlayerIcons();
   const [score, setScore] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(true);
   const [showNextPlayerBubble, setShowNextPlayerBubble] = useState(false);
@@ -98,7 +97,7 @@ export const ChillMode: React.FC<ChillModeProps> = ({
               <View style={styles.nextPlayerContainer}>
                 <NextPlayerPrompt
                   onNextPlayerClick={handleNextPlayerClick}
-                  iconSource={ICONS[players[nextIndex].iconIndex]}
+                  iconSource={playerIcons[players[nextIndex].iconIndex]}
                   nextPlayer={players[nextIndex]}
                 />
               </View>

@@ -3,7 +3,7 @@ import { View, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import Svg, { G, Path, Text as SvgText } from "react-native-svg";
 import * as d3 from "d3-shape";
 import LottieView from "lottie-react-native";
-import { useGetPlayerIcons } from "@Services";
+import { playerIcons } from "@Services";
 import { Player } from "@Context";
 import { FlashingText } from "components/flashing-text";
 
@@ -27,9 +27,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   score,
   currentPlayer,
   onIncrement,
-  onStart,
 }) => {
-  const { data: ICONS = [] } = useGetPlayerIcons();
   const [fillAngle, setFillAngle] = useState(0);
   const [isPlayerStartVisible, setIsPlayerStartVisible] = useState(true);
   const lottieRef = useRef<LottieView>(null);
@@ -156,7 +154,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
       >
         <LottieView
           ref={lottieRef}
-          source={ICONS[iconIndex] ?? ICONS[0]}
+          source={playerIcons[iconIndex]}
           autoPlay
           loop
           style={styles.lottie}

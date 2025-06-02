@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import LottieView from "lottie-react-native";
-import { useGetPlayerIcons } from "@Services";
+import { playerIcons } from "@Services";
 import { playSound } from "components/utils";
 import { tapSound } from "@Assets";
 import * as Haptics from "expo-haptics";
@@ -24,7 +24,6 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
   onPress,
   dimmed,
 }) => {
-  const { data: ICONS = [] } = useGetPlayerIcons();
   const lottieRef = useRef<LottieView>(null);
   const iconIndex = player.iconIndex;
 
@@ -82,7 +81,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
         <Text style={styles.name}>Player {player.id}</Text>
         <LottieView
           ref={lottieRef}
-          source={ICONS[iconIndex]}
+          source={playerIcons[iconIndex]}
           autoPlay={!dimmed}
           loop={!dimmed}
           style={styles.icon}

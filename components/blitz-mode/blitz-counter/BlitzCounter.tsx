@@ -11,8 +11,8 @@ import Svg, { G, Path as SvgPath, Text as SvgText } from "react-native-svg";
 import * as d3 from "d3-shape";
 import { Player } from "@Context";
 import { playSound } from "components/utils";
-import { tapSound } from "@Assets";
-import { useGetPlayerIcons } from "@Services";
+import { tapSound, timerSound } from "@Assets";
+import { playerIcons } from "@Services";
 import LottieView from "lottie-react-native";
 
 interface BlitzCounterProps {
@@ -40,7 +40,6 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   timer,
   isCountdownActive,
 }) => {
-  const { data: ICONS = [] } = useGetPlayerIcons();
   const lottieRef = useRef<LottieView>(null);
   const animatedTimer = useRef(new Animated.Value(timer)).current;
   const flashAnim = useRef(new Animated.Value(0)).current;
@@ -64,6 +63,7 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
         easing: Easing.linear,
         useNativeDriver: false,
       }).start();
+      playSound(timerSound);
     }
   }, [isGameStarted]);
 
@@ -128,11 +128,11 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
     <View style={styles.container}>
       <Svg width={320} height={375}>
         <G x={320 / 2} y={320 / 2}>
-          {ICONS.length > 0 && (
+          {playerIcons.length > 0 && (
             <G>
               <LottieView
                 ref={lottieRef}
-                source={ICONS[iconIndex]}
+                source={playerIcons[iconIndex]}
                 autoPlay
                 loop
                 style={{

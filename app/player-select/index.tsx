@@ -26,6 +26,7 @@ const PlayerSelect: React.FC = () => {
   const [playersData, setPlayersData] = useState<
     { id: number; iconIndex: number }[]
   >([]);
+  const [startAttempted, setStartAttempted] = useState(false);
 
   const navigation = useNavigation();
 
@@ -55,7 +56,7 @@ const PlayerSelect: React.FC = () => {
     Animated.timing(entryAnim, {
       toValue: 1,
       duration: 600,
-      easing: Easing.out(Easing.ease),
+      easing: Easing.out(Easing.ease) as any,
       useNativeDriver: true,
     }).start();
   }, []);
@@ -86,6 +87,21 @@ const PlayerSelect: React.FC = () => {
   }, [selectedMode, playersData, setGameSettings, gameSettings]);
 
   const handleGameStart = () => {
+    const playerIds = playersData.map((p) => p.id).sort((a, b) => a - b);
+    const hasMissingPlayer =
+      playerIds.length > 0 &&
+      Array.from(
+        { length: playerIds[playerIds.length - 1] },
+        (_, i) => i + 1
+      ).some((n) => !playerIds.includes(n));
+
+    if (
+      hasMissingPlayer ||
+      (selectedMode === "battle" && playerIds.length < 2)
+    ) {
+      setStartAttempted(true);
+      return;
+    }
     if (playersData.length > 0) {
       initializePlayers(playersData);
       onGameStart();
@@ -122,11 +138,39 @@ const PlayerSelect: React.FC = () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.playersWrapper}>
         <View style={styles.textContainer}>
-          <FlashingText style={styles.selectPlayerText}>
-            Select Players
-          </FlashingText>
+          {startAttempted ? (
+            <View style={styles.warningContainer}>
+              <View style={styles.warningBox}>
+                <Text style={styles.warningText}>
+                  ⚠️{" "}
+                  {(() => {
+                    const ids = playersData
+                      .map((p) => p.id)
+                      .sort((a, b) => a - b);
+                    const missing = Array.from(
+                      { length: ids[ids.length - 1] },
+                      (_, i) => i + 1
+                    ).find((n) => !ids.includes(n));
+                    if (selectedMode === "battle" && playersData.length < 2) {
+                      return "Select at least 2 characters";
+                    }
+                    return missing
+                      ? `Reselect Player ${missing}`
+                      : "Ready to start!";
+                  })()}
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.warningContainer}>
+              <FlashingText style={styles.selectPlayerText}>
+                Select Players
+              </FlashingText>
+            </View>
+          )}
         </View>
         <Animated.View
+          pointerEvents="auto"
           style={{
             opacity: entryAnim,
             transform: [
@@ -139,8 +183,11 @@ const PlayerSelect: React.FC = () => {
             ],
           }}
         >
-          <PlayersSelect onPlayerCountChange={handlePlayerCountChange} />
-          <View style={{ alignItems: "center", justifyContent: "center" }}>
+          {/* Warning message removed from here; it is shown only in textContainer above */}
+          <View>
+            <PlayersSelect onPlayerCountChange={handlePlayerCountChange} />
+          </View>
+          <View style={styles.playersSelectWrapper}>
             <Animated.View
               style={{
                 transform: [
@@ -210,11 +257,11 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   playersWrapper: {
-    marginTop: 75,
+    marginTop: 55,
     alignItems: "center",
   },
   textContainer: {
-    marginBottom: 50,
+    marginBottom: 30,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -231,7 +278,7 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 100,
+    marginTop: 75,
     elevation: 8,
     shadowColor: "rgba(255, 165, 0, 0.5)",
     shadowOffset: { width: 0, height: 6 },
@@ -249,6 +296,31 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
     fontFamily: "SourGummy",
+  },
+  warningContainer: {
+    height: 40,
+    marginBottom: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  warningBox: {
+    backgroundColor: "#1e2a38",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#ffcc00",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  warningText: {
+    color: "#ffcc00",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  playersSelectWrapper: {
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

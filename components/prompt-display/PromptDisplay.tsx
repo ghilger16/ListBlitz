@@ -13,7 +13,7 @@ import Svg, { Path, Text as SvgText } from "react-native-svg";
 import { playSound } from "components/utils";
 import { countdownSound } from "@Assets";
 import LottieView from "lottie-react-native";
-import { useGetAlphabetIcons } from "@Services";
+import { alphabetIcons } from "@Services";
 import { getUniqueRandomLetter } from "./utils";
 
 export const PromptDisplay: React.FC<{
@@ -33,7 +33,6 @@ export const PromptDisplay: React.FC<{
   countdown,
   categoryBubble,
   isAlphaBlitz,
-  isBlitzMode,
   selectedCategory,
   handleSkipPrompt,
 }) => {
@@ -42,12 +41,10 @@ export const PromptDisplay: React.FC<{
   const [scaleValue] = useState(new Animated.Value(0.8));
   const [hasPlayedSound, setHasPlayedSound] = useState(false);
 
-  const [letterIndex, setLetterIndex] = useState<string | null>("A");
+  const [letterIndex, setLetterIndex] = useState<string | null>(null);
   const hasSetLetterRef = useRef(false);
 
-  const { icon: alphaIcon } = letterIndex
-    ? useGetAlphabetIcons(letterIndex)
-    : { icon: null };
+  const alphaIcon = letterIndex ? alphabetIcons[letterIndex] : null;
 
   useEffect(() => {
     if (isObscured && isAlphaBlitz && !hasSetLetterRef.current) {
@@ -231,7 +228,7 @@ export const PromptDisplay: React.FC<{
           </View>
         )}
       </View>
-      {prompt && !isObscured && !isAlphaBlitz && !isBlitzMode && (
+      {handleSkipPrompt && (
         <TouchableWithoutFeedback onPress={handleSkipPrompt}>
           <Svg
             height="50"
@@ -281,6 +278,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
     borderWidth: 5,
+    padding: 10,
   },
   promptText: {
     fontFamily: "LuckiestGuy",
