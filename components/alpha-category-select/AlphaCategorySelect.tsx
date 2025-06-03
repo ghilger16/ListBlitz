@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { COLORS } from "../../context/constants";
+import { PACK_COLORS } from "../../context/constants";
 
 const CATEGORIES = [
   { label: "Animals", icon: "🐾" },
@@ -22,8 +22,8 @@ export const AlphaCategorySelect: React.FC<AlphaCategorySelectProps> = ({
 }) => {
   return (
     <View style={styles.container}>
-      {/* <Text style={styles.title}>CHOOSE A CATEGORY FOR</Text>
-      <Text style={styles.subtitle}>ALPHA BLITZ</Text> */}
+      <Text style={styles.title}>CHOOSE A CATEGORY FOR</Text>
+      <Text style={styles.subtitle}>ALPHA BLITZ</Text>
 
       <View style={styles.grid}>
         {Array.from(
@@ -38,7 +38,11 @@ export const AlphaCategorySelect: React.FC<AlphaCategorySelectProps> = ({
                     onPress={() => onSelectCategory(label)}
                   >
                     <LinearGradient
-                      colors={COLORS[(rowIndex * 3 + colIndex) % COLORS.length]}
+                      colors={
+                        PACK_COLORS[
+                          (rowIndex * 3 + colIndex) % PACK_COLORS.length
+                        ]
+                      }
                       style={StyleSheet.absoluteFill}
                     />
                     <Text style={styles.emoji}>{icon}</Text>
@@ -62,7 +66,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "transparent",
     alignItems: "center",
-    paddingTop: 80,
+    paddingTop: 125,
     paddingHorizontal: 24,
   },
   title: {

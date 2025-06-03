@@ -1,7 +1,7 @@
 import React from "react";
 import { Text, TouchableOpacity, StyleSheet, Image, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { COLORS } from "../../context/constants";
+import { PACK_COLORS } from "../../context/constants";
 import { blitzPackIcons } from "./blitzPackIcons";
 
 interface IBlitzPackProps {
@@ -14,7 +14,7 @@ export const BlitzPack: React.FC<IBlitzPackProps> = ({
   onPress,
   index,
 }) => {
-  const assignedColor = COLORS[index % COLORS.length];
+  const assignedColor = PACK_COLORS[index % PACK_COLORS.length];
   const { icon, titleImage } = blitzPackIcons[title] || {};
   return (
     <TouchableOpacity

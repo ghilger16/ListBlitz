@@ -13,12 +13,13 @@ import {
 import { PromptDisplay } from "components/prompt-display";
 import { blitzPackIcons } from "components/blitz-packs/blitzPackIcons";
 import { Asset } from "expo-asset";
-import { Player } from "@Context";
+import { GameMode, Player } from "@Context";
 import { BattleTimer } from "./battle-timer";
 import { PlayerCard } from "./player-card";
 import { playerIcons } from "@Services";
 import LottieView from "lottie-react-native";
 import { useGameplay } from "@Context";
+import { AlphaCategorySelect } from "components/alpha-category-select";
 
 interface BattleModeProps {
   currentPrompt: string;
@@ -45,6 +46,28 @@ export const BattleMode: React.FC<BattleModeProps> = ({
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isWinnerAnnounced, setIsWinnerAnnounced] = useState(false);
   const [finalWinner, setFinalWinner] = useState<Player | null>(null);
+
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isShuffleActive, setIsShuffleActive] = useState(false);
+
+  const handleSelectCategory = (category: string) => {
+    setIsShuffleActive(false);
+    setSelectedCategory(category);
+  };
+
+  const handlePickRandom = () => {
+    const categories = [
+      "Animals",
+      "Foods",
+      "Occupations",
+      "Countries",
+      "Movies",
+      "Famous People",
+    ];
+    const random = categories[Math.floor(Math.random() * categories.length)];
+    setIsShuffleActive(true);
+    setSelectedCategory(random);
+  };
 
   const { globalMatchIndex, totalMatches, getMatchLabel } = useGameplay();
 
@@ -131,11 +154,40 @@ export const BattleMode: React.FC<BattleModeProps> = ({
     setTurnIndex(0);
     onRestart();
   };
+  const [skipTrigger, setSkipTrigger] = useState(0);
+
+  const wrappedHandleSkipPrompt = () => {
+    // 1) Run original skip logic
+    handleSkipPrompt();
+    // 2) Increment skipTrigger so PromptDisplay remounts
+    setSkipTrigger((prev) => prev + 1);
+  };
 
   if (!currentMatch) return null;
 
   const displayWinner = getDisplayWinner();
   const displayIconIndex = displayWinner ? displayWinner.iconIndex : 0;
+
+  if (packTitle === "Alpha Blitz" && !selectedCategory) {
+    return (
+      <>
+        {bgUri && (
+          <ImageBackground
+            source={{ uri: bgUri }}
+            resizeMode="cover"
+            style={StyleSheet.absoluteFill}
+          >
+            <SafeAreaView style={styles.wrapper}>
+              <AlphaCategorySelect
+                onSelectCategory={handleSelectCategory}
+                onPickRandom={handlePickRandom}
+              />
+            </SafeAreaView>
+          </ImageBackground>
+        )}
+      </>
+    );
+  }
 
   return (
     <ImageBackground
@@ -148,11 +200,16 @@ export const BattleMode: React.FC<BattleModeProps> = ({
           <>
             <View style={styles.promptWrapper}>
               <PromptDisplay
+                key={`${selectedCategory}-${skipTrigger}`}
                 prompt={currentPrompt}
                 playerColor={currentMatch[turnIndex].startColor}
+                mode={GameMode.BATTLE}
                 categoryBubble={blitzPackIcons[packTitle]?.titleImage}
                 isAlphaBlitz={packTitle === "Alpha Blitz"}
-                {...(!isGameStarted ? { handleSkipPrompt } : {})}
+                selectedCategory={selectedCategory}
+                {...(!isGameStarted
+                  ? { handleSkipPrompt: wrappedHandleSkipPrompt }
+                  : {})}
               />
             </View>
             <View style={styles.timerContainer}>

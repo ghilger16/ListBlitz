@@ -19,7 +19,7 @@ export interface Player {
   startColor: string;
 }
 
-export const COLORS: ReadonlyArray<[string, string]> = [
+export const PACK_COLORS: ReadonlyArray<[string, string]> = [
   ["#FFD700", "#FFA500"],
   ["#87CEEB", "#4682B4"],
   ["#FF4F2E", "#D62410"],
@@ -32,7 +32,7 @@ export const COLORS: ReadonlyArray<[string, string]> = [
   ["#FFA544", "#FF6F00"],
 ];
 
-export const PLAYER_SELECT_WHEEL_COLORS: ReadonlyArray<[string, string]> = [
+export const PLAYER_COLORS: ReadonlyArray<[string, string]> = [
   ["#FF4F2E", "#D62410"],
   ["#79EDC6", "#12AC96"],
   ["#FFA544", "#FF6F00"],

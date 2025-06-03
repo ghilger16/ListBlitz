@@ -13,7 +13,7 @@ import Svg, {
 import LottieView from "lottie-react-native";
 import * as d3 from "d3-shape";
 import { playerIcons } from "@Services";
-import { PLAYER_SELECT_WHEEL_COLORS } from "../../context/constants";
+import { PLAYER_COLORS } from "../../context/constants";
 import { Audio } from "expo-av";
 
 const RADIUS = 185;
@@ -176,7 +176,7 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
       <G key={`arc-${index}`}>
         <Path
           d={path}
-          fill={`url(#grad-${index % PLAYER_SELECT_WHEEL_COLORS.length})`}
+          fill={`url(#grad-${index % PLAYER_COLORS.length})`}
           stroke={isSelected ? "#FFF" : "#000"}
           strokeWidth={2}
           opacity={isSelected ? 1 : 0.5}
@@ -237,7 +237,7 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
     >
       <Svg width={RADIUS * 2 + 20} height={RADIUS * 2 + 35}>
         <Defs>
-          {PLAYER_SELECT_WHEEL_COLORS.map(([startColor, endColor], index) => (
+          {PLAYER_COLORS.map(([startColor, endColor], index) => (
             <LinearGradient key={`grad-${index}`} id={`grad-${index}`}>
               <Stop offset="0%" stopColor={startColor} />
               <Stop offset="100%" stopColor={endColor} />

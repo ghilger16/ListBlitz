@@ -7,7 +7,7 @@ import {
   ImageBackground,
 } from "react-native";
 
-import { Player } from "@Context";
+import { GameMode, Player } from "@Context";
 import { PromptDisplay } from "components/prompt-display";
 import { BlitzCounter } from "./blitz-counter";
 import { ScoreRankings } from "./score-rankings";
@@ -159,6 +159,27 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
     );
   }
 
+  if (packTitle === "Alpha Blitz" && !selectedCategory) {
+    return (
+      <>
+        {bgUri && (
+          <ImageBackground
+            source={{ uri: bgUri }}
+            resizeMode="cover"
+            style={StyleSheet.absoluteFill}
+          >
+            <SafeAreaView style={styles.wrapper}>
+              <AlphaCategorySelect
+                onSelectCategory={handleSelectCategory}
+                onPickRandom={handlePickRandom}
+              />
+            </SafeAreaView>
+          </ImageBackground>
+        )}
+      </>
+    );
+  }
+
   return (
     <>
       {bgUri && (
@@ -170,8 +191,10 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
           <SafeAreaView style={styles.wrapper}>
             <View style={styles.promptWrapper}>
               <PromptDisplay
+                key={`${currentPlayer.id}-${selectedCategory}-${false}`}
                 prompt={currentPrompt}
                 playerColor={currentPlayer.startColor}
+                mode={GameMode.BLITZ}
                 categoryBubble={titleImage}
                 isObscured={!isGameStarted}
                 countdown={isCountdownActive ? countdown : null}

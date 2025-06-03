@@ -15,20 +15,22 @@ import { countdownSound } from "@Assets";
 import LottieView from "lottie-react-native";
 import { alphabetIcons } from "@Services";
 import { getUniqueRandomLetter } from "./utils";
+import { GameMode } from "@Context";
 
 export const PromptDisplay: React.FC<{
   prompt: string;
   playerColor: string;
+  mode: GameMode;
   isObscured?: boolean;
   countdown?: number | null;
   categoryBubble?: ImageSourcePropType;
   isAlphaBlitz?: boolean;
-  isBlitzMode?: boolean;
   selectedCategory?: string | null;
   handleSkipPrompt?: () => void;
 }> = ({
   prompt,
   playerColor,
+  mode,
   isObscured,
   countdown,
   categoryBubble,
@@ -43,14 +45,16 @@ export const PromptDisplay: React.FC<{
 
   const [letterIndex, setLetterIndex] = useState<string | null>(null);
   const hasSetLetterRef = useRef(false);
+  const iconReadyRef = useRef(false);
 
   const alphaIcon = letterIndex ? alphabetIcons[letterIndex] : null;
 
   useEffect(() => {
-    if (isObscured && isAlphaBlitz && !hasSetLetterRef.current) {
+    if (!isObscured && isAlphaBlitz && !hasSetLetterRef.current) {
       const letter = getUniqueRandomLetter();
 
       setLetterIndex(letter);
+      iconReadyRef.current = true;
       hasSetLetterRef.current = true;
     }
   }, [isObscured, isAlphaBlitz]);
@@ -58,6 +62,7 @@ export const PromptDisplay: React.FC<{
   useEffect(() => {
     if (typeof countdown === "number" && !hasPlayedSound) {
       playSound(countdownSound);
+      iconReadyRef.current = false;
       setHasPlayedSound(true);
     }
 
@@ -141,7 +146,7 @@ export const PromptDisplay: React.FC<{
             <View
               style={{ position: "absolute", bottom: -5, alignItems: "center" }}
             >
-              {countdown !== null ? (
+              {mode === GameMode.BLITZ && countdown !== null ? (
                 <Animated.Text
                   style={[
                     styles.promptText,
@@ -157,7 +162,7 @@ export const PromptDisplay: React.FC<{
                   {countdown}
                 </Animated.Text>
               ) : !isObscured ? (
-                alphaIcon ? (
+                alphaIcon && iconReadyRef.current ? (
                   <LottieView
                     source={alphaIcon}
                     autoPlay

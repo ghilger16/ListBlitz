@@ -8,7 +8,7 @@ import React, {
   useMemo,
 } from "react";
 
-import { COLORS, GameMode, GameSettings, Player } from "./constants";
+import { PLAYER_COLORS, GameMode, GameSettings, Player } from "./constants";
 
 interface GameContextType {
   players: Player[];
@@ -59,7 +59,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       id: data.id,
       name: `Player ${data.id}`,
       score: null,
-      startColor: COLORS[data.iconIndex][0],
+      startColor: PLAYER_COLORS[data.iconIndex][0],
 
       iconIndex: data.iconIndex,
     }));
