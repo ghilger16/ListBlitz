@@ -30,7 +30,7 @@ interface BlitzModeProps {
   packTitle: string;
 }
 
-const TIMER_DURATION = 5;
+const TIMER_DURATION = 30;
 
 export const BlitzMode: React.FC<BlitzModeProps> = ({
   currentPrompt,

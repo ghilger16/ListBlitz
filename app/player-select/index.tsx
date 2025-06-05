@@ -28,6 +28,8 @@ const PlayerSelect: React.FC = () => {
   >([]);
   const [startAttempted, setStartAttempted] = useState(false);
 
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+
   const navigation = useNavigation();
 
   const glowAnim = useRef(new Animated.Value(0)).current;
@@ -60,6 +62,38 @@ const PlayerSelect: React.FC = () => {
       useNativeDriver: true,
     }).start();
   }, []);
+
+  useEffect(() => {
+    if (startAttempted) {
+      Animated.sequence([
+        Animated.timing(shakeAnim, {
+          toValue: 10,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: -10,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: 6,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: -6,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: 0,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [startAttempted]);
 
   const glowInterpolation = glowAnim.interpolate({
     inputRange: [0, 1],
@@ -141,7 +175,12 @@ const PlayerSelect: React.FC = () => {
           {startAttempted ? (
             <View style={styles.warningContainer}>
               <View style={styles.warningBox}>
-                <Text style={styles.warningText}>
+                <Animated.Text
+                  style={[
+                    styles.warningText,
+                    { transform: [{ translateX: shakeAnim }] },
+                  ]}
+                >
                   ⚠️{" "}
                   {(() => {
                     const ids = playersData
@@ -158,7 +197,7 @@ const PlayerSelect: React.FC = () => {
                       ? `Reselect Player ${missing}`
                       : "Ready to start!";
                   })()}
-                </Text>
+                </Animated.Text>
               </View>
             </View>
           ) : (

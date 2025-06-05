@@ -8,6 +8,7 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
 } from "react-native";
+import * as Haptics from "expo-haptics";
 
 interface ModeSelectProps {
   onModeChange: (newMode: GameMode) => void;
@@ -57,6 +58,8 @@ const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
         : mode === GameMode.BLITZ
         ? GameMode.BATTLE
         : GameMode.CHILL;
+
+    Haptics.selectionAsync();
 
     onModeChange(nextMode);
   };

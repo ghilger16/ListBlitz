@@ -3,6 +3,8 @@ import { View, Animated, Easing, StyleSheet } from "react-native";
 import Svg, { G, Path as SvgPath, Text as SvgText } from "react-native-svg";
 import * as d3 from "d3-shape";
 import { Player } from "@Context";
+import { playSound, stopSound } from "components/utils";
+import { timerSound, winnerSound } from "@Assets";
 
 interface BattleTimerProps {
   currentPlayer: Player;

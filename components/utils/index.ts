@@ -1,1 +1,1 @@
-export { playSound, preloadAssets } from "./utils";
+export { playSound, playTapSound, preloadAssets, stopSound } from "./utils";

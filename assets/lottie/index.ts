@@ -3,6 +3,7 @@ export const HotDogIcon = require("./hot-dog.lottie");
 export const IceCreamIcon = require("./ice-cream-cone.lottie");
 export const HeadphoneIcon = require("./headphones.lottie");
 export const RobotIcon = require("./robot.lottie");
+export const OwlIcon = require("./owl.lottie");
 export const SunglassesIcon = require("./sunglasses.lottie");
 export const ControllerIcon = require("./controller.lottie");
 export const DinosaurIcon = require("./dinosaur.lottie");

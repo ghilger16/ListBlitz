@@ -161,6 +161,14 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
     const playerNumber = assignment?.playerNumber;
 
     const iconSource = playerIcons[index];
+    let iconSize;
+    if (index === 3) {
+      iconSize = { width: 110, height: 110 };
+    } else if (index === 6) {
+      iconSize = { width: 80, height: 110 };
+    } else {
+      iconSize = { width: 95, height: 95 };
+    }
 
     const lottieRef = useRef<LottieView>(null);
 
@@ -196,8 +204,8 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
           <View
             style={{
               position: "absolute",
-              left: x - 35,
-              top: y - 20,
+              left: x - 40,
+              top: y - 25,
               justifyContent: "center",
               alignItems: "center",
               opacity: isSelected ? 1 : 0.5,
@@ -208,7 +216,7 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
               source={iconSource}
               autoPlay={isSelected}
               loop={isSelected}
-              style={{ width: 85, height: 85 }}
+              style={iconSize}
             />
           </View>
         )}

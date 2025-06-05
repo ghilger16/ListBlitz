@@ -9,9 +9,7 @@ import {
 } from "react-native";
 import LottieView from "lottie-react-native";
 import { playerIcons } from "@Services";
-import { playSound } from "components/utils";
-import { tapSound } from "@Assets";
-import * as Haptics from "expo-haptics";
+import { playTapSound } from "components/utils";
 
 interface PlayerCardProps {
   player: Player;
@@ -57,7 +55,6 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
             toValue: 0.95,
             useNativeDriver: true,
           }).start();
-          Haptics.selectionAsync();
         }}
         onPressOut={() => {
           Animated.spring(scaleAnim, {
@@ -67,7 +64,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
         }}
         onPress={() => {
           onPress?.();
-          playSound(tapSound);
+          playTapSound();
         }}
         disabled={dimmed}
         activeOpacity={dimmed ? 1 : 0.9}

@@ -1,4 +1,3 @@
-// /components/battle-mode/BattleMode.tsx
 import React, { useEffect, useState, useRef } from "react";
 import {
   View,
@@ -20,7 +19,8 @@ import { playerIcons } from "@Services";
 import LottieView from "lottie-react-native";
 import { useGameplay } from "@Context";
 import { AlphaCategorySelect } from "components/alpha-category-select";
-
+import { playSound, stopSound } from "components/utils";
+import { timerSound, winnerSound } from "@Assets";
 interface BattleModeProps {
   currentPrompt: string;
   packTitle: string;
@@ -108,6 +108,8 @@ export const BattleMode: React.FC<BattleModeProps> = ({
   const handleStartRound = () => {
     setIsTimerActive(true);
     setIsGameStarted(true);
+    stopSound(); // make sure any previous sound is stopped
+    playSound(timerSound); // start looping timer sound
   };
 
   const handlePlayerSelect = () => {
@@ -117,6 +119,8 @@ export const BattleMode: React.FC<BattleModeProps> = ({
       turnIndexRef.current = newIndex;
       return newIndex;
     });
+    stopSound();
+    playSound(timerSound); // play the winner ding sound
     setIsTimerActive(false);
     setTimeout(() => setIsTimerActive(true), 10);
   };
@@ -124,7 +128,6 @@ export const BattleMode: React.FC<BattleModeProps> = ({
   const handleTimeout = () => {
     setIsGameStarted(false);
     setIsTimerActive(false);
-
     const loserIndex = turnIndexRef.current;
     const winnerIndex = loserIndex === 0 ? 1 : 0;
     const match = matchRef.current;

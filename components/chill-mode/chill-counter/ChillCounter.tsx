@@ -7,8 +7,7 @@ import { playerIcons } from "@Services";
 import { Player } from "@Context";
 import { FlashingText } from "components/flashing-text";
 
-import { playSound } from "components/utils";
-import { tapSound } from "@Assets";
+import { playTapSound } from "components/utils";
 
 const RADIUS = 160;
 const INNER_RADIUS = 110;
@@ -33,10 +32,6 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   const lottieRef = useRef<LottieView>(null);
 
   const iconIndex = currentPlayer.iconIndex;
-
-  const playSoundEffect = () => {
-    playSound(tapSound);
-  };
 
   useEffect(() => {
     const percentage = Math.min(score / SECTIONS_COUNT, 1);
@@ -88,7 +83,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   );
 
   const handleIncrement = () => {
-    playSoundEffect();
+    playTapSound();
     onIncrement();
   };
 

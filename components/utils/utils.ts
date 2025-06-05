@@ -1,25 +1,82 @@
+import { tapSound } from "@Assets";
 import { Audio } from "expo-av"; // Import Audio from expo-av
 import { Asset } from "expo-asset";
+import * as Haptics from "expo-haptics";
 
-export const playSound = async (soundFile: any) => {
+let soundInstance: Audio.Sound | null = null;
+
+export const playSound = async (soundFile: any, loop: boolean = false) => {
   try {
-    // Configure audio mode to respect user's music
+    // If a sound is already playing, stop and unload it first
+    if (soundInstance) {
+      await soundInstance.stopAsync();
+      await soundInstance.unloadAsync();
+      soundInstance = null;
+    }
+
+    // Configure audio mode to respect user's settings
     await Audio.setAudioModeAsync({
-      playsInSilentModeIOS: false, // Prevents sound from playing in silent mode on iOS
-      shouldDuckAndroid: true, // Lowers the volume of other audio on Android
-      staysActiveInBackground: false, // Ensures the app doesn't keep audio active in the background
+      playsInSilentModeIOS: false,
+      shouldDuckAndroid: true,
+      staysActiveInBackground: false,
     });
 
     const { sound } = await Audio.Sound.createAsync(soundFile);
+    await sound.setIsLoopingAsync(loop);
+    soundInstance = sound;
     await sound.playAsync();
-    // Optionally unload the sound after playing
+
+    // Unload the sound when it finishes playing
     sound.setOnPlaybackStatusUpdate((status) => {
       if (status.isLoaded && status.didJustFinish) {
-        sound.unloadAsync();
+        try {
+          sound.unloadAsync();
+        } catch (error) {
+          console.error("Error unloading sound after finish:", error);
+        }
+        soundInstance = null;
       }
     });
   } catch (error) {
     console.error("Error playing sound:", error);
+  }
+};
+
+export const stopSound = async () => {
+  if (soundInstance) {
+    const soundToStop = soundInstance;
+    soundInstance = null;
+    try {
+      await soundToStop.stopAsync();
+    } catch (error) {
+      console.error("Error stopping sound:", error);
+    }
+    try {
+      await soundToStop.unloadAsync();
+    } catch (error) {
+      console.error("Error unloading sound:", error);
+    }
+  }
+};
+
+export const playTapSound = async () => {
+  try {
+    // Create a new local sound instance for tap sound
+    const { sound } = await Audio.Sound.createAsync(tapSound);
+    await sound.playAsync();
+    await Haptics.selectionAsync();
+    // Unload the tap sound when it finishes playing
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (status.isLoaded && status.didJustFinish) {
+        try {
+          sound.unloadAsync();
+        } catch (error) {
+          console.error("Error unloading tap sound after finish:", error);
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Error playing tap sound:", error);
   }
 };
 
