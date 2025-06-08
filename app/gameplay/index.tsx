@@ -6,12 +6,14 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
+  ImageBackground,
 } from "react-native";
 import { GameMode, Player, useGameplay } from "@Context";
-import { Prompt, useGetPromptsByBlitzPack } from "@Services";
+import { useGetPromptsByBlitzPack } from "@Services";
 import { ChillMode, BlitzMode, BattleMode } from "@Components";
 import { router, useNavigation, useLocalSearchParams } from "expo-router";
 import { Asset } from "expo-asset";
+import { stopSound, setMuted } from "components/utils";
 
 const Gameplay: React.FC = () => {
   const {
@@ -31,18 +33,33 @@ const Gameplay: React.FC = () => {
   const mode = params.mode as string;
 
   const [showSplash, setShowSplash] = useState(true);
-  const [assetsLoaded, setAssetsLoaded] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [bgUri, setBgUri] = useState<string | null>(null);
 
   useEffect(() => {
-    const blitz = Asset.fromModule(require("assets/images/blitz-bg.png"));
-    const chill = Asset.fromModule(require("assets/images/chill-bg.png"));
-    if (blitz.localUri && chill.localUri) {
-      setAssetsLoaded(true);
+    async function loadBackground() {
+      try {
+        let module;
+        if (mode === GameMode.BLITZ) {
+          module = require("assets/images/blitz-bg.png");
+        } else if (mode === GameMode.CHILL) {
+          module = require("assets/images/chill-bg.png");
+        } else if (mode === GameMode.BATTLE) {
+          module = require("assets/images/battle-bg.png");
+        } else {
+          return;
+        }
+        const [asset] = await Asset.loadAsync([module]);
+        setBgUri(asset.localUri);
+      } catch (error) {
+        console.error("Error loading background image:", error);
+      }
     }
-  }, []);
+    loadBackground();
+  }, [mode]);
 
   useEffect(() => {
-    if (mode === GameMode.BATTLE && !assetsLoaded) {
+    if (mode === GameMode.BATTLE) {
       console.log("Loading battle assets...");
       setupBattleMode();
     }
@@ -72,14 +89,30 @@ const Gameplay: React.FC = () => {
       },
       headerLeft: () => (
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={() => {
+            stopSound();
+            router.back();
+          }}
           style={styles.backButton}
         >
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
       ),
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => {
+            // Calculate the next mute state, then update both React state and the util
+            const nextMute = !isMuted;
+            setIsMuted(nextMute);
+            setMuted(nextMute);
+          }}
+          style={styles.backButton}
+        >
+          <Text style={styles.backText}>{isMuted ? "🔇" : "🔊"}</Text>
+        </TouchableOpacity>
+      ),
     });
-  }, [navigation]);
+  }, [navigation, isMuted]);
 
   if (!blitzPackId) {
     return (
@@ -96,10 +129,10 @@ const Gameplay: React.FC = () => {
         isReady={
           players.length > 0 &&
           (mode === GameMode.BATTLE
-            ? currentMatch !== null && assetsLoaded
+            ? currentMatch !== null
             : blitzPackTitle === "Alpha Blitz" ||
               currentPrompt !== "Loading...") &&
-          assetsLoaded
+          bgUri !== null
         }
         onFinish={() => setShowSplash(false)}
       />
@@ -122,7 +155,11 @@ const Gameplay: React.FC = () => {
   };
 
   return (
-    <View style={styles.wrapper}>
+    <ImageBackground
+      source={bgUri ? { uri: bgUri } : undefined}
+      style={styles.wrapper}
+      resizeMode="cover"
+    >
       <View style={styles.modeView}>
         {mode === GameMode.BATTLE ? (
           <BattleMode
@@ -153,7 +190,7 @@ const Gameplay: React.FC = () => {
           />
         )}
       </View>
-    </View>
+    </ImageBackground>
   );
 };
 

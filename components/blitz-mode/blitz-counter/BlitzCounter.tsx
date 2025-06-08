@@ -10,8 +10,8 @@ import {
 import Svg, { G, Path as SvgPath, Text as SvgText } from "react-native-svg";
 import * as d3 from "d3-shape";
 import { Player } from "@Context";
-import { playSound, playTapSound } from "components/utils";
-import { timerSound, winnerSound } from "@Assets";
+import { playSound, playTapSound, stopSound } from "components/utils";
+import { blitzTimerSound } from "@Assets";
 import { playerIcons } from "@Services";
 import LottieView from "lottie-react-native";
 
@@ -63,9 +63,9 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
         easing: Easing.linear,
         useNativeDriver: false,
       }).start();
-      playSound(timerSound, true);
+      playSound(blitzTimerSound);
     } else {
-      playSound(winnerSound);
+      stopSound();
     }
   }, [isGameStarted]);
 

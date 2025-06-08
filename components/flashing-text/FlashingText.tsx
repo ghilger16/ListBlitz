@@ -42,7 +42,6 @@ const styles = StyleSheet.create({
   animatedText: {
     fontSize: 14,
     color: "#fff",
-    position: "absolute",
     textAlign: "center",
   },
 });

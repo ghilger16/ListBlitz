@@ -10,13 +10,14 @@ import {
   Easing,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   StyleSheet,
   SafeAreaView,
   View,
 } from "react-native";
 import { router, useNavigation } from "expo-router";
 import { useGameplay, GameMode } from "@Context";
-import { FlashingText, PlayersSelect } from "@Components";
+import { FlashingText, getEasterEggMessage, PlayersSelect } from "@Components";
 import { ModeSelect } from "components/players-select/mode-select";
 
 const PlayerSelect: React.FC = () => {
@@ -27,6 +28,7 @@ const PlayerSelect: React.FC = () => {
     { id: number; iconIndex: number }[]
   >([]);
   const [startAttempted, setStartAttempted] = useState(false);
+  const [flashMessage, setFlashMessage] = useState("Select Players");
 
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
@@ -103,6 +105,7 @@ const PlayerSelect: React.FC = () => {
   const handlePlayerCountChange = useCallback(
     (players: { id: number; iconIndex: number }[]) => {
       setPlayersData(players);
+      console.log("Players:", players);
     },
     []
   );
@@ -202,9 +205,19 @@ const PlayerSelect: React.FC = () => {
             </View>
           ) : (
             <View style={styles.warningContainer}>
-              <FlashingText style={styles.selectPlayerText}>
-                Select Players
-              </FlashingText>
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={() => {
+                  const message = getEasterEggMessage(playersData);
+                  if (message) {
+                    setFlashMessage(message);
+                  }
+                }}
+              >
+                <FlashingText style={styles.selectPlayerText}>
+                  {flashMessage}
+                </FlashingText>
+              </TouchableOpacity>
             </View>
           )}
         </View>
