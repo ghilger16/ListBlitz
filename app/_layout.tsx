@@ -3,19 +3,18 @@ import { View, StatusBar } from "react-native";
 
 import { Stack, usePathname } from "expo-router";
 import { useFonts } from "expo-font";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DatadogProvider, DdRum } from "@datadog/mobile-react-native";
 
-import { GameProvider } from "@Context";
 import { SplashScreen } from "@Components";
 import { usePreloadAssets } from "@Hooks";
 import { allAssets, ddConfig, identifyDatadogUser } from "@Utils";
+import AppProviders from "./AppProviders";
+
+const containerStyle = { flex: 1 };
 
 const Layout: React.FC = () => {
   const pathname = usePathname();
-  const queryClient = new QueryClient();
   const [showSplash, setShowSplash] = useState(true);
 
   const [fontsLoaded] = useFonts({
@@ -52,15 +51,11 @@ const Layout: React.FC = () => {
           />
         </>
       ) : (
-        <View style={{ flex: 1 }}>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <QueryClientProvider client={queryClient}>
-              <GameProvider>
-                <StatusBar hidden />
-                <Stack screenOptions={{ animation: "none" }} />
-              </GameProvider>
-            </QueryClientProvider>
-          </GestureHandlerRootView>
+        <View style={containerStyle}>
+          <AppProviders>
+            <StatusBar hidden />
+            <Stack screenOptions={{ animation: "none" }} />
+          </AppProviders>
         </View>
       )}
     </DatadogProvider>

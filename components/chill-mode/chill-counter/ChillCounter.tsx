@@ -1,13 +1,14 @@
 import React, { useState, useRef, useMemo, useEffect } from "react";
-import { View, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import Svg, { G, Path, Text as SvgText } from "react-native-svg";
+
 import * as d3 from "d3-shape";
 import LottieView from "lottie-react-native";
-import { playerIcons } from "@Services";
-import { Player } from "@Context";
-import { FlashingText } from "components/flashing-text";
 
-import { playTapSound } from "components/utils";
+import { Player } from "@Context";
+import { playerIcons } from "@Services";
+import { playTapSound } from "@Utils";
+import { FlashingText } from "components/flashing-text";
 
 const RADIUS = 160;
 const INNER_RADIUS = 110;
@@ -82,6 +83,31 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
     []
   );
 
+  const dummyArcData: d3.DefaultArcObject = {
+    innerRadius: 0,
+    outerRadius: 0,
+    startAngle: 0,
+    endAngle: 0,
+  };
+
+  const arcPath = useMemo(
+    () => arcGenerator(dummyArcData) ?? "",
+    [arcGenerator]
+  );
+
+  const borderArcPaths = useMemo(
+    () => borderArcGenerator.map((gen) => gen(dummyArcData) ?? ""),
+    [borderArcGenerator]
+  );
+
+  const sectionArcPaths = useMemo(
+    () =>
+      Array.from({ length: SECTIONS_COUNT }).map(
+        (_, index) => sectionArcGenerator(index)(dummyArcData) ?? ""
+      ),
+    [sectionArcGenerator]
+  );
+
   const handleIncrement = () => {
     playTapSound();
     onIncrement();
@@ -94,7 +120,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   }, [score]);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} pointerEvents="box-none">
       <Svg width={RADIUS * 2 + 40} height={RADIUS + 140}>
         <G x={RADIUS + 20} y={RADIUS + 50}>
           <SvgText
@@ -109,29 +135,20 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
             {score}
           </SvgText>
           <Path
-            d={borderArcGenerator[0]({} as any) || ""}
+            d={borderArcPaths[0]}
             fill="none"
             stroke={currentPlayer.startColor}
             strokeWidth={5}
           />
           <Path
-            d={borderArcGenerator[1]({} as any) || ""}
+            d={borderArcPaths[1]}
             fill="none"
             stroke={currentPlayer.startColor}
             strokeWidth={5}
           />
-          <Path
-            d={arcGenerator({} as any) || ""}
-            fill={currentPlayer.startColor}
-          />
-          {Array.from({ length: SECTIONS_COUNT }).map((_, index) => (
-            <Path
-              key={index}
-              d={sectionArcGenerator(index)({} as any)}
-              fill="none"
-              stroke="#fff"
-              strokeWidth={2}
-            />
+          <Path d={arcPath} fill={currentPlayer.startColor} />
+          {sectionArcPaths.map((d, index) => (
+            <Path key={index} d={d} fill="none" stroke="#fff" strokeWidth={2} />
           ))}
         </G>
       </Svg>
@@ -146,6 +163,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
             top: RADIUS - CENTER_RADIUS + 40,
           },
         ]}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
         <LottieView
           ref={lottieRef}

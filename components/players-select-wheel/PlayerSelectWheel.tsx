@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { View } from "react-native";
 import Svg, {
   Path,
@@ -10,104 +10,60 @@ import Svg, {
   Stop,
   TextPath,
 } from "react-native-svg";
+
 import LottieView from "lottie-react-native";
 import * as d3 from "d3-shape";
+
+import { clickSound } from "@Assets";
+import { PLAYER_COLORS } from "@Context";
+import { playSound } from "@Components";
 import { playerIcons } from "@Services";
-import { PLAYER_COLORS } from "../../context/constants";
-import { Audio } from "expo-av";
 
 const RADIUS = 185;
 const OUTER_CIRCLE_RADIUS = 100;
 const SECTIONS_COUNT = 10;
 
-const calculateSliceIndex = (
-  x: number,
-  y: number,
-  radius: number,
-  sectionsCount: number
-) => {
+const calculateSliceIndex = (x: number, y: number, sectionsCount: number) => {
   const angle = Math.atan2(y, x);
-
   let theta = angle + Math.PI / 2;
-
-  if (theta < 0) {
-    theta += 2 * Math.PI;
-  }
+  if (theta < 0) theta += 2 * Math.PI;
   const sliceAngle = (2 * Math.PI) / sectionsCount;
   let index = Math.floor(theta / sliceAngle);
-
-  if (index < 0) index = 0;
-  if (index >= sectionsCount) index = sectionsCount - 1;
-  return index;
+  return Math.max(0, Math.min(index, sectionsCount - 1));
 };
 
-interface PlayersSelectProps {
-  onPlayerCountChange: (players: { id: number; iconIndex: number }[]) => void;
-}
+const transformToSVGCoordinates = (labelX: number, labelY: number) => ({
+  x: RADIUS + labelX * 1.5,
+  y: RADIUS + labelY * 1.5,
+});
 
-export const PlayersSelect: React.FC<PlayersSelectProps> = ({
-  onPlayerCountChange,
-}) => {
+const arcGenerator = d3.arc().outerRadius(RADIUS).innerRadius(0);
+const pieGenerator = d3.pie<number>().sort(null).value(1);
+
+const PlayerSelectWheel: React.FC<{
+  onPlayerCountChange: (players: { id: number; iconIndex: number }[]) => void;
+}> = ({ onPlayerCountChange }) => {
   const [playerAssignments, setPlayerAssignments] = useState<
     { sliceIndex: number; playerNumber: number }[]
   >([]);
+  const lottieRefs = useRef<(LottieView | null)[]>([]).current;
 
-  const arcGenerator = d3.arc().outerRadius(RADIUS).innerRadius(0);
-  const pieGenerator = d3.pie<number>().sort(null).value(1);
-
-  const arcs = pieGenerator(
-    Array.from({ length: SECTIONS_COUNT }, (_, i) => i + 1)
+  const arcs = useMemo(
+    () => pieGenerator(Array.from({ length: SECTIONS_COUNT }, (_, i) => i + 1)),
+    []
   );
 
   const highlightArcs = arcs.map((arc, index) => {
     const assignment = playerAssignments.find((p) => p.sliceIndex === index);
-    if (assignment) {
-      return { ...arc };
-    }
-    return null;
+    return assignment ? { ...arc } : null;
   });
 
-  // Load the sound
-  const soundRef = useRef<Audio.Sound | null>(null);
-
-  useEffect(() => {
-    const loadSound = async () => {
-      try {
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-          playsInSilentModeIOS: true,
-          shouldDuckAndroid: true,
-        });
-
-        if (!soundRef.current) {
-          const { sound } = await Audio.Sound.createAsync(
-            require("@Assets/sounds/click.mp3")
-          );
-          soundRef.current = sound;
-        }
-      } catch (error) {
-        console.error("Error setting audio mode:", error);
-      }
-    };
-
-    loadSound();
-
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-        soundRef.current = null;
-      }
-    };
-  }, []);
-
-  const playClickSound = async () => {
-    if (soundRef.current) {
-      try {
-        await soundRef.current.replayAsync();
-      } catch (error) {
-        console.error("Error playing sound:", error);
-      }
+  const getNextPlayerNumber = (assignedNumbers: number[]): number => {
+    let nextNumber = 1;
+    while (assignedNumbers.includes(nextNumber)) {
+      nextNumber++;
     }
+    return nextNumber;
   };
 
   const handleSliceTap = async (sliceIndex: number) => {
@@ -128,10 +84,7 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
     } else {
       setPlayerAssignments((prev) => {
         const assignedNumbers = prev.map((p) => p.playerNumber);
-        let nextNumber = 1;
-        while (assignedNumbers.includes(nextNumber)) {
-          nextNumber++;
-        }
+        const nextNumber = getNextPlayerNumber(assignedNumbers);
         const updated = [...prev, { sliceIndex, playerNumber: nextNumber }];
         onPlayerCountChange(
           updated.map(({ playerNumber, sliceIndex }) => ({
@@ -142,14 +95,18 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
         return updated;
       });
     }
-    await playClickSound();
+    await playSound(clickSound);
   };
 
-  const transformToSVGCoordinates = (labelX: number, labelY: number) => {
-    return {
-      x: RADIUS + labelX * 1.5,
-      y: RADIUS + labelY * 1.5,
-    };
+  const controlLottieAnimation = (
+    isSelected: boolean,
+    ref: LottieView | null
+  ) => {
+    if (isSelected && ref) {
+      ref.play();
+    } else if (!isSelected && ref) {
+      ref.reset();
+    }
   };
 
   const renderSlice = (arc: any, index: number) => {
@@ -170,14 +127,8 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
       iconSize = { width: 95, height: 95 };
     }
 
-    const lottieRef = useRef<LottieView>(null);
-
     useEffect(() => {
-      if (isSelected && lottieRef.current) {
-        lottieRef.current.play();
-      } else if (!isSelected && lottieRef.current) {
-        lottieRef.current.reset();
-      }
+      controlLottieAnimation(isSelected, lottieRefs[index]);
     }, [isSelected]);
 
     return (
@@ -212,7 +163,9 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
             }}
           >
             <LottieView
-              ref={lottieRef}
+              ref={(ref) => {
+                lottieRefs[index] = ref;
+              }}
               source={iconSource}
               autoPlay={isSelected}
               loop={isSelected}
@@ -233,7 +186,7 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
     const x = locationX - svgOffsetX;
     const y = locationY - svgOffsetY;
 
-    const tappedIndex = calculateSliceIndex(x, y, RADIUS, SECTIONS_COUNT);
+    const tappedIndex = calculateSliceIndex(x, y, SECTIONS_COUNT);
 
     handleSliceTap(tappedIndex);
   };
@@ -253,8 +206,6 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
           ))}
         </Defs>
         <G x={RADIUS + 10} y={RADIUS + 25}>
-          <Circle cx={0} cy={0} r={RADIUS} fill="#192c43" />
-
           <Circle cx={0} cy={0} r={RADIUS} fill="#192c43" />
 
           <G transform="rotate(165)">
@@ -303,3 +254,5 @@ export const PlayersSelect: React.FC<PlayersSelectProps> = ({
     </View>
   );
 };
+
+export default PlayerSelectWheel;

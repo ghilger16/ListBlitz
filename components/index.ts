@@ -7,7 +7,7 @@ export * from "./custom-header";
 export * from "./flashing-text";
 export * from "./next-player-prompt";
 export * from "./pack-library";
-export * from "./players-select";
+export * from "./players-select-wheel";
 export * from "./prompt-display";
 export * from "./splash-screen";
 export * from "./utils";

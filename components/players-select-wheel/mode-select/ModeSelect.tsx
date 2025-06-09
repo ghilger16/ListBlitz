@@ -1,89 +1,65 @@
-import React, { useEffect, useRef } from "react";
-import { GameMode } from "@Context";
+import React, { useMemo } from "react";
 import {
   Animated,
-  Easing,
   Text,
   View,
   StyleSheet,
   TouchableWithoutFeedback,
 } from "react-native";
+
 import * as Haptics from "expo-haptics";
+
+import { GameMode, MODE_COLORS } from "@Context";
+import { useModeSelectAnimations } from "@Hooks";
 
 interface ModeSelectProps {
   onModeChange: (newMode: GameMode) => void;
   mode: GameMode;
 }
 
+const getModeColor = (mode: GameMode) => {
+  switch (mode) {
+    case GameMode.CHILL:
+      return MODE_COLORS.CHILL;
+    case GameMode.BLITZ:
+      return MODE_COLORS.BLITZ;
+    case GameMode.BATTLE:
+      return MODE_COLORS.BATTLE;
+  }
+};
 const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const { scaleAnim, triggerScaleAnimation } = useModeSelectAnimations();
 
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.15,
-          duration: 1000,
-          easing: Easing.ease,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1000,
-          easing: Easing.ease,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, []);
+  const nextMode = useMemo(() => {
+    return mode === GameMode.CHILL
+      ? GameMode.BLITZ
+      : mode === GameMode.BLITZ
+      ? GameMode.BATTLE
+      : GameMode.CHILL;
+  }, [mode]);
 
   const handlePress = () => {
-    Animated.sequence([
-      Animated.timing(scaleAnim, {
-        toValue: 0.9,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    const nextMode =
-      mode === GameMode.CHILL
-        ? GameMode.BLITZ
-        : mode === GameMode.BLITZ
-        ? GameMode.BATTLE
-        : GameMode.CHILL;
-
+    triggerScaleAnimation();
     Haptics.selectionAsync();
-
     onModeChange(nextMode);
   };
 
+  const color = getModeColor(mode);
+
   return (
     <View style={styles.container}>
-      <TouchableWithoutFeedback onPress={handlePress}>
+      <TouchableWithoutFeedback
+        onPress={handlePress}
+        accessible
+        accessibilityLabel={`Switch to ${nextMode} mode`}
+      >
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
           <View
             style={[
               styles.circle,
               {
-                borderColor:
-                  mode === GameMode.CHILL
-                    ? "#FFD700"
-                    : mode === GameMode.BLITZ
-                    ? "#87CEFA"
-                    : "#FF4C4C",
-                backgroundColor:
-                  mode === GameMode.CHILL
-                    ? "#FFD700"
-                    : mode === GameMode.BLITZ
-                    ? "#87CEFA"
-                    : "#FF4C4C",
+                borderColor: color,
+                backgroundColor: color,
               },
             ]}
           >
@@ -134,8 +110,27 @@ const styles = StyleSheet.create({
     fontSize: 40,
     marginBottom: 2,
   },
+  modeLabelBase: {
+    fontWeight: "bold",
+    color: "white",
+    fontFamily: "Avenir-Heavy",
+    textAlign: "center",
+    textShadowColor: "#000",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+  },
   modeLabel: {
     fontSize: 26,
+    fontWeight: "bold",
+    color: "white",
+    fontFamily: "Avenir-Heavy",
+    textAlign: "center",
+    textShadowColor: "#000",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+  },
+  modeLabelBattle: {
+    fontSize: 22,
     fontWeight: "bold",
     color: "white",
     fontFamily: "Avenir-Heavy",
@@ -155,25 +150,28 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     marginBottom: 1,
   },
+  iconContainer: {
+    alignItems: "center",
+  },
 });
 
 const MODES: Record<GameMode, React.ReactNode> = {
   [GameMode.CHILL]: (
-    <View style={{ alignItems: "center" }}>
+    <View style={styles.iconContainer}>
       <Text style={styles.iconEmoji}>😎</Text>
       <Text style={styles.modeLabel}>Chill</Text>
     </View>
   ),
   [GameMode.BLITZ]: (
-    <View style={{ alignItems: "center" }}>
+    <View style={styles.iconContainer}>
       <Text style={styles.iconEmoji}>⚡</Text>
       <Text style={styles.modeLabel}>Blitz</Text>
     </View>
   ),
   [GameMode.BATTLE]: (
-    <View style={{ alignItems: "center" }}>
+    <View style={styles.iconContainer}>
       <Text style={styles.iconEmoji}>⚔️</Text>
-      <Text style={[styles.modeLabel, { fontSize: 22 }]}>Battle</Text>
+      <Text style={styles.modeLabelBattle}>Battle</Text>
     </View>
   ),
 };

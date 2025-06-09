@@ -29,7 +29,8 @@
     "styles/PlayerSelect.styled.ts",
     "utils/assets.ts",
     "utils/datadog.ts",
-    "utils/index.ts"
+    "utils/index.ts",
+    "utils/soundUtils.ts"
   ],
   "extends": "expo/tsconfig.base"
 }

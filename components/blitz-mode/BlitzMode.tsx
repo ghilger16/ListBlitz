@@ -7,7 +7,7 @@ import {
   ImageBackground,
 } from "react-native";
 
-import { GameMode, Player } from "@Context";
+import { GameMode, ModeComponentProps, Player } from "@Context";
 import { PromptDisplay } from "components/prompt-display";
 import { BlitzCounter } from "./blitz-counter";
 import { ScoreRankings } from "./score-rankings";
@@ -16,23 +16,9 @@ import { blitzPackIcons } from "components/blitz-packs/blitzPackIcons";
 import { AlphaCategorySelect } from "components/alpha-category-select";
 import { Asset } from "expo-asset";
 
-interface BlitzModeProps {
-  currentPrompt: string;
-  handleNextPlayer: (score: number) => void;
-  players: {
-    id: number;
-    name: string;
-    score: number | null;
-    iconIndex: number;
-  }[];
-  currentPlayer: Player & { iconIndex: number };
-  handleNextRound: () => void;
-  packTitle: string;
-}
-
 const TIMER_DURATION = 30;
 
-export const BlitzMode: React.FC<BlitzModeProps> = ({
+export const BlitzMode: React.FC<ModeComponentProps> = ({
   currentPrompt,
   handleNextPlayer,
   players,
@@ -116,7 +102,7 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
   }, [isRoundOver]);
 
   const handleNextRoundClick = () => {
-    handleNextRound();
+    handleNextRound?.();
     setCurrentPlayerIndex(0);
     setScore(0);
     setTimer(TIMER_DURATION);
@@ -191,9 +177,9 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
           <SafeAreaView style={styles.wrapper}>
             <View style={styles.promptWrapper}>
               <PromptDisplay
-                key={`${currentPlayer.id}-${selectedCategory}-${false}`}
+                key={`${currentPlayer?.id}-${selectedCategory}-${false}`}
                 prompt={currentPrompt}
-                playerColor={currentPlayer.startColor}
+                playerColor={currentPlayer!.startColor!}
                 mode={GameMode.BLITZ}
                 categoryBubble={titleImage}
                 isObscured={!isGameStarted}
@@ -213,7 +199,7 @@ export const BlitzMode: React.FC<BlitzModeProps> = ({
                 <BlitzCounter
                   score={score}
                   onIncrement={handleScoreIncrement}
-                  currentPlayer={currentPlayer}
+                  currentPlayer={currentPlayer!}
                   onStart={handleStartGame}
                   timer={timer}
                   isGameStarted={isGameStarted}

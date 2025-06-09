@@ -1,7 +1,9 @@
 import React from "react";
-import { Text, TouchableOpacity, StyleSheet, Image, View } from "react-native";
+import { TouchableOpacity, StyleSheet, Image, View } from "react-native";
+
 import { LinearGradient } from "expo-linear-gradient";
-import { PACK_COLORS } from "../../context/constants";
+
+import { PACK_COLORS } from "@Context";
 import { blitzPackIcons } from "./blitzPackIcons";
 
 interface IBlitzPackProps {
@@ -9,21 +11,19 @@ interface IBlitzPackProps {
   onPress: () => void;
   index: number;
 }
-export const BlitzPack: React.FC<IBlitzPackProps> = ({
-  title,
-  onPress,
-  index,
-}) => {
-  const assignedColor = PACK_COLORS[index % PACK_COLORS.length];
+const BlitzPack: React.FC<IBlitzPackProps> = ({ title, onPress, index }) => {
+  const gradientColors = PACK_COLORS[index % PACK_COLORS.length];
   const { icon, titleImage } = blitzPackIcons[title] || {};
   return (
     <TouchableOpacity
-      style={[styles.cardContainer, { borderColor: assignedColor[0] }]}
+      style={[styles.cardContainer, { borderColor: gradientColors[0] }]}
       onPress={onPress}
       activeOpacity={0.9}
+      accessible
+      accessibilityRole="button"
     >
       <LinearGradient
-        colors={assignedColor}
+        colors={gradientColors}
         style={styles.gradientBackground}
       />
       <View style={styles.contentColumn}>
@@ -78,3 +78,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
+
+export default BlitzPack;

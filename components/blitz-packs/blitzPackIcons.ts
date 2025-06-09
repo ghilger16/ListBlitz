@@ -1,4 +1,9 @@
-export const blitzPackIcons: Record<string, { icon: any; titleImage?: any }> = {
+import { ImageSourcePropType } from "react-native";
+
+export const blitzPackIcons: Record<
+  string,
+  { icon: ImageSourcePropType; titleImage?: ImageSourcePropType }
+> = {
   "Category Chaos": {
     icon: require("@Assets/icons/category-chaos.png"),
     titleImage: require("@Assets/icons/category-chaos-title.png"),

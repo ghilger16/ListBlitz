@@ -1,111 +1,42 @@
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  useRef,
-  useLayoutEffect,
-} from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import {
   Animated,
-  Easing,
-  Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   StyleSheet,
   SafeAreaView,
   View,
 } from "react-native";
-import { router, useNavigation } from "expo-router";
-import { useGameplay, GameMode } from "@Context";
-import { FlashingText, getEasterEggMessage, PlayersSelect } from "@Components";
-import { ModeSelect } from "components/players-select/mode-select";
+
+import { router } from "expo-router";
+
+import { useGameplay, GameMode, Player } from "@Context";
+import {
+  ModeSelect,
+  PlayerSelectFlashMessage,
+  PlayerSelectWheel,
+} from "@Components";
+import { usePlayerSelectHeader, usePlayerSelectAnimations } from "@Hooks";
 
 const PlayerSelect: React.FC = () => {
   const { setGameSettings, onGameStart, gameSettings, initializePlayers } =
     useGameplay();
   const [selectedMode, setSelectedMode] = useState<GameMode>(gameSettings.mode);
-  const [playersData, setPlayersData] = useState<
-    { id: number; iconIndex: number }[]
-  >([]);
+  const [playersData, setPlayersData] = useState<Player[]>([]);
   const [startAttempted, setStartAttempted] = useState(false);
   const [flashMessage, setFlashMessage] = useState("Select Players");
 
-  const shakeAnim = useRef(new Animated.Value(0)).current;
+  usePlayerSelectHeader(gameSettings);
 
-  const navigation = useNavigation();
-
-  const glowAnim = useRef(new Animated.Value(0)).current;
-  const entryAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(glowAnim, {
-          toValue: 1,
-          duration: 1200,
-          easing: Easing.ease,
-          useNativeDriver: false,
-        }),
-        Animated.timing(glowAnim, {
-          toValue: 0,
-          duration: 1200,
-          easing: Easing.ease,
-          useNativeDriver: false,
-        }),
-      ])
-    ).start();
-  }, []);
-
-  useEffect(() => {
-    Animated.timing(entryAnim, {
-      toValue: 1,
-      duration: 600,
-      easing: Easing.out(Easing.ease) as any,
-      useNativeDriver: true,
-    }).start();
-  }, []);
-
-  useEffect(() => {
-    if (startAttempted) {
-      Animated.sequence([
-        Animated.timing(shakeAnim, {
-          toValue: 10,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnim, {
-          toValue: -10,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnim, {
-          toValue: 6,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnim, {
-          toValue: -6,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnim, {
-          toValue: 0,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [startAttempted]);
-
-  const glowInterpolation = glowAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["rgba(255, 255, 255, 0.3)", "rgba(255, 255, 255, 1)"],
-  });
+  const { glowInterpolation, entryAnim, shakeAnim } =
+    usePlayerSelectAnimations();
 
   const handlePlayerCountChange = useCallback(
     (players: { id: number; iconIndex: number }[]) => {
-      setPlayersData(players);
-      console.log("Players:", players);
+      const mappedPlayers: Player[] = players.map((p) => ({
+        id: p.id,
+        iconIndex: p.iconIndex,
+      }));
+      setPlayersData(mappedPlayers);
     },
     []
   );
@@ -123,14 +54,27 @@ const PlayerSelect: React.FC = () => {
     }
   }, [selectedMode, playersData, setGameSettings, gameSettings]);
 
+  const getEntryAnimStyle = () => ({
+    opacity: entryAnim,
+    transform: [
+      {
+        scale: entryAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.8, 1],
+        }),
+      },
+    ],
+  });
+
   const handleGameStart = () => {
     const playerIds = playersData.map((p) => p.id).sort((a, b) => a - b);
     const hasMissingPlayer =
-      playerIds.length > 0 &&
-      Array.from(
-        { length: playerIds[playerIds.length - 1] },
-        (_, i) => i + 1
-      ).some((n) => !playerIds.includes(n));
+      playerIds.length === 0
+        ? false
+        : Array.from(
+            { length: playerIds[playerIds.length - 1] },
+            (_, i) => i + 1
+          ).some((n) => !playerIds.includes(n));
 
     if (
       hasMissingPlayer ||
@@ -149,95 +93,22 @@ const PlayerSelect: React.FC = () => {
     }
   };
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      animation: "none",
-      headerTitle: () => (
-        <Text style={styles.title}>✨ {gameSettings.blitzPackTitle}</Text>
-      ),
-      headerStyle: {
-        backgroundColor: "#192c43",
-      },
-      headerLeft: () => (
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{ paddingHorizontal: 15, paddingVertical: 5 }}
-        >
-          <Text style={{ fontSize: 30, color: "#fff", fontWeight: "700" }}>
-            ←
-          </Text>
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation, gameSettings.blitzPackTitle]);
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.playersWrapper}>
         <View style={styles.textContainer}>
-          {startAttempted ? (
-            <View style={styles.warningContainer}>
-              <View style={styles.warningBox}>
-                <Animated.Text
-                  style={[
-                    styles.warningText,
-                    { transform: [{ translateX: shakeAnim }] },
-                  ]}
-                >
-                  ⚠️{" "}
-                  {(() => {
-                    const ids = playersData
-                      .map((p) => p.id)
-                      .sort((a, b) => a - b);
-                    const missing = Array.from(
-                      { length: ids[ids.length - 1] },
-                      (_, i) => i + 1
-                    ).find((n) => !ids.includes(n));
-                    if (selectedMode === "battle" && playersData.length < 2) {
-                      return "Select at least 2 characters";
-                    }
-                    return missing
-                      ? `Reselect Player ${missing}`
-                      : "Ready to start!";
-                  })()}
-                </Animated.Text>
-              </View>
-            </View>
-          ) : (
-            <View style={styles.warningContainer}>
-              <TouchableOpacity
-                activeOpacity={1}
-                onPress={() => {
-                  const message = getEasterEggMessage(playersData);
-                  if (message) {
-                    setFlashMessage(message);
-                  }
-                }}
-              >
-                <FlashingText style={styles.selectPlayerText}>
-                  {flashMessage}
-                </FlashingText>
-              </TouchableOpacity>
-            </View>
-          )}
+          <PlayerSelectFlashMessage
+            startAttempted={startAttempted}
+            shakeAnim={shakeAnim}
+            flashMessage={flashMessage}
+            playersData={playersData}
+            setFlashMessage={setFlashMessage}
+            selectedMode={selectedMode}
+          />
         </View>
-        <Animated.View
-          pointerEvents="auto"
-          style={{
-            opacity: entryAnim,
-            transform: [
-              {
-                scale: entryAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.8, 1],
-                }),
-              },
-            ],
-          }}
-        >
-          {/* Warning message removed from here; it is shown only in textContainer above */}
+        <Animated.View pointerEvents="auto" style={getEntryAnimStyle()}>
           <View>
-            <PlayersSelect onPlayerCountChange={handlePlayerCountChange} />
+            <PlayerSelectWheel onPlayerCountChange={handlePlayerCountChange} />
           </View>
           <View style={styles.playersSelectWrapper}>
             <Animated.View
@@ -265,7 +136,7 @@ const PlayerSelect: React.FC = () => {
         ]}
         onPress={handleGameStart}
         disabled={playersData.length < 1}
-        activeOpacity={0.7}
+        activeOpacity={0.9}
       >
         <Animated.Text
           style={[styles.startText, { textShadowColor: glowInterpolation }]}
@@ -302,11 +173,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
     borderWidth: 2,
     borderColor: "#61D4FF",
-  },
-  backButtonText: {
-    fontSize: 20,
-    color: "#fff",
-    fontWeight: "700",
   },
   playersWrapper: {
     marginTop: 55,

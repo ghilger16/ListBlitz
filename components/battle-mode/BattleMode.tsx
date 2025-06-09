@@ -12,25 +12,17 @@ import {
 import { PromptDisplay } from "components/prompt-display";
 import { blitzPackIcons } from "components/blitz-packs/blitzPackIcons";
 import { Asset } from "expo-asset";
-import { GameMode, Player } from "@Context";
+import { GameMode, ModeComponentProps, Player } from "@Context";
 import { BattleTimer } from "./battle-timer";
 import { PlayerCard } from "./player-card";
 import { playerIcons } from "@Services";
 import LottieView from "lottie-react-native";
 import { useGameplay } from "@Context";
 import { AlphaCategorySelect } from "components/alpha-category-select";
-import { playSound, stopSound } from "components/utils";
-import { timerSound, winnerSound } from "@Assets";
-interface BattleModeProps {
-  currentPrompt: string;
-  packTitle: string;
-  currentMatch: Player[] | null;
-  onTimeout: (winner: Player) => void;
-  onRestart: () => void;
-  handleSkipPrompt: () => void;
-}
+import { playSound, stopSound } from "@Utils";
+import { timerSound } from "@Assets";
 
-export const BattleMode: React.FC<BattleModeProps> = ({
+export const BattleMode: React.FC<ModeComponentProps> = ({
   currentPrompt,
   packTitle,
   currentMatch,
@@ -142,7 +134,7 @@ export const BattleMode: React.FC<BattleModeProps> = ({
       setTimeout(() => {
         turnIndexRef.current = 0;
         setTurnIndex(0);
-        onTimeout(winner);
+        onTimeout?.(winner);
         setIsWinnerAnnounced(false);
       }, 3000);
     }
@@ -155,13 +147,13 @@ export const BattleMode: React.FC<BattleModeProps> = ({
     setFinalWinner(null);
     turnIndexRef.current = 0;
     setTurnIndex(0);
-    onRestart();
+    onRestart?.();
   };
   const [skipTrigger, setSkipTrigger] = useState(0);
 
   const wrappedHandleSkipPrompt = () => {
     // 1) Run original skip logic
-    handleSkipPrompt();
+    handleSkipPrompt?.();
     // 2) Increment skipTrigger so PromptDisplay remounts
     setSkipTrigger((prev) => prev + 1);
   };
@@ -269,7 +261,7 @@ export const BattleMode: React.FC<BattleModeProps> = ({
               <>
                 <View style={styles.winnerSection}>
                   <Text style={styles.winnerHeaderText}>
-                    {displayWinner.name.toUpperCase()}
+                    {displayWinner?.name?.toUpperCase()}
                   </Text>
                   <LottieView
                     source={playerIcons[displayIconIndex]}

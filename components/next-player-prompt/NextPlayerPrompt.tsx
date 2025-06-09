@@ -22,34 +22,27 @@ export const NextPlayerPrompt: React.FC<NextPlayerPromptProps> = ({
   iconSource,
   nextPlayer,
 }) => {
+  const playerBackgroundColor = { backgroundColor: nextPlayer.startColor };
+
   return (
     <TouchableOpacity onPress={onNextPlayerClick} activeOpacity={0.9}>
-      <View
-        style={[
-          styles.container,
-          { backgroundColor: nextPlayer.startColor || "#000" },
-        ]}
-      >
-        <View style={styles.iconContainer}>
-          <LottieView
-            source={iconSource}
-            autoPlay={false}
-            style={styles.icon}
-          />
+      <View style={[styles.nextPlayerContainer, playerBackgroundColor]}>
+        <View style={styles.nextPlayerIconContainer}>
+          <LottieView source={iconSource} style={styles.nextPlayerIcon} />
         </View>
-        <Text style={styles.text}>Start Player {nextPlayer.id}</Text>
+        <Text style={styles.nextPlayerText}>Start Player {nextPlayer.id}</Text>
       </View>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create<{
-  container: ViewStyle;
-  iconContainer: ViewStyle;
-  icon: ViewStyle;
-  text: TextStyle;
+  nextPlayerContainer: ViewStyle;
+  nextPlayerIconContainer: ViewStyle;
+  nextPlayerIcon: ViewStyle;
+  nextPlayerText: TextStyle;
 }>({
-  container: {
+  nextPlayerContainer: {
     width: 300,
     height: 40,
     borderRadius: 20,
@@ -59,7 +52,7 @@ const styles = StyleSheet.create<{
     paddingRight: 5,
     marginTop: 5,
   },
-  iconContainer: {
+  nextPlayerIconContainer: {
     width: 30,
     height: 30,
     borderRadius: 15,
@@ -67,16 +60,15 @@ const styles = StyleSheet.create<{
     justifyContent: "center",
     alignItems: "center",
   },
-  icon: {
+  nextPlayerIcon: {
     width: 25,
     height: 25,
   },
-  text: {
+  nextPlayerText: {
     fontSize: 25,
     fontWeight: "bold",
     color: "#000",
-    textAlign: "center",
-    marginTop: 10,
+    marginTop: 8,
     marginLeft: 30,
     fontFamily: "LuckiestGuy",
   },

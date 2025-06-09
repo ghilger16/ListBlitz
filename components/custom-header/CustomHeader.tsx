@@ -1,15 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View, Image, StyleSheet } from "react-native";
-import { BlurView } from "expo-blur";
+
 import { Asset } from "expo-asset";
 
 const CustomHeader: React.FC = () => {
   const [headerUri, setHeaderUri] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadHeaderAsset = useCallback(() => {
     const asset = Asset.fromModule(require("@Assets/gifs/header.gif"));
     setHeaderUri(asset.localUri || asset.uri);
   }, []);
+
+  useEffect(() => {
+    loadHeaderAsset();
+  }, [loadHeaderAsset]);
 
   if (!headerUri) return null;
 

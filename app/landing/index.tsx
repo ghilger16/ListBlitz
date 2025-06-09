@@ -3,7 +3,7 @@ import { SafeAreaView, StyleSheet } from "react-native";
 
 import { Stack } from "expo-router";
 
-import { PackLibrary } from "../../components/pack-library";
+import { PackLibrary } from "@Components";
 
 const Landing: React.FC = () => {
   return (
@@ -20,9 +20,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#192c43",
-  },
-  errorText: {
-    color: "red",
   },
 });
 

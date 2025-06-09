@@ -1,79 +1,50 @@
-import React, { useEffect, useMemo, useRef } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Dimensions,
-  Animated,
-  Easing,
-} from "react-native";
+import React from "react";
+import { View, Text, ScrollView, StyleSheet, Animated } from "react-native";
+
 import { useRouter } from "expo-router";
-import { useGetBlitzPacks } from "@Services";
+
 import { useGameplay } from "@Context";
 
 import { BlitzPack } from "../blitz-packs";
 import { CustomHeader } from "components/custom-header";
+import { usePackLibraryAnimations } from "./usePackLibraryAnimations";
 
 const PackLibrary: React.FC = () => {
   const router = useRouter();
   const { setGameSettings } = useGameplay();
-  const { data: blitzPacks = [] } = useGetBlitzPacks();
-  const animatedValues = useRef<Animated.Value[]>([]).current;
+  const { animatedValues, headerFadeAnim, blitzPacks } =
+    usePackLibraryAnimations();
 
-  const headerFadeAnim = useRef(new Animated.Value(0)).current;
+  const getAnimatedStyle = (index: number) => ({
+    opacity: animatedValues[index],
+    transform: [
+      {
+        scale: animatedValues[index].interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.6, 1],
+        }),
+      },
+    ],
+  });
 
-  useMemo(() => {
-    if (blitzPacks.length && animatedValues.length === 0) {
-      blitzPacks.forEach((_, i) => {
-        animatedValues[i] = new Animated.Value(0);
-      });
+  const getRows = (packs: typeof blitzPacks) => {
+    const rows = [];
+    for (let i = 0; i < packs.length; i += 3) {
+      rows.push(packs.slice(i, i + 3));
     }
-  }, [blitzPacks]);
-
-  useEffect(() => {
-    Animated.timing(headerFadeAnim, {
-      toValue: 1,
-      duration: 1000,
-      easing: Easing.out(Easing.ease),
-      useNativeDriver: true,
-    }).start();
-  }, []);
-
-  useEffect(() => {
-    blitzPacks.forEach((_, i) => {
-      if (!animatedValues[i]) {
-        animatedValues[i] = new Animated.Value(0);
-      }
-    });
-
-    Animated.stagger(
-      150,
-      animatedValues.map((val) =>
-        Animated.timing(val, {
-          toValue: 1,
-          duration: 700,
-          useNativeDriver: true,
-        })
-      )
-    ).start();
-  }, [blitzPacks]);
+    return rows;
+  };
 
   const handlePackPress = (title: string, id: number) => {
     setGameSettings({ blitzPackId: id, blitzPackTitle: title });
     router.push("/player-select");
   };
 
-  const rows = [];
-  for (let i = 0; i < blitzPacks.length; i += 3) {
-    rows.push(blitzPacks.slice(i, i + 3));
-  }
+  const rows = getRows(blitzPacks);
 
   return (
     <>
-      <View style={styles.absoluteContainer}></View>
-
-      <View style={{ position: "absolute", top: 0, width: "100%", zIndex: 2 }}>
+      <View style={styles.headerContainer}>
         <Animated.View style={{ opacity: headerFadeAnim }}>
           <CustomHeader />
         </Animated.View>
@@ -93,19 +64,7 @@ const PackLibrary: React.FC = () => {
                 return (
                   <Animated.View
                     key={pack.id}
-                    style={{
-                      opacity: animatedValues[rowIndex * 3 + index],
-                      transform: [
-                        {
-                          scale: animatedValues[
-                            rowIndex * 3 + index
-                          ].interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0.6, 1],
-                          }),
-                        },
-                      ],
-                    }}
+                    style={getAnimatedStyle(rowIndex * 3 + index)}
                   >
                     <BlitzPack
                       title={pack.title}
@@ -124,13 +83,6 @@ const PackLibrary: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  absoluteContainer: {
-    // position: "absolute",
-    // width: "100%",
-    // top: 200,
-    // zIndex: 3,
-    // alignItems: "center",
-  },
   title: {
     fontFamily: "SourGummy",
     fontSize: 25,
@@ -155,6 +107,12 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     marginBottom: 10,
+  },
+  headerContainer: {
+    position: "absolute",
+    top: 0,
+    width: "100%",
+    zIndex: 2,
   },
 });
 

@@ -10,12 +10,13 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import Svg, { Path, Text as SvgText } from "react-native-svg";
-import { playSound } from "components/utils";
-import { countdownSound } from "@Assets";
 import LottieView from "lottie-react-native";
+import { playSound } from "@Utils";
+import { countdownSound } from "@Assets";
 import { alphabetIcons } from "@Services";
 import { getUniqueRandomLetter } from "./utils";
 import { GameMode } from "@Context";
+import { usePromptAnimations } from "@Hooks";
 
 export const PromptDisplay: React.FC<{
   prompt: string;
@@ -38,9 +39,10 @@ export const PromptDisplay: React.FC<{
   selectedCategory,
   handleSkipPrompt,
 }) => {
-  const [bounceValue] = useState(new Animated.Value(1));
-  const [fadeValue] = useState(new Animated.Value(0));
-  const [scaleValue] = useState(new Animated.Value(0.8));
+  const { bounceValue, fadeValue, scaleValue } = usePromptAnimations(
+    countdown ?? null,
+    prompt
+  );
   const [hasPlayedSound, setHasPlayedSound] = useState(false);
 
   const [letterIndex, setLetterIndex] = useState<string | null>(null);
@@ -72,52 +74,22 @@ export const PromptDisplay: React.FC<{
     }
   }, [countdown, hasPlayedSound]);
 
-  useEffect(() => {
-    if (countdown !== null) {
-      fadeValue.setValue(0);
-      scaleValue.setValue(0.8);
-      Animated.parallel([
-        Animated.timing(fadeValue, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.spring(scaleValue, {
-          toValue: 1,
-          friction: 3,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    } else {
-      Animated.sequence([
-        Animated.spring(bounceValue, {
-          toValue: 1.2,
-          friction: 3,
-          useNativeDriver: true,
-        }),
-        Animated.spring(bounceValue, {
-          toValue: 1,
-          friction: 3,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [countdown]);
-
-  useEffect(() => {
-    Animated.sequence([
-      Animated.spring(bounceValue, {
-        toValue: 1.2,
-        friction: 3,
-        useNativeDriver: true,
-      }),
-      Animated.spring(bounceValue, {
-        toValue: 1,
-        friction: 3,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [prompt]);
+  const renderCountdown = () => (
+    <Animated.Text
+      style={[
+        styles.promptText,
+        {
+          opacity: fadeValue,
+          transform: [{ scale: scaleValue }],
+          fontSize: 70,
+          color: "#fff",
+          marginTop: countdown ? 20 : 5,
+        },
+      ]}
+    >
+      {countdown}
+    </Animated.Text>
+  );
 
   const containerStyle: ViewStyle = {
     ...styles.container,
@@ -184,39 +156,13 @@ export const PromptDisplay: React.FC<{
           </>
         ) : isAlphaBlitz && isObscured ? (
           countdown !== null ? (
-            <Animated.Text
-              style={[
-                styles.promptText,
-                {
-                  opacity: fadeValue,
-                  transform: [{ scale: scaleValue }],
-                  fontSize: 70,
-                  color: "#fff",
-                  marginTop: countdown ? 20 : 5,
-                },
-              ]}
-            >
-              {countdown}
-            </Animated.Text>
+            renderCountdown()
           ) : (
             <Text style={styles.promptText}>List Blitz</Text>
           )
         ) : isObscured ? (
           countdown !== null ? (
-            <Animated.Text
-              style={[
-                styles.promptText,
-                {
-                  opacity: fadeValue,
-                  transform: [{ scale: scaleValue }],
-                  fontSize: 70,
-                  color: "#fff",
-                  marginTop: countdown ? 20 : 5,
-                },
-              ]}
-            >
-              {countdown}
-            </Animated.Text>
+            renderCountdown()
           ) : (
             <Text style={styles.promptText}>List Blitz</Text>
           )
@@ -262,9 +208,6 @@ export const PromptDisplay: React.FC<{
       {categoryBubble && (
         <Image source={categoryBubble} style={styles.bubbleImage} />
       )}
-      {/* <View style={styles.skipButtonContainer}>
-        <Text style={styles.skipButtonText}>Skip</Text>
-      </View> */}
     </View>
   );
 };

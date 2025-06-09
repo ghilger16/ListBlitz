@@ -13,10 +13,23 @@ export interface GameSettings {
 
 export interface Player {
   id: number;
-  name: string;
   iconIndex: number;
-  score: number | null;
-  startColor: string;
+  name?: string;
+  score?: number | null;
+  startColor?: string;
+}
+
+export interface ModeComponentProps {
+  currentPrompt: string;
+  players: Player[];
+  packTitle: string;
+  currentPlayer: Player | null;
+  handleNextPlayer: (score: number) => void;
+  handleSkipPrompt?: () => void;
+  handleNextRound?: () => void;
+  onTimeout?: (winner: Player) => void;
+  onRestart?: () => void;
+  currentMatch?: any;
 }
 
 export const PACK_COLORS: ReadonlyArray<[string, string]> = [
@@ -44,3 +57,9 @@ export const PLAYER_COLORS: ReadonlyArray<[string, string]> = [
   ["#FFD700", "#FFA500"],
   ["#87CEEB", "#4682B4"],
 ];
+
+export const MODE_COLORS = {
+  CHILL: "#FFD700",
+  BLITZ: "#87CEFA",
+  BATTLE: "#FF4C4C",
+};
