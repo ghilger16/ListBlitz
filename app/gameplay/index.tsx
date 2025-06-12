@@ -7,12 +7,10 @@ import {
   ImageBackground,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { Asset } from "expo-asset";
 
 import { ChillMode, BlitzMode, BattleMode, SplashScreen } from "@Components";
 import { GameMode, Player, useGameplay } from "@Context";
-import { useGameplayHeader } from "@Hooks";
-import { useGetPromptsByBlitzPack } from "@Services";
+import { useGameplayHeader, useGetPromptsByBlitzPack } from "@Hooks";
 import { loadBackground, nextPrompt, isReady } from "./gameplayHelpers";
 
 const Gameplay: React.FC = () => {

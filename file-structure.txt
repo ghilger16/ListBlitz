@@ -1,0 +1,92 @@
+.
+├── =
+├── android
+│   ├── app
+│   ├── build.gradle
+│   ├── gradle
+│   ├── gradle.properties
+│   ├── gradlew
+│   ├── gradlew.bat
+│   └── settings.gradle
+├── app
+│   ├── _layout.tsx
+│   ├── AppProviders.tsx
+│   ├── gameplay
+│   ├── index.tsx
+│   ├── landing
+│   ├── player-select
+│   └── types
+├── app.json
+├── assets
+│   ├── adaptive-icon.png
+│   ├── favicon.png
+│   ├── fonts
+│   ├── gifs
+│   ├── icon.png
+│   ├── icons
+│   ├── images
+│   ├── index.ts
+│   ├── lottie
+│   ├── sounds
+│   └── splash-icon.png
+├── babel.config.js
+├── components
+│   ├── gameplay
+│   ├── index.ts
+│   ├── landing
+│   ├── player-select
+│   └── shared
+├── context
+│   ├── constants
+│   ├── GameContext.tsx
+│   ├── icons.ts
+│   └── index.ts
+├── data
+│   ├── index.ts
+│   ├── list-prompts.ts
+│   └── prompts
+├── file-structure.txt
+├── file-tree.txt
+├── hooks
+│   ├── index.ts
+│   ├── useBattleAnimation.ts
+│   ├── useCountdown.ts
+│   ├── useGameplayHeader.tsx
+│   ├── useGetBlitzPacks.ts
+│   ├── useGetPromptsByBlitzPack.ts
+│   ├── useGlowAnimation.ts
+│   ├── useModeSelectAnimations.ts
+│   ├── usePlayerSelectAnimations.ts
+│   ├── usePlayerSelectHeader.tsx
+│   ├── usePreloadAssets.ts
+│   ├── usePromptAnimations.ts
+│   ├── usePulseAnimation.ts
+│   ├── useRoundOverAnimation.ts
+│   ├── useTimer.ts
+│   └── useWinnerPulseAnimation.ts
+├── index.js
+├── ios
+│   ├── build
+│   ├── ListBlitzClean
+│   ├── ListBlitzClean.xcodeproj
+│   ├── ListBlitzClean.xcworkspace
+│   ├── Podfile
+│   ├── Podfile.lock
+│   ├── Podfile.properties.json
+│   └── Pods
+├── metro.config.js
+├── package-lock.json
+├── package.json
+├── tsconfig.json
+├── types
+│   ├── blits-pack.ts
+│   ├── index.ts
+│   └── prompt.ts
+└── utils
+    ├── assets.ts
+    ├── blitzPackIcons.ts
+    ├── datadog.ts
+    ├── index.ts
+    └── soundUtils.ts
+
+34 directories, 56 files

@@ -2,7 +2,7 @@
   "compilerOptions": {
     "jsx": "react",
     "target": "es2016",
-    "module": "commonjs",
+    "module": "es2015",
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
@@ -10,27 +10,24 @@
     "skipLibCheck": true,
     "baseUrl": "./",
     "paths": {
-      "@Components": ["components"],
-      "@Services": ["services"],
-      "@Context": ["context"],
       "@Assets": ["assets"],
-      "@Styles": ["styles"],
-      "@Utils": ["utils"],
-      "@Hooks": ["hooks"]
+      "@Components": ["components"],
+      "@Context": ["context"],
+      "@Data": ["data"],
+      "@Hooks": ["hooks"],
+      "@Types": ["types"],
+      "@Utils": ["utils"]
     }
   },
   "include": [
     "app/**/*",
+    "assets/**/*",
     "components/**/*",
-    "services/**/*",
+    "data/**/*",
     "context/**/*",
-    "styles/Gameplay.styled.ts",
-    "styles/Landing.styled.ts",
-    "styles/PlayerSelect.styled.ts",
-    "utils/assets.ts",
-    "utils/datadog.ts",
-    "utils/index.ts",
-    "utils/soundUtils.ts"
+    "types/**/*",
+    "hooks/**/*",
+    "utils/**/*"
   ],
   "extends": "expo/tsconfig.base"
 }

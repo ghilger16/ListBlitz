@@ -1,10 +1,8 @@
-// /context/GameContext.tsx
 import React, {
   createContext,
   useState,
   useContext,
   ReactNode,
-  useEffect,
   useMemo,
 } from "react";
 
@@ -36,31 +34,22 @@ interface GameContextType {
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
-export const GameProvider = ({ children }: { children: ReactNode }) => {
+// --- Internal hooks ---
+
+const usePlayerManagement = (
+  PLAYER_COLORS: ReadonlyArray<readonly [string, string]>
+) => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentPlayer, setCurrentPlayer] = useState<Player>({} as Player);
-  const [gameSettings, setGameSettingsState] = useState<GameSettings>({
-    mode: GameMode.BLITZ,
-    playerCount: 0,
-  });
-
-  const [matches, setMatches] = useState<Player[][]>([]);
-  const [currentMatch, setCurrentMatch] = useState<Player[] | null>(null);
-  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
-  const [hasStarted, setHasStarted] = useState(false);
-
-  const [globalMatchIndex, setGlobalMatchIndex] = useState(1);
-  const [totalMatches, setTotalMatches] = useState(0);
 
   const initializePlayers = (
     playersData: { id: number; iconIndex: number }[]
   ) => {
-    const newPlayers = playersData.map((data, index) => ({
+    const newPlayers = playersData.map((data) => ({
       id: data.id,
       name: `Player ${data.id}`,
       score: null,
       startColor: PLAYER_COLORS[data.iconIndex][0],
-
       iconIndex: data.iconIndex,
     }));
     setPlayers(newPlayers);
@@ -68,49 +57,73 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updatePlayerScore = (id: number, score: number) => {
-    setPlayers((prevPlayers) =>
-      prevPlayers.map((player) =>
-        player.id === id ? { ...player, score } : player
-      )
+    setPlayers((prev) =>
+      prev.map((player) => (player.id === id ? { ...player, score } : player))
     );
   };
 
   const handleNextPlayer = (score: number) => {
     setPlayers((prevPlayers) => {
-      const updatedPlayers = prevPlayers.map((player) =>
-        player.id === currentPlayer.id ? { ...player, score } : player
+      const updated = prevPlayers.map((p) =>
+        p.id === currentPlayer.id ? { ...p, score } : p
       );
-
-      const currentIndex = updatedPlayers.findIndex(
-        (p) => p.id === currentPlayer.id
-      );
-      const nextIndex = (currentIndex + 1) % updatedPlayers.length;
-
-      setCurrentPlayer(updatedPlayers[nextIndex]);
-      return updatedPlayers;
+      const currentIndex = updated.findIndex((p) => p.id === currentPlayer.id);
+      setCurrentPlayer(updated[(currentIndex + 1) % updated.length]);
+      return updated;
     });
   };
+
+  const handleNextRound = () => {
+    setPlayers((prev) => prev.map((p) => ({ ...p, score: null })));
+    setCurrentPlayer((prev) => players[0]);
+  };
+
+  return {
+    players,
+    currentPlayer,
+    initializePlayers,
+    updatePlayerScore,
+    handleNextPlayer,
+    handleNextRound,
+    setPlayers,
+    setCurrentPlayer,
+  };
+};
+
+const useGameSettings = () => {
+  const [gameSettings, setGameSettingsState] = useState<GameSettings>({
+    mode: GameMode.BLITZ,
+    playerCount: 0,
+  });
 
   const setGameSettings = (settings: Partial<GameSettings>) => {
     setGameSettingsState((prev) => ({ ...prev, ...settings }));
   };
 
+  const onGameStart = (playerCount: number, mode?: GameMode) => {
+    if (playerCount === 0) alert("Please select the number of players.");
+    if (!mode) alert("Please select a game mode.");
+  };
+
+  return { gameSettings, setGameSettings, onGameStart };
+};
+
+const useBattleMode = (players: Player[]) => {
+  const [matches, setMatches] = useState<Player[][]>([]);
+  const [currentMatch, setCurrentMatch] = useState<Player[] | null>(null);
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+  const [globalMatchIndex, setGlobalMatchIndex] = useState(1);
+
   const setupBattleMode = () => {
     const matches: Player[][] = [];
-    const playerCount = players.length;
-
-    for (let i = 0; i < playerCount; i += 2) {
+    for (let i = 0; i < players.length; i += 2) {
       const pair = [players[i]];
-      if (players[i + 1]) {
-        pair.push(players[i + 1]);
-      }
+      if (players[i + 1]) pair.push(players[i + 1]);
       matches.push(pair);
     }
-
-    while (matches.length < playerCount - 1) {
+    while (matches.length < players.length - 1) {
       matches.push([]);
     }
-
     setMatches(matches);
     setCurrentMatch(matches[0] ?? null);
     setCurrentMatchIndex(0);
@@ -118,13 +131,11 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const advanceBattleMatch = (winner: Player) => {
-    setMatches((prevMatches) => {
-      const updated = [...prevMatches];
-
+    setMatches((prev) => {
+      const updated = [...prev];
       for (let i = 0; i < updated.length; i++) {
         if (updated[i].length < 2) {
           updated[i].push(winner);
-
           for (let j = 0; j < updated.length; j++) {
             if (updated[j].length === 2 && j > currentMatchIndex) {
               setCurrentMatch(updated[j]);
@@ -132,14 +143,11 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
               break;
             }
           }
-
           break;
         }
       }
-
       return updated;
     });
-
     setGlobalMatchIndex((prev) => prev + 1);
   };
 
@@ -147,34 +155,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     advanceBattleMatch(winner);
   };
 
-  const onGameStart = () => {
-    const playerCount = gameSettings.playerCount ?? 0;
-    if (playerCount === 0) {
-      alert("Please select the number of players.");
-      return;
-    }
-    if (!gameSettings.mode) {
-      alert("Please select a game mode.");
-      return;
-    }
-  };
-
-  const handleNextRound = () => {
-    setPlayers((prevPlayers) =>
-      prevPlayers.map((player) => ({ ...player, score: null }))
-    );
-    if (players.length > 0) {
-      setCurrentPlayer(players[0]);
-    }
-
-    setMatches([]);
-    setCurrentMatch(null);
-    setCurrentMatchIndex(0);
-  };
-
-  const totalMatchesMemo = useMemo(() => {
-    return matches.length;
-  }, [matches]);
+  const totalMatches = useMemo(() => matches.length, [matches]);
 
   const getMatchLabel = (globalIndex: number, total: number) => {
     if (total === 0) return "";
@@ -186,6 +167,50 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     return `Match ${globalIndex} of ${total}`;
   };
 
+  return {
+    matches,
+    currentMatch,
+    currentMatchIndex,
+    setupBattleMode,
+    advanceBattleMatch,
+    handleBattleTimeout,
+    totalMatches,
+    getMatchLabel,
+    globalMatchIndex,
+  };
+};
+
+export const GameProvider = ({ children }: { children: ReactNode }) => {
+  const [hasStarted, setHasStarted] = useState(false);
+
+  // Player management
+  const {
+    players,
+    currentPlayer,
+    initializePlayers,
+    updatePlayerScore,
+    handleNextPlayer,
+    handleNextRound,
+    setPlayers,
+    setCurrentPlayer,
+  } = usePlayerManagement(PLAYER_COLORS);
+
+  // Game settings
+  const { gameSettings, setGameSettings, onGameStart } = useGameSettings();
+
+  // Battle mode
+  const {
+    matches,
+    currentMatch,
+    currentMatchIndex,
+    setupBattleMode,
+    advanceBattleMatch,
+    handleBattleTimeout,
+    totalMatches,
+    getMatchLabel,
+    globalMatchIndex,
+  } = useBattleMode(players);
+
   return (
     <GameContext.Provider
       value={{
@@ -195,7 +220,11 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         initializePlayers,
         updatePlayerScore,
         setGameSettings,
-        onGameStart,
+        onGameStart: () =>
+          onGameStart(
+            gameSettings.playerCount ?? 0,
+            gameSettings.mode ?? GameMode.BLITZ
+          ),
         handleNextPlayer,
         handleNextRound,
         matches,
@@ -207,7 +236,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         setHasStarted,
         handleBattleTimeout,
         advanceBattleMatch,
-        totalMatches: totalMatchesMemo,
+        totalMatches,
         getMatchLabel,
         globalMatchIndex,
       }}
