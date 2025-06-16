@@ -19,6 +19,7 @@ interface IGameplayCounterProps {
   score: number;
   currentPlayer: Player;
   onIncrement: () => void;
+  onDecrement: () => void;
   onStart: () => void;
 }
 
@@ -26,6 +27,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   score,
   currentPlayer,
   onIncrement,
+  onDecrement,
 }) => {
   const [fillAngle, setFillAngle] = useState(0);
   const [isPlayerStartVisible, setIsPlayerStartVisible] = useState(true);
@@ -154,6 +156,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
 
       <TouchableOpacity
         onPress={handleIncrement}
+        onLongPress={onDecrement}
         activeOpacity={0.9}
         style={[
           styles.tapButton,

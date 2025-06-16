@@ -28,6 +28,16 @@ const handleScoreIncrement = (
   }
 };
 
+const handleScoreDecrement = (
+  isGameStarted: boolean,
+  score: number,
+  setScore: React.Dispatch<React.SetStateAction<number>>
+) => {
+  if (isGameStarted && score > 0) {
+    setScore((prev) => prev - 1);
+  }
+};
+
 const handleNextPlayerClick = (
   handleNextPlayer: (score: number) => void,
   setShowNextPlayerBubble: React.Dispatch<React.SetStateAction<boolean>>,
@@ -131,6 +141,9 @@ export const ChillMode: React.FC<ModeComponentProps> = ({
           <ChillCounter
             onIncrement={() =>
               handleScoreIncrement(isGameStarted, score, setScore)
+            }
+            onDecrement={() =>
+              handleScoreDecrement(isGameStarted, score, setScore)
             }
             onStart={() => setIsGameStarted(true)}
             score={score}
