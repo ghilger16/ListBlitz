@@ -15,6 +15,7 @@ export const usePlayerSelectHeader = (gameSettings: GameSettings) => {
   const headerOptions = useMemo(
     () => ({
       animation: "none",
+      headerTransparent: true,
       headerTitle: () => (
         <Text style={styles.headerTitle}>✨ {gameSettings.blitzPackTitle}</Text>
       ),

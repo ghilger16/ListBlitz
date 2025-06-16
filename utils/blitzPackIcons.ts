@@ -24,4 +24,8 @@ export const blitzPackIcons: Record<
     icon: require("@Assets/icons/the-thing-is.png"),
     titleImage: require("@Assets/icons/the-thing-is-title.png"),
   },
+  "Music Mania": {
+    icon: require("@Assets/icons/music-mania.png"),
+    titleImage: require("@Assets/icons/music-mania-title.png"),
+  },
 };

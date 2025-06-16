@@ -2,12 +2,14 @@ import { bigScreenBlitzPrompts } from "./prompts/big-screen-blitz";
 import { snackAttackPrompts } from "./prompts/snack-attack";
 import { categoryChaosPrompts } from "./prompts/category-chaos";
 import { theThingIsPrompts } from "./prompts/the-thing-is";
+import { musicManiaPrompts } from "./prompts/music-mania";
 
 export const LIST_PROMPTS_BY_PACK = {
   big_screen_blitz: bigScreenBlitzPrompts,
   snack_attack: snackAttackPrompts,
   category_chaos: categoryChaosPrompts,
   the_thing_is: theThingIsPrompts,
+  music_mania: musicManiaPrompts,
 };
 export const BLITZ_TITLE_TO_KEY_MAP: Record<
   string,
@@ -17,4 +19,5 @@ export const BLITZ_TITLE_TO_KEY_MAP: Record<
   "Snack Attack": "snack_attack",
   "Category Chaos": "category_chaos",
   "The Thing Is": "the_thing_is",
+  "Music Mania": "music_mania",
 };

@@ -17,12 +17,6 @@ export const useGameplayHeader = (
       animation: "none",
       headerTransparent: true,
       headerTitle: "",
-      screenOptions: { colors: { background: "transparent" } },
-      headerStyle: {
-        backgroundColor: "transparent",
-        elevation: 0,
-        shadowOpacity: 0,
-      },
       headerLeft: () => (
         <TouchableOpacity
           onPress={() => {
