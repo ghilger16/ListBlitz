@@ -23,7 +23,7 @@ export const PromptDisplay: React.FC<{
   playerColor: string;
   mode: GameMode;
   isObscured?: boolean;
-  countdown?: number | null;
+  countdown?: number | "GO!" | null;
   categoryBubble?: ImageSourcePropType;
   isAlphaBlitz?: boolean;
   selectedCategory?: string | null;
@@ -48,10 +48,12 @@ export const PromptDisplay: React.FC<{
   const [letterIndex, setLetterIndex] = useState<string | null>(null);
   const hasSetLetterRef = useRef(false);
   const iconReadyRef = useRef(false);
+  ``;
 
-  const alphaIcon = letterIndex ? alphabetIcons[letterIndex] : null;
+  const alphaIcon = alphabetIcons[letterIndex!];
 
-  const shouldShowCountdown = countdown !== null;
+  const shouldShowCountdown =
+    typeof countdown === "number" || countdown === "GO!";
 
   useEffect(() => {
     if (!isObscured && isAlphaBlitz && !hasSetLetterRef.current) {
@@ -64,7 +66,7 @@ export const PromptDisplay: React.FC<{
   }, [isObscured, isAlphaBlitz]);
 
   useEffect(() => {
-    if (typeof countdown === "number" && !hasPlayedSound) {
+    if (shouldShowCountdown && !hasPlayedSound) {
       playSound(countdownSound);
       iconReadyRef.current = false;
       setHasPlayedSound(true);
@@ -83,7 +85,7 @@ export const PromptDisplay: React.FC<{
         {
           opacity: fadeValue,
           transform: [{ scale: scaleValue }],
-          fontSize: 70,
+          fontSize: countdown === "GO!" ? 50 : 70,
           color: "#fff",
           marginTop: shouldShowCountdown ? 20 : 5,
         },
@@ -115,6 +117,7 @@ export const PromptDisplay: React.FC<{
                 transform: [{ scale: scaleValue }],
                 ...styles.countdownText,
                 ...styles.countdownMarginTop,
+                fontSize: countdown === "GO!" ? 50 : 70,
               },
             ]}
           >
@@ -141,10 +144,21 @@ export const PromptDisplay: React.FC<{
     borderColor: playerColor,
   };
 
+  // Handler for skip button that updates letterIndex if AlphaBlitz
+  const handleSkip = () => {
+    if (isAlphaBlitz && handleSkipPrompt) {
+      const newLetter = getUniqueRandomLetter();
+      setLetterIndex(newLetter);
+      iconReadyRef.current = true;
+      hasSetLetterRef.current = true;
+    }
+    handleSkipPrompt?.();
+  };
+
   return (
     <View style={{ alignItems: "center" }}>
       <View style={containerStyle}>
-        {isAlphaBlitz && selectedCategory ? (
+        {isAlphaBlitz && selectedCategory && !isObscured ? (
           renderAlphaBlitz()
         ) : isAlphaBlitz && isObscured ? (
           shouldShowCountdown ? (
@@ -172,7 +186,7 @@ export const PromptDisplay: React.FC<{
         )}
       </View>
       {handleSkipPrompt && (
-        <SkipButton playerColor={playerColor} onPress={handleSkipPrompt} />
+        <SkipButton playerColor={playerColor} onPress={handleSkip} />
       )}
       {categoryBubble && (
         <Image source={categoryBubble} style={styles.bubbleImage} />

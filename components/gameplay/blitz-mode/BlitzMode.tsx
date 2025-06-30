@@ -20,7 +20,7 @@ import {
   AlphaCategoryWrapper,
 } from "../alpha-category-select";
 
-const TIMER_DURATION = 3;
+const TIMER_DURATION = 30;
 
 export const BlitzMode: React.FC<ModeComponentProps> = ({
   currentPrompt,
@@ -34,7 +34,7 @@ export const BlitzMode: React.FC<ModeComponentProps> = ({
   const [score, setScore] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isCountdownActive, setIsCountdownActive] = useState(false);
-  const [countdown, setCountdown] = useState(3);
+  const [countdown, setCountdown] = useState<number | "GO!">(3);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [showWinnerOverlay, setShowWinnerOverlay] = useState(false);
 
@@ -58,14 +58,21 @@ export const BlitzMode: React.FC<ModeComponentProps> = ({
 
   useEffect(() => {
     if (isCountdownActive) {
-      if (countdown > 0) {
+      if (countdown === "GO!") {
+        setTimeout(() => {
+          setIsCountdownActive(false);
+          setIsGameStarted(true);
+        }, 1000);
+      } else if (countdown > 0) {
         const countdownInterval = setInterval(() => {
-          setCountdown((prev) => prev - 1);
+          setCountdown((prev) => {
+            if (typeof prev === "number") {
+              return prev === 1 ? "GO!" : prev - 1;
+            }
+            return prev;
+          });
         }, 1000);
         return () => clearInterval(countdownInterval);
-      } else {
-        setIsCountdownActive(false);
-        setIsGameStarted(true);
       }
     }
   }, [isCountdownActive, countdown]);

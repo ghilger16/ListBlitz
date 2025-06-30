@@ -171,7 +171,6 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
           <>
             <View style={styles.promptWrapper}>
               <PromptDisplay
-                key={`${selectedCategory}-${skipTrigger}`}
                 prompt={currentPrompt}
                 playerColor={currentMatch[turnIndex].startColor}
                 mode={GameMode.BATTLE}

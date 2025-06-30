@@ -158,12 +158,24 @@ const useBattleMode = (players: Player[]) => {
   const totalMatches = useMemo(() => matches.length, [matches]);
 
   const getMatchLabel = (globalIndex: number, total: number) => {
+    if (players.length === 2) return "";
     if (total === 0) return "";
+
+    const current = matches[globalIndex - 1] ?? [];
+
+    const hasAdvancedPlayer = current.some(
+      (p) =>
+        matches.findIndex(
+          (match, index) => index < globalIndex - 1 && match.includes(p)
+        ) !== -1
+    );
+
     if (globalIndex === total) return `Final Match`;
-    if (total >= 7 && globalIndex === total - 2)
-      return `Semifinal — Match ${globalIndex} of ${total}`;
-    if (total >= 7 && globalIndex >= total - 4)
-      return `Quarterfinal — Match ${globalIndex} of ${total}`;
+    if (total >= 7 && globalIndex === total - 2 && hasAdvancedPlayer)
+      return `Semifinal`;
+    if (total >= 7 && globalIndex >= total - 4 && hasAdvancedPlayer)
+      return `Quarterfinal`;
+
     return `Match ${globalIndex} of ${total}`;
   };
 

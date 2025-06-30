@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Animated } from "react-native";
 
 export const usePromptAnimations = (
-  countdown: number | null,
+  countdown: number | "GO!" | null,
   prompt: string
 ) => {
   const [bounceValue] = useState(new Animated.Value(1));

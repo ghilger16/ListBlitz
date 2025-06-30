@@ -92,7 +92,7 @@ export const ChillMode: React.FC<ModeComponentProps> = ({
   useEffect(() => {
     if (score >= 5) {
       setShowNextPlayerBubble(true);
-    }
+    } else setShowNextPlayerBubble(false);
   }, [score]);
 
   const nextIndex = useMemo(() => {
@@ -121,7 +121,7 @@ export const ChillMode: React.FC<ModeComponentProps> = ({
       <SafeAreaView style={styles.wrapper}>
         <View style={styles.promptWrapper}>
           <PromptDisplay
-            key={`${safeCurrentPlayer.id}-${selectedCategory}-${skipTrigger}`}
+            key={`${safeCurrentPlayer.id}-${selectedCategory}`}
             prompt={currentPrompt}
             playerColor={safeCurrentPlayer.startColor!}
             mode={GameMode.CHILL}
