@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Text,
-  SafeAreaView,
-  StyleSheet,
-  View,
-  ImageBackground,
-} from "react-native";
+import { StyleSheet, View, ImageBackground } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 
 import { ChillMode, BlitzMode, BattleMode, SplashScreen } from "@Components";

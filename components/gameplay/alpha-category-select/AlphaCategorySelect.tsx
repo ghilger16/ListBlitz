@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     alignItems: "center",
     paddingTop: 75,
-    paddingHorizontal: 24,
+    paddingHorizontal: 25,
   },
   title: {
     fontSize: 18,
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
     borderRadius: 16,
-    width: 100,
+    width: 115,
     height: 100,
     margin: 2,
     alignItems: "center",

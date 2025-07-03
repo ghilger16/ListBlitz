@@ -43,3 +43,8 @@ export const isReady = (
   if (mode === GameMode.BATTLE) return currentMatch !== null;
   return blitzPackTitle === "Alpha Blitz" || currentPrompt !== "Loading...";
 };
+
+// Dummy default export to satisfy import requirements
+import React from "react";
+const GameplayHelpers = () => null;
+export default GameplayHelpers;

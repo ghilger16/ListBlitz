@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { DdRum, RumActionType } from "@datadog/mobile-react-native";
 import {
   View,
   Animated,
@@ -17,6 +18,8 @@ import { usePromptAnimations } from "@Hooks";
 import { playSound } from "@Utils";
 import { SkipButton } from "./SkipButton";
 import { getUniqueRandomLetter } from "./utils";
+
+const CUSTOM_ACTION = RumActionType.CUSTOM;
 
 export const PromptDisplay: React.FC<{
   prompt: string;
@@ -62,6 +65,11 @@ export const PromptDisplay: React.FC<{
       setLetterIndex(letter);
       iconReadyRef.current = true;
       hasSetLetterRef.current = true;
+
+      DdRum.addAction(CUSTOM_ACTION, "AlphaBlitz Prompt Shown", {
+        letter,
+        selectedCategory,
+      });
     }
   }, [isObscured, isAlphaBlitz]);
 
@@ -70,6 +78,11 @@ export const PromptDisplay: React.FC<{
       playSound(countdownSound);
       iconReadyRef.current = false;
       setHasPlayedSound(true);
+      DdRum.addAction(CUSTOM_ACTION, "Countdown Started", {
+        countdownValue: countdown,
+        prompt,
+        mode,
+      });
     }
 
     if (countdown === null) {
@@ -146,11 +159,25 @@ export const PromptDisplay: React.FC<{
 
   // Handler for skip button that updates letterIndex if AlphaBlitz
   const handleSkip = () => {
+    let newLetter: string | null = null;
     if (isAlphaBlitz && handleSkipPrompt) {
-      const newLetter = getUniqueRandomLetter();
+      newLetter = getUniqueRandomLetter();
+      DdRum.addAction(CUSTOM_ACTION, "Prompt Skipped", {
+        previousLetter: letterIndex,
+        newLetter,
+        prompt,
+        mode,
+      });
       setLetterIndex(newLetter);
       iconReadyRef.current = true;
       hasSetLetterRef.current = true;
+    } else {
+      DdRum.addAction(CUSTOM_ACTION, "Prompt Skipped", {
+        previousLetter: letterIndex,
+        newLetter: null,
+        prompt,
+        mode,
+      });
     }
     handleSkipPrompt?.();
   };

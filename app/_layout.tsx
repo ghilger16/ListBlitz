@@ -4,7 +4,11 @@ import { View, StatusBar } from "react-native";
 import { Stack, usePathname } from "expo-router";
 import { useFonts } from "expo-font";
 
-import { DatadogProvider, DdRum } from "@datadog/mobile-react-native";
+import {
+  DatadogProvider,
+  DdRum,
+  DdSdkReactNative,
+} from "@datadog/mobile-react-native";
 
 import { SplashScreen } from "@Components";
 import { usePreloadAssets } from "@Hooks";
@@ -25,7 +29,16 @@ const Layout: React.FC = () => {
   const assetsLoaded = usePreloadAssets(allAssets);
 
   useEffect(() => {
-    identifyDatadogUser();
+    const initDatadog = async () => {
+      try {
+        await DdSdkReactNative.initialize(ddConfig);
+        identifyDatadogUser();
+      } catch (err) {
+        console.warn("[Datadog] Initialization failed:", err);
+      }
+    };
+
+    initDatadog();
   }, []);
 
   useEffect(() => {

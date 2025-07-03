@@ -14,6 +14,8 @@ install! 'cocoapods',
 prepare_react_native_project!
 
 target 'ListBlitzClean' do
+  pod 'lottie-ios', '4.5.0' 
+
   use_expo_modules!
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'

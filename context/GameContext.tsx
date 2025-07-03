@@ -6,6 +6,12 @@ import React, {
   useMemo,
 } from "react";
 
+import { DdRum } from "@datadog/mobile-react-native";
+
+import { RumActionType } from "@datadog/mobile-react-native";
+
+const CUSTOM_ACTION = RumActionType.CUSTOM;
+
 import { PLAYER_COLORS, GameMode, GameSettings, Player } from "./constants";
 
 interface GameContextType {
@@ -53,6 +59,9 @@ const usePlayerManagement = (
       iconIndex: data.iconIndex,
     }));
     setPlayers(newPlayers);
+    DdRum.addAction(CUSTOM_ACTION, "Initialize Players", {
+      playerCount: newPlayers.length,
+    });
     setCurrentPlayer(newPlayers[0]);
   };
 
@@ -67,6 +76,10 @@ const usePlayerManagement = (
       const updated = prevPlayers.map((p) =>
         p.id === currentPlayer.id ? { ...p, score } : p
       );
+      DdRum.addAction(CUSTOM_ACTION, "Next Player", {
+        playerId: currentPlayer.id,
+        score,
+      });
       const currentIndex = updated.findIndex((p) => p.id === currentPlayer.id);
       setCurrentPlayer(updated[(currentIndex + 1) % updated.length]);
       return updated;
@@ -75,6 +88,7 @@ const usePlayerManagement = (
 
   const handleNextRound = () => {
     setPlayers((prev) => prev.map((p) => ({ ...p, score: null })));
+    DdRum.addAction(CUSTOM_ACTION, "Next Round");
     setCurrentPlayer((prev) => players[0]);
   };
 
@@ -98,11 +112,13 @@ const useGameSettings = () => {
 
   const setGameSettings = (settings: Partial<GameSettings>) => {
     setGameSettingsState((prev) => ({ ...prev, ...settings }));
+    DdRum.addAction(CUSTOM_ACTION, "Set Game Settings", settings);
   };
 
   const onGameStart = (playerCount: number, mode?: GameMode) => {
     if (playerCount === 0) alert("Please select the number of players.");
     if (!mode) alert("Please select a game mode.");
+    DdRum.addAction(CUSTOM_ACTION, "Game Start", { playerCount, mode });
   };
 
   return { gameSettings, setGameSettings, onGameStart };
@@ -136,6 +152,9 @@ const useBattleMode = (players: Player[]) => {
       for (let i = 0; i < updated.length; i++) {
         if (updated[i].length < 2) {
           updated[i].push(winner);
+          DdRum.addAction(CUSTOM_ACTION, "Advance Battle Match", {
+            winnerId: winner.id,
+          });
           for (let j = 0; j < updated.length; j++) {
             if (updated[j].length === 2 && j > currentMatchIndex) {
               setCurrentMatch(updated[j]);
@@ -152,6 +171,9 @@ const useBattleMode = (players: Player[]) => {
   };
 
   const handleBattleTimeout = (winner: Player) => {
+    DdRum.addAction(CUSTOM_ACTION, "Battle Timeout", {
+      winnerId: winner.id,
+    });
     advanceBattleMatch(winner);
   };
 
@@ -203,8 +225,6 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     updatePlayerScore,
     handleNextPlayer,
     handleNextRound,
-    setPlayers,
-    setCurrentPlayer,
   } = usePlayerManagement(PLAYER_COLORS);
 
   // Game settings

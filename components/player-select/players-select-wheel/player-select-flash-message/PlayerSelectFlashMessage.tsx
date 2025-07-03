@@ -2,7 +2,7 @@ import React from "react";
 import { View, TouchableOpacity, Animated, StyleSheet } from "react-native";
 
 import { GameMode, Player } from "@Context";
-import { FlashingText } from "@Components";
+import { FlashingText } from "../../../shared/flashing-text/FlashingText";
 import { getEasterEggMessage } from "./utils";
 
 interface Props {
