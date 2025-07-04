@@ -18,15 +18,10 @@ import {
 import { usePlayerSelectHeader, usePlayerSelectAnimations } from "@Hooks";
 
 const PlayerSelect: React.FC = () => {
-  const {
-    setGameSettings,
-    onGameStart,
-    gameSettings,
-    initializePlayers,
-    players,
-  } = useGameplay();
+  const { setGameSettings, onGameStart, gameSettings, initializePlayers } =
+    useGameplay();
   const [selectedMode, setSelectedMode] = useState<GameMode>(gameSettings.mode);
-  const [playersData, setPlayersData] = useState<Player[]>(players);
+  const [playersData, setPlayersData] = useState<Player[]>([]);
   const [startAttempted, setStartAttempted] = useState(false);
   const [flashMessage, setFlashMessage] = useState("Select Players");
 

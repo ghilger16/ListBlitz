@@ -33,7 +33,6 @@ export async function identifyDatadogUser() {
     const installTime = await Application.getInstallationTimeAsync();
     const installId = installTime?.toISOString() || new Date().toISOString();
     await DdSdkReactNative.setUser({ id: installId });
-    console.log("[Datadog] setUser called with id:", installId);
   } catch (error) {
     console.error("Error setting Datadog user ID:", error);
   }

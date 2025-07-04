@@ -108,7 +108,6 @@ export const categoryChaosPrompts = [
   "List reasons to make a phone call",
   "List things that will get you fired",
   "List items in a vending machine",
-  "List diseases",
   "List menu items",
   "List things you get tickets for",
   "List things you throw away",
