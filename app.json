@@ -5,7 +5,7 @@
     "scheme": "listblitz",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/app-icon.png",
+    "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/images/landing-splash.png",
@@ -15,9 +15,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "bundleIdentifier": "com.listblitz.app",
       "buildNumber": "1.0.0"
@@ -26,14 +24,6 @@
       "package": "com.listblitz.app",
       "versionCode": 1
     },
-    "plugins": [
-      "expo-router"
-    ],
-    "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "d0fa7994-8565-4454-b2c8-9e204cd7c249"
-      }
-    }
+    "plugins": ["expo-router"]
   }
 }
