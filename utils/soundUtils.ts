@@ -18,7 +18,7 @@ export const setMuted = async (mute: boolean) => {
 const configureAudio = async () => {
   try {
     await Audio.setAudioModeAsync({
-      playsInSilentModeIOS: false,
+      playsInSilentModeIOS: true,
       shouldDuckAndroid: true,
       staysActiveInBackground: false,
     });
