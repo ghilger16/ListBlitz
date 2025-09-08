@@ -18,7 +18,7 @@ export const usePackLibraryAnimations = () => {
   useEffect(() => {
     Animated.timing(headerFadeAnim, {
       toValue: 1,
-      duration: 1000,
+      duration: 1500,
       easing: Easing.out(Easing.ease),
       useNativeDriver: true,
     }).start();

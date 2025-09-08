@@ -10,7 +10,7 @@ import {
 import Svg, { G, Path as SvgPath, Text as SvgText } from "react-native-svg";
 import * as d3 from "d3-shape";
 import { Player, playerIcons } from "@Context";
-import { playSound, playTapSound, stopSound } from "@Utils";
+import { playSound, playTapSound, stopSound, useScreenInfo } from "@Utils";
 import { blitzTimerSound } from "@Assets";
 
 import LottieView from "lottie-react-native";
@@ -25,8 +25,8 @@ interface BlitzCounterProps {
   isCountdownActive: boolean;
 }
 
-const RADIUS = 110;
-const CENTER_RADIUS = 60;
+const BASE_RADIUS = 110;
+const BASE_CENTER_RADIUS = 60;
 const MISSING_ANGLE = Math.PI * 0.3;
 
 const AnimatedSvgPath = Animated.createAnimatedComponent(SvgPath);
@@ -53,6 +53,41 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
     const secs = seconds % 60;
     return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
   };
+
+  // Determine device type flags (assuming they are defined somewhere in scope)
+  // For this rewrite, assume isTablet and isSmallPhone are available variables.
+  // If not, they should be imported or derived appropriately.
+  const { isTablet, isSmallPhone } = useScreenInfo();
+
+  // Dynamic sizing for the pill (start/tap button)
+  const pillHeight = isTablet ? 50 : isSmallPhone ? 30 : 40;
+  const pillFontSize = isTablet ? 38 : isSmallPhone ? 20 : 25;
+  const pillBorderRadius = pillHeight / 2;
+  const pillMarginTop = isTablet ? 12 : isSmallPhone ? 7 : 10;
+
+  let svgWidth = 365;
+  let svgHeight = 425;
+  if (isTablet) {
+    svgWidth = 550;
+    svgHeight = 625;
+  } else if (isSmallPhone) {
+    svgWidth = 270;
+    svgHeight = 325;
+  }
+
+  // Scale all drawing dimensions instead of only the SVG canvas
+  const scale = isTablet ? 1.75 : isSmallPhone ? 0.85 : 1.15;
+  const RADIUS = BASE_RADIUS * scale;
+  const CENTER_RADIUS = BASE_CENTER_RADIUS * scale;
+  const strokeW = 12 * scale;
+  const scoreFont = 60 * scale;
+  const timeFont = 24 * scale;
+  const nameFont = 20 * scale;
+  const iconTranslateX = 114 * scale;
+  const iconTranslateY = 75 * scale;
+  const scoreY = 70 * scale;
+  const timeY = 115 * scale;
+  const nameY = 150 * scale;
 
   useEffect(() => {
     if (isGameStarted) {
@@ -113,7 +148,7 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
       .startAngle(fillAngle)
       .endAngle(endAngle);
     return { fillArc, animatedFillArc };
-  }, [fillAngle, isGameStarted]);
+  }, [fillAngle, isGameStarted, RADIUS]);
 
   const handleIncrement = () => {
     if (isCountdownActive) return;
@@ -127,9 +162,9 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   };
 
   return (
-    <View style={styles.container}>
-      <Svg width={320} height={375}>
-        <G x={320 / 2} y={320 / 2}>
+    <View style={[styles.container, { width: svgWidth, height: svgHeight }]}>
+      <Svg width={svgWidth} height={svgHeight}>
+        <G x={svgWidth / 2} y={svgWidth / 2}>
           {playerIcons.length > 0 && (
             <G>
               <LottieView
@@ -144,7 +179,10 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
                   borderRadius: CENTER_RADIUS,
                   width: CENTER_RADIUS * 1.5,
                   height: CENTER_RADIUS * 1.5,
-                  transform: [{ translateX: 114 }, { translateY: 75 }],
+                  transform: [
+                    { translateX: iconTranslateX },
+                    { translateY: iconTranslateY },
+                  ],
                 }}
               />
             </G>
@@ -153,20 +191,20 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
             d={borderArcGenerator.fillArc({} as any) || ""}
             fill="none"
             stroke={isGameStarted ? "#FFF" : currentPlayer.startColor}
-            strokeWidth={12}
+            strokeWidth={strokeW}
             strokeLinecap="round"
           />
           <AnimatedSvgPath
             d={borderArcGenerator.animatedFillArc({} as any) || ""}
             fill="none"
             stroke={isGameStarted ? currentPlayer.startColor : "transparent"}
-            strokeWidth={12}
+            strokeWidth={strokeW}
             strokeLinecap="round"
           />
           <SvgText
             x="0"
-            y="70"
-            fontSize="60"
+            y={scoreY}
+            fontSize={scoreFont}
             fontWeight="bold"
             fill="#fff"
             fontFamily="LuckiestGuy"
@@ -176,8 +214,8 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
           </SvgText>
           <SvgText
             x="0"
-            y="115"
-            fontSize="24"
+            y={timeY}
+            fontSize={timeFont}
             fontWeight="bold"
             fill="#fff"
             textAnchor="middle"
@@ -187,8 +225,8 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
           {!isGameStarted && (
             <SvgText
               x="0"
-              y="150"
-              fontSize="20"
+              y={nameY}
+              fontSize={nameFont}
               fontWeight="bold"
               fill="#fff"
               textAnchor="middle"
@@ -202,10 +240,22 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
       {/* <Text style={styles.playerNameText}>{currentPlayer.name}</Text> */}
       <View style={styles.pillWrapper}>
         <Animated.View
-          style={[styles.animatedPill, { backgroundColor: animatedColor }]}
+          style={[
+            styles.animatedPill,
+            {
+              backgroundColor: animatedColor,
+              height: pillHeight,
+              borderRadius: pillBorderRadius,
+            },
+          ]}
         >
           <TouchableOpacity activeOpacity={1} onPress={handleIncrement}>
-            <Text style={styles.pillText}>
+            <Text
+              style={[
+                styles.pillText,
+                { fontSize: pillFontSize, marginTop: pillMarginTop },
+              ]}
+            >
               {isGameStarted ? "Tap to Score" : `Start`}
             </Text>
           </TouchableOpacity>
@@ -230,15 +280,13 @@ const styles = StyleSheet.create({
   },
   animatedPill: {
     width: "90%",
-    height: "100%",
-    borderRadius: 20,
+    // height and borderRadius are set dynamically
   },
   pillText: {
-    fontSize: 25,
+    // fontSize and marginTop are set dynamically
     fontWeight: "bold",
     color: "#000",
     textAlign: "center",
-    marginTop: 12,
     fontFamily: "LuckiestGuy",
   },
   playerNameText: {

@@ -19,7 +19,7 @@
     "ios": {
       "bundleIdentifier": "com.listblitz.app",
       "buildNumber": "1.0.0",
-      "supportsTablet": false
+      "supportsTablet": true
     },
     "android": {
       "package": "com.listblitz.app",

@@ -10,9 +10,11 @@ import { playerIcons } from "@Context";
 
 interface PlayerCardProps {
   player: Player;
+  size: number;
   onPress?: () => void;
   dimmed?: boolean;
-  isRightCard?: boolean; // Optional prop to control slide direction
+  isRightCard?: boolean;
+  // Optional prop to control slide direction
 }
 
 export const PlayerCard: React.FC<PlayerCardProps> = ({
@@ -20,6 +22,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
   onPress,
   dimmed,
   isRightCard = false,
+  size = 150,
 }) => {
   const lottieRef = useRef<LottieView>(null);
   const iconIndex = player.iconIndex;
@@ -45,17 +48,23 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         style={[
           styles.card,
+          { width: size, height: size + 15 },
           { borderColor: player.startColor },
           dimmed && styles.dimmedCard,
         ]}
       >
-        <Text style={styles.name}>Player {player.id}</Text>
+        <Text style={[styles.name, { fontSize: size * 0.16 }]}>
+          Player {player.id}
+        </Text>
         <LottieView
           ref={lottieRef}
           source={playerIcons[iconIndex]}
           autoPlay={!dimmed}
           loop={!dimmed}
-          style={styles.icon}
+          style={{
+            width: size * 0.66,
+            height: size * 0.66,
+          }}
         />
       </TouchableOpacity>
     </Animated.View>

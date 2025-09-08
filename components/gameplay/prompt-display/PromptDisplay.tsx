@@ -8,6 +8,7 @@ import {
   ViewStyle,
   Image,
   ImageSourcePropType,
+  Dimensions,
 } from "react-native";
 
 import LottieView from "lottie-react-native";
@@ -15,11 +16,20 @@ import LottieView from "lottie-react-native";
 import { countdownSound } from "@Assets";
 import { alphabetIcons, GameMode } from "@Context";
 import { usePromptAnimations } from "@Hooks";
-import { playSound } from "@Utils";
+import { playSound, useScreenInfo } from "@Utils";
 import { SkipButton } from "./SkipButton";
 import { getUniqueRandomLetter } from "./utils";
 
 const CUSTOM_ACTION = RumActionType.CUSTOM;
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+
+// Calculate aspect ratio and prompt width for Pro vs Max models
+// const aspectRatio = screenHeight / screenWidth;
+// const promptWidth =
+//   screenWidth >= 420
+//     ? Math.min(screenWidth * 0.94, 500) // Max phones (wider screens)
+//     : Math.min(screenWidth * 0.936, 500); // Standard Pros
 
 export const PromptDisplay: React.FC<{
   prompt: string;
@@ -42,6 +52,23 @@ export const PromptDisplay: React.FC<{
   selectedCategory,
   handleSkipPrompt,
 }) => {
+  const { isTablet, isSmallPhone } = useScreenInfo();
+
+  const categoryBubbleBottom = isTablet
+    ? screenHeight * 0.1
+    : isSmallPhone
+    ? screenHeight * 0.125
+    : screenHeight * 0.11;
+
+  const promptWidth = isTablet
+    ? Math.min(screenWidth * 0.9, 700)
+    : isSmallPhone
+    ? Math.min(screenWidth * 0.9, 360)
+    : Math.min(screenWidth * 0.92, 500);
+
+  const promptFontSize = isTablet ? 45 : isSmallPhone ? 22 : 30;
+  const goFontSize = isTablet ? 100 : isSmallPhone ? 55 : 75;
+
   const { bounceValue, fadeValue, scaleValue } = usePromptAnimations(
     countdown ?? null,
     prompt
@@ -98,7 +125,7 @@ export const PromptDisplay: React.FC<{
         {
           opacity: fadeValue,
           transform: [{ scale: scaleValue }],
-          fontSize: countdown === "GO!" ? 50 : 70,
+          fontSize: goFontSize,
           color: "#fff",
           marginTop: shouldShowCountdown ? 20 : 5,
         },
@@ -116,8 +143,12 @@ export const PromptDisplay: React.FC<{
             transform: [{ scale: bounceValue }],
           }}
         >
-          <Text style={[styles.promptText]}>List {selectedCategory}</Text>
-          <Text style={[styles.promptText]}>that start with the letter</Text>
+          <Text style={[styles.promptText, { fontSize: promptFontSize }]}>
+            List {selectedCategory}
+          </Text>
+          <Text style={[styles.promptText, { fontSize: promptFontSize }]}>
+            that start with the letter
+          </Text>
         </Animated.View>
       </View>
       <View style={{ position: "absolute", bottom: -5, alignItems: "center" }}>
@@ -130,7 +161,7 @@ export const PromptDisplay: React.FC<{
                 transform: [{ scale: scaleValue }],
                 ...styles.countdownText,
                 ...styles.countdownMarginTop,
-                fontSize: countdown === "GO!" ? 50 : 70,
+                fontSize: goFontSize,
               },
             ]}
           >
@@ -146,7 +177,15 @@ export const PromptDisplay: React.FC<{
             />
           ) : null
         ) : (
-          <Text style={[styles.promptText, styles.countdownText]}>?</Text>
+          <Text
+            style={[
+              styles.promptText,
+              styles.countdownText,
+              { fontSize: promptFontSize },
+            ]}
+          >
+            ?
+          </Text>
         )}
       </View>
     </>
@@ -155,6 +194,8 @@ export const PromptDisplay: React.FC<{
   const containerStyle: ViewStyle = {
     ...styles.container,
     borderColor: playerColor,
+    width: promptWidth,
+    height: isSmallPhone ? screenHeight * 0.16 : screenHeight * 0.14,
   };
 
   // Handler for skip button that updates letterIndex if AlphaBlitz
@@ -191,20 +232,27 @@ export const PromptDisplay: React.FC<{
           shouldShowCountdown ? (
             renderCountdown()
           ) : (
-            <Text style={styles.promptText}>List Blitz</Text>
+            <Text style={[styles.promptText, { fontSize: promptFontSize }]}>
+              List Blitz
+            </Text>
           )
         ) : isObscured ? (
           shouldShowCountdown ? (
             renderCountdown()
           ) : (
-            <Text style={styles.promptText}>List Blitz</Text>
+            <Text style={[styles.promptText, { fontSize: promptFontSize }]}>
+              List Blitz
+            </Text>
           )
         ) : (
           <View style={styles.promptBubble}>
             <Animated.Text
               style={[
                 styles.promptText,
-                { transform: [{ scale: bounceValue }] },
+                {
+                  transform: [{ scale: bounceValue }],
+                  fontSize: promptFontSize,
+                },
               ]}
             >
               {selectedCategory ? selectedCategory : prompt}
@@ -216,7 +264,10 @@ export const PromptDisplay: React.FC<{
         <SkipButton playerColor={playerColor} onPress={handleSkip} />
       )}
       {categoryBubble && (
-        <Image source={categoryBubble} style={styles.bubbleImage} />
+        <Image
+          source={categoryBubble}
+          style={[styles.bubbleImage, { bottom: categoryBubbleBottom }]}
+        />
       )}
     </View>
   );
@@ -225,9 +276,7 @@ export const PromptDisplay: React.FC<{
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#192c43",
-    borderRadius: 30,
-    width: 375,
-    height: 115,
+    borderRadius: screenWidth * 0.07,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
@@ -240,7 +289,6 @@ const styles = StyleSheet.create({
   },
   promptText: {
     fontFamily: "LuckiestGuy",
-    fontSize: 23,
     fontWeight: "bold",
     color: "#ffffff",
     textAlign: "center",
@@ -251,8 +299,7 @@ const styles = StyleSheet.create({
   },
   bubbleImage: {
     position: "absolute",
-    bottom: 90,
-    height: 80,
+    height: screenWidth * 0.2,
     resizeMode: "contain",
     zIndex: 1,
   },
@@ -295,7 +342,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   countdownText: {
-    fontSize: 45,
     color: "#FFF",
     fontFamily: "LuckiestGuy",
   },

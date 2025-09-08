@@ -14,7 +14,7 @@ import { PromptDisplay } from "components/gameplay/prompt-display";
 import { BlitzCounter } from "./blitz-counter";
 import { ScoreRankings } from "./score-rankings";
 import { WinnerOverlay } from "./winner-overlay/WinningOverlay";
-import { blitzPackIcons } from "@Utils";
+import { blitzPackIcons, useScreenInfo } from "@Utils";
 import {
   useAlphaCategory,
   AlphaCategoryWrapper,
@@ -30,6 +30,8 @@ export const BlitzMode: React.FC<ModeComponentProps> = ({
   handleNextRound,
   packTitle,
 }) => {
+  const { isTablet, isSmallPhone } = useScreenInfo();
+  const groupGap = isTablet ? 0 : isSmallPhone ? 0 : 0;
   const [timer, setTimer] = useState(TIMER_DURATION);
   const [score, setScore] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(false);
@@ -163,6 +165,12 @@ export const BlitzMode: React.FC<ModeComponentProps> = ({
     );
   }
 
+  // Use flex alignment for layout
+  const promptWrapperStyle = [
+    styles.promptWrapper,
+    { alignItems: "center", justifyContent: "center" },
+  ];
+
   return (
     <ImageBackground
       source={{ uri: bgUri }}
@@ -170,33 +178,42 @@ export const BlitzMode: React.FC<ModeComponentProps> = ({
       style={StyleSheet.absoluteFill}
     >
       <SafeAreaView style={styles.wrapper}>
-        <View style={styles.promptWrapper}>
-          <PromptDisplay
-            key={`${currentPlayer?.id}-${selectedCategory}-${false}`}
-            prompt={currentPrompt}
-            playerColor={currentPlayer!.startColor!}
-            mode={GameMode.BLITZ}
-            categoryBubble={titleImage}
-            isObscured={!isGameStarted}
-            countdown={isCountdownActive ? countdown : null}
-            isAlphaBlitz={packTitle === "Alpha Blitz"}
-            selectedCategory={selectedCategory}
-          />
-        </View>
-        <View style={styles.counterContainer}>
-          <BlitzCounter
-            score={score}
-            onIncrement={handleScoreIncrement}
-            currentPlayer={currentPlayer!}
-            onStart={handleStartGame}
-            timer={timer}
-            isGameStarted={isGameStarted}
-            isCountdownActive={isCountdownActive}
-          />
-          <ScoreRankings
-            players={players}
-            isGameStarted={isGameStarted || isCountdownActive}
-          />
+        <View
+          style={[
+            styles.centerGroup,
+            { gap: groupGap },
+            { paddingTop: isSmallPhone ? 30 : 0 },
+            { paddingBottom: isSmallPhone ? 10 : 30 },
+          ]}
+        >
+          <View style={promptWrapperStyle}>
+            <PromptDisplay
+              key={`${currentPlayer?.id}-${selectedCategory}-${false}`}
+              prompt={currentPrompt}
+              playerColor={currentPlayer!.startColor!}
+              mode={GameMode.BLITZ}
+              categoryBubble={titleImage}
+              isObscured={!isGameStarted}
+              countdown={isCountdownActive ? countdown : null}
+              isAlphaBlitz={packTitle === "Alpha Blitz"}
+              selectedCategory={selectedCategory}
+            />
+          </View>
+          <View style={styles.counterContainer}>
+            <BlitzCounter
+              score={score}
+              onIncrement={handleScoreIncrement}
+              currentPlayer={currentPlayer!}
+              onStart={handleStartGame}
+              timer={timer}
+              isGameStarted={isGameStarted}
+              isCountdownActive={isCountdownActive}
+            />
+            <ScoreRankings
+              players={players}
+              isGameStarted={isGameStarted || isCountdownActive}
+            />
+          </View>
         </View>
       </SafeAreaView>
     </ImageBackground>
@@ -206,10 +223,15 @@ export const BlitzMode: React.FC<ModeComponentProps> = ({
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  promptWrapper: {
-    marginTop: 15,
+  centerGroup: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
   },
+  promptWrapper: {},
   playerLabel: {
     color: "#fff",
     fontFamily: "LuckiestGuy",
@@ -219,9 +241,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   counterContainer: {
-    flex: 1,
     justifyContent: "center",
-    marginLeft: 40,
-    marginBottom: 65,
+    alignItems: "center",
   },
 });

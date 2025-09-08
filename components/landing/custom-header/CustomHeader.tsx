@@ -2,9 +2,11 @@ import React, { useEffect, useState, useCallback } from "react";
 import { View, Image, StyleSheet } from "react-native";
 
 import { Asset } from "expo-asset";
+import { useScreenInfo } from "@Utils";
 
 const CustomHeader: React.FC = () => {
   const [headerUri, setHeaderUri] = useState<string | null>(null);
+  const { isTablet, isSmallPhone } = useScreenInfo();
 
   const loadHeaderAsset = useCallback(() => {
     const asset = Asset.fromModule(require("@Assets/gifs/header.gif"));
@@ -15,11 +17,20 @@ const CustomHeader: React.FC = () => {
     loadHeaderAsset();
   }, [loadHeaderAsset]);
 
+  const getHeaderHeight = () => {
+    if (isTablet) return 400;
+    if (isSmallPhone) return 185;
+    return 220;
+  };
+
   if (!headerUri) return null;
 
   return (
-    <View style={styles.headerContainer}>
-      <Image source={{ uri: headerUri }} style={styles.headerImage} />
+    <View style={[styles.headerContainer, { height: getHeaderHeight() }]}>
+      <Image
+        source={{ uri: headerUri }}
+        style={[styles.headerImage, { height: getHeaderHeight() }]}
+      />
     </View>
   );
 };
@@ -29,7 +40,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     width: "100%",
-    height: 220,
     alignItems: "center",
     justifyContent: "flex-end",
     zIndex: 2,

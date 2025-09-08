@@ -51,5 +51,5 @@ export const theThingIsPrompts = [
   "List things found at a birthday party",
   "List things found at an airport",
   "List things found at a gym",
-  "List hings found in a hotel room",
+  "List things found in a hotel room",
 ];

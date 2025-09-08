@@ -2,6 +2,7 @@ import React from "react";
 import { View, TouchableOpacity, Animated, StyleSheet } from "react-native";
 
 import { GameMode, Player } from "@Context";
+import { useScreenInfo } from "@Utils";
 import { FlashingText } from "../../../shared/flashing-text/FlashingText";
 import { getEasterEggMessage } from "./utils";
 
@@ -47,6 +48,7 @@ const PlayerSelectFlashMessage: React.FC<Props> = ({
   setFlashMessage,
   selectedMode,
 }) => {
+  const { isTablet, isSmallPhone } = useScreenInfo();
   const finalWarningMessage = getWarningMessage(playersData, selectedMode);
 
   if (startAttempted) {
@@ -56,7 +58,10 @@ const PlayerSelectFlashMessage: React.FC<Props> = ({
           <Animated.Text
             style={[
               styles.warningText,
-              { transform: [{ translateX: shakeAnim }] },
+              {
+                transform: [{ translateX: shakeAnim }],
+                fontSize: isTablet ? 22 : isSmallPhone ? 14 : 16,
+              },
             ]}
           >
             ⚠️ {finalWarningMessage}
@@ -77,7 +82,12 @@ const PlayerSelectFlashMessage: React.FC<Props> = ({
           }
         }}
       >
-        <FlashingText style={styles.selectPlayerText}>
+        <FlashingText
+          style={[
+            styles.selectPlayerText,
+            { fontSize: isTablet ? 26 : isSmallPhone ? 16 : 20 },
+          ]}
+        >
           {flashMessage}
         </FlashingText>
       </TouchableOpacity>
@@ -104,11 +114,9 @@ const styles = StyleSheet.create({
   },
   warningText: {
     color: "#ffcc00",
-    fontSize: 16,
     fontWeight: "600",
   },
   selectPlayerText: {
-    fontSize: 20,
     letterSpacing: 2,
     textTransform: "uppercase",
     textShadowColor: "rgba(0, 191, 255, 0.7)",

@@ -4,9 +4,11 @@ import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useNavigation, router } from "expo-router";
 
 import { GameSettings } from "@Context";
+import { useScreenInfo } from "@Utils";
 
 export const usePlayerSelectHeader = (gameSettings: GameSettings) => {
   const navigation = useNavigation();
+  const { isTablet, isSmallPhone } = useScreenInfo();
 
   const handleBackPress = useCallback(() => {
     router.back();
@@ -17,7 +19,18 @@ export const usePlayerSelectHeader = (gameSettings: GameSettings) => {
       animation: "none",
       headerTransparent: true,
       headerTitle: () => (
-        <Text style={styles.headerTitle}>✨ {gameSettings.blitzPackTitle}</Text>
+        <Text
+          style={[
+            styles.headerTitle,
+            {
+              fontSize: isTablet ? 20 : isSmallPhone ? 13 : 15,
+              paddingHorizontal: isTablet ? -65 : isSmallPhone ? 12 : 25,
+              paddingBottom: isTablet ? 15 : isSmallPhone ? 4 : 5,
+            },
+          ]}
+        >
+          ✨ {gameSettings.blitzPackTitle}
+        </Text>
       ),
       headerStyle: {
         backgroundColor: "#192c43",
@@ -31,7 +44,7 @@ export const usePlayerSelectHeader = (gameSettings: GameSettings) => {
         </TouchableOpacity>
       ),
     }),
-    [gameSettings.blitzPackTitle, handleBackPress]
+    [gameSettings.blitzPackTitle, handleBackPress, isTablet, isSmallPhone]
   );
 
   useLayoutEffect(() => {
@@ -42,12 +55,9 @@ export const usePlayerSelectHeader = (gameSettings: GameSettings) => {
 const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: "SourGummy",
-    fontSize: 15,
     textTransform: "uppercase",
     color: "#fff",
     backgroundColor: "#0B3D91",
-    paddingHorizontal: 25,
-    paddingBottom: 5,
     borderRadius: 20,
     overflow: "hidden",
     textAlign: "center",

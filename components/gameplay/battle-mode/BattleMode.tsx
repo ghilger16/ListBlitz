@@ -9,7 +9,7 @@ import {
   Animated,
 } from "react-native";
 import { PromptDisplay } from "components/gameplay/prompt-display";
-import { blitzPackIcons } from "@Utils";
+import { blitzPackIcons, useScreenInfo } from "@Utils";
 import { Asset } from "expo-asset";
 import { GameMode, ModeComponentProps, Player } from "@Context";
 import { BattleTimer } from "./battle-timer";
@@ -43,6 +43,7 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
   onRestart,
   handleSkipPrompt,
 }) => {
+  const { isTablet, isSmallPhone } = useScreenInfo();
   const matchRef = useRef<Player[] | null>(null);
   const turnIndexRef = useRef(0);
   const [turnIndex, setTurnIndex] = useState(0);
@@ -51,6 +52,10 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isWinnerAnnounced, setIsWinnerAnnounced] = useState(false);
   const [finalWinner, setFinalWinner] = useState<Player | null>(null);
+
+  const dynamicPadding = {
+    paddingTop: isTablet ? 65 : isSmallPhone ? 0 : 10,
+  };
 
   const {
     selectedCategory,
@@ -169,7 +174,7 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
       <SafeAreaView style={styles.wrapper}>
         {!isWinnerAnnounced ? (
           <>
-            <View style={styles.promptWrapper}>
+            <View style={[styles.promptWrapper, dynamicPadding]}>
               <PromptDisplay
                 prompt={currentPrompt}
                 playerColor={currentMatch[turnIndex].startColor}
@@ -182,7 +187,7 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
                   : {})}
               />
             </View>
-            <View style={styles.timerContainer}>
+            <View style={[styles.timerContainer, dynamicPadding]}>
               <BattleTimer
                 currentPlayer={currentMatch[turnIndex]}
                 onStart={handleStartRound}
@@ -204,10 +209,15 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
                   player={currentMatch[0]}
                   onPress={turnIndex === 0 ? handlePlayerSelect : undefined}
                   dimmed={turnIndex !== 0}
+                  size={isTablet ? 250 : isSmallPhone ? 125 : 150}
                 />
                 {!isGameStarted && (
                   <Animated.Text
-                    style={[styles.vsText, { transform: [{ scale: vsScale }] }]}
+                    style={[
+                      styles.vsText,
+                      { transform: [{ scale: vsScale }] },
+                      { fontSize: isTablet ? 80 : isSmallPhone ? 50 : 60 },
+                    ]}
                   >
                     VS
                   </Animated.Text>
@@ -216,6 +226,7 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
                   player={currentMatch[1]}
                   onPress={turnIndex === 1 ? handlePlayerSelect : undefined}
                   dimmed={turnIndex !== 1}
+                  size={isTablet ? 250 : isSmallPhone ? 125 : 150}
                   isRightCard
                 />
               </View>
@@ -276,7 +287,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   vsText: {
-    fontSize: 60,
     fontFamily: "LuckiestGuy",
     fontWeight: "bold",
     color: "#FFF",

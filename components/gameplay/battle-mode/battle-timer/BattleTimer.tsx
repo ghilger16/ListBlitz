@@ -3,6 +3,7 @@ import { View, Animated, Easing, StyleSheet } from "react-native";
 import Svg, { G, Path as SvgPath, Text as SvgText } from "react-native-svg";
 import * as d3 from "d3-shape";
 import { Player } from "@Context";
+import { useScreenInfo } from "@Utils";
 
 interface BattleTimerProps {
   currentPlayer: Player;
@@ -12,8 +13,6 @@ interface BattleTimerProps {
   onTimeOut: () => void;
 }
 
-const RADIUS = 75;
-
 const AnimatedSvgPath = Animated.createAnimatedComponent(SvgPath);
 
 export const BattleTimer: React.FC<BattleTimerProps> = ({
@@ -22,7 +21,16 @@ export const BattleTimer: React.FC<BattleTimerProps> = ({
   isCountdownActive,
   onTimeOut,
 }) => {
+  const { isTablet, isSmallPhone } = useScreenInfo();
+
   const timer = 10;
+  // const size = isTablet ? 400 : isSmallPhone ? 100 : 320;
+  const radius = isTablet ? 150 : isSmallPhone ? 60 : 75;
+  const containerWidth = isTablet ? 350 : isSmallPhone ? 260 : 320;
+  const containerHeight = isTablet ? 450 : isSmallPhone ? 285 : 375;
+
+  const strokeWidth = isTablet ? 20 : isSmallPhone ? 10 : 12;
+
   const animatedTimer = useRef(new Animated.Value(timer)).current;
   const flashAnim = useRef(new Animated.Value(0)).current;
   const [displayTime, setDisplayTime] = useState(timer);
@@ -66,41 +74,41 @@ export const BattleTimer: React.FC<BattleTimerProps> = ({
   const borderArcGenerator = useMemo(() => {
     const fillArc = d3
       .arc()
-      .innerRadius(RADIUS)
-      .outerRadius(RADIUS + 10)
+      .innerRadius(radius)
+      .outerRadius(radius + 10)
       .startAngle(0)
       .endAngle(Math.PI * 2);
     const animatedFillArc = d3
       .arc()
-      .innerRadius(RADIUS)
-      .outerRadius(RADIUS + 10)
+      .innerRadius(radius)
+      .outerRadius(radius + 10)
       .startAngle(0)
       .endAngle(fillAngle);
     return { fillArc, animatedFillArc };
-  }, [fillAngle]);
+  }, [fillAngle, radius]);
 
   return (
     <View style={styles.container}>
-      <Svg width={320} height={375}>
-        <G x={320 / 2} y={320 / 2}>
+      <Svg width={containerWidth} height={containerHeight}>
+        <G x={containerWidth / 2} y={containerWidth / 2}>
           <AnimatedSvgPath
             d={borderArcGenerator.fillArc({} as any) || ""}
             fill="none"
             stroke={isGameStarted ? "#FFF" : currentPlayer.startColor}
-            strokeWidth={12}
+            strokeWidth={strokeWidth}
             strokeLinecap="round"
           />
           <AnimatedSvgPath
             d={borderArcGenerator.animatedFillArc({} as any) || ""}
             fill="none"
             stroke={fillStrokeColor}
-            strokeWidth={12}
+            strokeWidth={strokeWidth}
             strokeLinecap="round"
           />
           <SvgText
             x="0"
             y="20"
-            fontSize="60"
+            fontSize={isTablet ? 100 : isSmallPhone ? 40 : 60}
             fontWeight="bold"
             fill="#fff"
             textAnchor="middle"
@@ -117,7 +125,5 @@ export const BattleTimer: React.FC<BattleTimerProps> = ({
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    width: 320,
-    height: 375,
   },
 });

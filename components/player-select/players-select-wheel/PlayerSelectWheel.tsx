@@ -16,36 +16,33 @@ import * as d3 from "d3-shape";
 
 import { clickSound } from "@Assets";
 import { PLAYER_COLORS, playerIcons } from "@Context";
-import { playSound } from "@Utils";
+import { playSound, useScreenInfo } from "@Utils";
 
-const RADIUS = 185;
-const OUTER_CIRCLE_RADIUS = 100;
 const SECTIONS_COUNT = 10;
-
-const calculateSliceIndex = (x: number, y: number, sectionsCount: number) => {
-  const angle = Math.atan2(y, x);
-  let theta = angle + Math.PI / 2;
-  if (theta < 0) theta += 2 * Math.PI;
-  const sliceAngle = (2 * Math.PI) / sectionsCount;
-  let index = Math.floor(theta / sliceAngle);
-  return Math.max(0, Math.min(index, sectionsCount - 1));
-};
-
-const transformToSVGCoordinates = (labelX: number, labelY: number) => ({
-  x: RADIUS + labelX * 1.5,
-  y: RADIUS + labelY * 1.5,
-});
-
-const arcGenerator = d3.arc().outerRadius(RADIUS).innerRadius(0);
-const pieGenerator = d3.pie<number>().sort(null).value(1);
 
 const PlayerSelectWheel: React.FC<{
   onPlayerCountChange: (players: { id: number; iconIndex: number }[]) => void;
 }> = ({ onPlayerCountChange }) => {
+  const { isTablet, isSmallPhone } = useScreenInfo();
+  const RADIUS = isTablet ? 300 : isSmallPhone ? 150 : 185;
+  const OUTER_CIRCLE_RADIUS = RADIUS * 0.54;
+
   const [playerAssignments, setPlayerAssignments] = useState<
     { sliceIndex: number; playerNumber: number }[]
   >([]);
   const lottieRefs = useRef<(LottieView | null)[]>([]).current;
+
+  const calculateSliceIndex = (x: number, y: number, sectionsCount: number) => {
+    const angle = Math.atan2(y, x);
+    let theta = angle + Math.PI / 2;
+    if (theta < 0) theta += 2 * Math.PI;
+    const sliceAngle = (2 * Math.PI) / sectionsCount;
+    let index = Math.floor(theta / sliceAngle);
+    return Math.max(0, Math.min(index, sectionsCount - 1));
+  };
+
+  const arcGenerator = d3.arc().outerRadius(RADIUS).innerRadius(0);
+  const pieGenerator = d3.pie<number>().sort(null).value(1);
 
   const arcs = useMemo(
     () => pieGenerator(Array.from({ length: SECTIONS_COUNT }, (_, i) => i + 1)),
@@ -108,6 +105,11 @@ const PlayerSelectWheel: React.FC<{
     }
   };
 
+  const transformToSVGCoordinates = (labelX: number, labelY: number) => ({
+    x: RADIUS + labelX * 1.5,
+    y: RADIUS + labelY * 1.5,
+  });
+
   const renderSlice = (arc: any, index: number) => {
     const path = arcGenerator(arc) || "";
     const [labelX, labelY] = arcGenerator.centroid(arc);
@@ -119,11 +121,23 @@ const PlayerSelectWheel: React.FC<{
     const iconSource = playerIcons[index];
     let iconSize;
     if (index === 3) {
-      iconSize = { width: 110, height: 110 };
+      iconSize = isTablet
+        ? { width: 180, height: 180 }
+        : isSmallPhone
+        ? { width: 93, height: 90 }
+        : { width: 110, height: 110 };
     } else if (index === 6) {
-      iconSize = { width: 80, height: 110 };
+      iconSize = isTablet
+        ? { width: 130, height: 180 }
+        : isSmallPhone
+        ? { width: 65, height: 90 }
+        : { width: 80, height: 110 };
     } else {
-      iconSize = { width: 95, height: 95 };
+      iconSize = isTablet
+        ? { width: 160, height: 160 }
+        : isSmallPhone
+        ? { width: 75, height: 75 }
+        : { width: 95, height: 95 };
     }
 
     useEffect(() => {
@@ -142,7 +156,7 @@ const PlayerSelectWheel: React.FC<{
         <Text
           x={labelX * 0.9}
           y={labelY * 0.9}
-          fontSize={18}
+          fontSize={isTablet ? 25 : isSmallPhone ? 15 : 18}
           fontWeight="bold"
           fill={isSelected ? "#FFF" : "#000"}
           textAnchor="middle"
@@ -154,8 +168,8 @@ const PlayerSelectWheel: React.FC<{
           <View
             style={{
               position: "absolute",
-              left: x - 40,
-              top: y - 25,
+              left: x - (isTablet ? 70 : isSmallPhone ? 30 : 40),
+              top: y - (isTablet ? 55 : isSmallPhone ? 15 : 25),
               justifyContent: "center",
               alignItems: "center",
               opacity: isSelected ? 1 : 0.5,
@@ -189,7 +203,11 @@ const PlayerSelectWheel: React.FC<{
 
     handleSliceTap(tappedIndex);
   };
-
+  const size = isTablet
+    ? RADIUS + 50
+    : isSmallPhone
+    ? RADIUS + 25
+    : RADIUS + 38;
   return (
     <View
       onStartShouldSetResponder={onStartShouldSetResponder}
@@ -204,20 +222,22 @@ const PlayerSelectWheel: React.FC<{
             </LinearGradient>
           ))}
         </Defs>
-        <G x={RADIUS + 10} y={RADIUS + 25}>
+        <G x={RADIUS + 10} y={RADIUS + 30}>
           <Circle cx={0} cy={0} r={RADIUS} fill="#192c43" />
 
           <G transform="rotate(165)">
             <Defs>
               <Path
                 id="text-curve"
-                d={`M 135,145 A 200,200 0 0,1 -135,145`}
+                d={`M ${size * 0.7},${size * 0.6} A ${size},${size} 0 0,1 -${
+                  size * 0.7
+                },${size * 0.6}`}
                 fill="none"
               />
             </Defs>
             <Text
               fill="white"
-              fontSize="15"
+              fontSize={isTablet ? 22 : isSmallPhone ? 12 : 15}
               fontWeight="bold"
               letterSpacing="1"
               textAnchor="middle"

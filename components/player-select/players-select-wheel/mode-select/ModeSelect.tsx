@@ -11,6 +11,7 @@ import * as Haptics from "expo-haptics";
 
 import { GameMode, MODE_COLORS } from "@Context";
 import { useModeSelectAnimations } from "@Hooks";
+import { useScreenInfo } from "@Utils";
 
 interface ModeSelectProps {
   onModeChange: (newMode: GameMode) => void;
@@ -29,6 +30,7 @@ const getModeColor = (mode: GameMode) => {
 };
 const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
   const { scaleAnim, triggerScaleAnimation } = useModeSelectAnimations();
+  const { isTablet, isSmallPhone } = useScreenInfo();
 
   const nextMode = useMemo(() => {
     return mode === GameMode.CHILL
@@ -45,9 +47,47 @@ const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
   };
 
   const color = getModeColor(mode);
+  const circleSize = isTablet ? 200 : isSmallPhone ? 100 : 130;
+
+  const iconFontSize = isTablet ? 60 : isSmallPhone ? 35 : 40;
+  const modeFontSize = isTablet ? 45 : isSmallPhone ? 18 : 26;
+  const battleFontSize = isTablet ? 30 : isSmallPhone ? 15 : 22;
+  const arrowFontSize = isTablet ? 50 : isSmallPhone ? 25 : 32;
+
+  const MODES: Record<GameMode, React.ReactNode> = {
+    [GameMode.CHILL]: (
+      <View style={styles.iconContainer}>
+        <Text style={[styles.iconEmoji, { fontSize: iconFontSize }]}>😎</Text>
+        <Text style={[styles.modeLabel, { fontSize: modeFontSize }]}>
+          Chill
+        </Text>
+      </View>
+    ),
+    [GameMode.BLITZ]: (
+      <View style={styles.iconContainer}>
+        <Text style={[styles.iconEmoji, { fontSize: iconFontSize }]}>⚡</Text>
+        <Text style={[styles.modeLabel, { fontSize: modeFontSize }]}>
+          Blitz
+        </Text>
+      </View>
+    ),
+    [GameMode.BATTLE]: (
+      <View style={styles.iconContainer}>
+        <Text style={[styles.iconEmoji, { fontSize: iconFontSize }]}>⚔️</Text>
+        <Text style={[styles.modeLabelBattle, { fontSize: battleFontSize }]}>
+          Battle
+        </Text>
+      </View>
+    ),
+  };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { marginTop: isTablet ? -410 : isSmallPhone ? -210 : -262 },
+      ]}
+    >
       <TouchableWithoutFeedback
         onPress={handlePress}
         accessible
@@ -60,13 +100,16 @@ const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
               {
                 borderColor: color,
                 backgroundColor: color,
+                width: circleSize,
+                height: circleSize,
+                borderRadius: circleSize / 2,
               },
             ]}
           >
             <View style={styles.arrowRow}>
-              <Text style={styles.arrow}>‹</Text>
+              <Text style={[styles.arrow, { fontSize: arrowFontSize }]}>‹</Text>
               {MODES[mode]}
-              <Text style={styles.arrow}>›</Text>
+              <Text style={[styles.arrow, { fontSize: arrowFontSize }]}>›</Text>
             </View>
           </View>
         </Animated.View>
@@ -81,7 +124,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: -262,
+    marginTop: -350,
   },
   circle: {
     width: 130,
@@ -154,24 +197,3 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-
-const MODES: Record<GameMode, React.ReactNode> = {
-  [GameMode.CHILL]: (
-    <View style={styles.iconContainer}>
-      <Text style={styles.iconEmoji}>😎</Text>
-      <Text style={styles.modeLabel}>Chill</Text>
-    </View>
-  ),
-  [GameMode.BLITZ]: (
-    <View style={styles.iconContainer}>
-      <Text style={styles.iconEmoji}>⚡</Text>
-      <Text style={styles.modeLabel}>Blitz</Text>
-    </View>
-  ),
-  [GameMode.BATTLE]: (
-    <View style={styles.iconContainer}>
-      <Text style={styles.iconEmoji}>⚔️</Text>
-      <Text style={styles.modeLabelBattle}>Battle</Text>
-    </View>
-  ),
-};

@@ -16,14 +16,16 @@ import {
   PlayerSelectWheel,
 } from "@Components";
 import { usePlayerSelectHeader, usePlayerSelectAnimations } from "@Hooks";
+import { useScreenInfo } from "@Utils";
 
 const PlayerSelect: React.FC = () => {
   const { setGameSettings, onGameStart, gameSettings, initializePlayers } =
     useGameplay();
+  const { isSmallPhone } = useScreenInfo();
   const [selectedMode, setSelectedMode] = useState<GameMode>(gameSettings.mode);
   const [playersData, setPlayersData] = useState<Player[]>([]);
   const [startAttempted, setStartAttempted] = useState(false);
-  const [flashMessage, setFlashMessage] = useState("Select Players");
+  const [flashMessage, setFlashMessage] = useState("Select Players & Mode");
 
   usePlayerSelectHeader(gameSettings);
 
@@ -95,8 +97,15 @@ const PlayerSelect: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.playersWrapper}>
-        <View style={styles.textContainer}>
+      <View
+        style={[styles.playersWrapper, isSmallPhone ? { marginTop: 25 } : {}]}
+      >
+        <View
+          style={[
+            styles.textContainer,
+            isSmallPhone ? { marginBottom: 20 } : {},
+          ]}
+        >
           <PlayerSelectFlashMessage
             startAttempted={startAttempted}
             shakeAnim={shakeAnim}
@@ -132,6 +141,7 @@ const PlayerSelect: React.FC = () => {
       <TouchableOpacity
         style={[
           styles.startButton,
+          isSmallPhone ? { marginTop: 40 } : {},
           { opacity: playersData.length < 1 ? 0.5 : 1 },
         ]}
         onPress={handleGameStart}
