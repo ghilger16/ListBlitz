@@ -1,46 +1,75 @@
 import React from "react";
-import { Dimensions, TouchableWithoutFeedback } from "react-native";
+import { TouchableWithoutFeedback } from "react-native";
 import Svg, { Path, Text as SvgText } from "react-native-svg";
-
-const { width: screenWidth } = Dimensions.get("window");
-
-const isMax = screenWidth > 420;
-const buttonHeight = isMax ? 65 : 50;
-const buttonWidth = isMax ? 78 : 60;
-const path = isMax
-  ? "M0,65 L59,65 Q78,65 78,45 L78,0 Z"
-  : "M0,50 L45,50 Q60,50 60,35 L60,0 Z";
-
-const textX = isMax ? 22 : 22;
-const textY = isMax ? 60 : 45;
-const fontSize = isMax ? 18 : 15;
+import { useScreenInfo } from "@Utils";
 
 export const SkipButton: React.FC<{
   playerColor: string;
   onPress: () => void;
-}> = ({ playerColor, onPress }) => (
-  <TouchableWithoutFeedback onPress={onPress}>
-    <Svg
-      height={buttonHeight}
-      width={buttonWidth}
-      style={{
-        position: "absolute",
-        bottom: 5,
-        right: 18,
-      }}
-    >
-      <Path d={path} fill={playerColor} />
-      <SvgText
-        x={textX}
-        y={textY}
-        fill="#000"
-        fontSize={fontSize}
-        fontWeight="bold"
-        fontFamily="LuckiestGuy"
-        transform="rotate(-45, 30, 30)"
+}> = ({ playerColor, onPress }) => {
+  const { isTablet, isSmallPhone } = useScreenInfo();
+
+  let buttonHeight: number,
+    buttonWidth: number,
+    path: string,
+    textX: number,
+    textY: number,
+    fontSize: number,
+    bottom: number,
+    right: number;
+  if (isTablet) {
+    buttonHeight = 95;
+    buttonWidth = 100;
+    path = "M0,95 L70,95 Q85,85 100,65 L100,0 Z";
+    textX = 10;
+    textY = 85;
+    fontSize = 26;
+    bottom = 5;
+    right = 65;
+  } else if (isSmallPhone) {
+    buttonHeight = 50;
+    buttonWidth = 55;
+    path = "M0,50 L40,50 Q55,45 60,35 L55,0 Z";
+    textX = 21;
+    textY = 43;
+    fontSize = 15;
+    bottom = 3;
+    right = 23;
+  } else {
+    buttonHeight = 60;
+    buttonWidth = 70;
+    path = "M0,60 L45,60 Q60,50 60,35 L60,0 Z";
+    textX = 15;
+    textY = 50;
+    fontSize = 18;
+    bottom = 5;
+    right = 12;
+  }
+
+  return (
+    <TouchableWithoutFeedback onPress={onPress}>
+      <Svg
+        height={buttonHeight}
+        width={buttonWidth}
+        style={{
+          position: "absolute",
+          bottom: bottom,
+          right: right,
+        }}
       >
-        Skip
-      </SvgText>
-    </Svg>
-  </TouchableWithoutFeedback>
-);
+        <Path d={path} fill={playerColor} />
+        <SvgText
+          x={textX}
+          y={textY}
+          fill="#000"
+          fontSize={fontSize}
+          fontWeight="bold"
+          fontFamily="LuckiestGuy"
+          transform="rotate(-45, 30, 30)"
+        >
+          Skip
+        </SvgText>
+      </Svg>
+    </TouchableWithoutFeedback>
+  );
+};

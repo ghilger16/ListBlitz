@@ -55,7 +55,7 @@ export const PromptDisplay: React.FC<{
   const { isTablet, isSmallPhone } = useScreenInfo();
 
   const categoryBubbleBottom = isTablet
-    ? screenHeight * 0.1
+    ? screenHeight * 0.126
     : isSmallPhone
     ? screenHeight * 0.125
     : screenHeight * 0.11;
@@ -66,7 +66,7 @@ export const PromptDisplay: React.FC<{
     ? Math.min(screenWidth * 0.9, 360)
     : Math.min(screenWidth * 0.92, 500);
 
-  const promptFontSize = isTablet ? 45 : isSmallPhone ? 22 : 30;
+  const promptFontSize = isTablet ? 40 : isSmallPhone ? 22 : 30;
   const goFontSize = isTablet ? 100 : isSmallPhone ? 55 : 75;
 
   const { bounceValue, fadeValue, scaleValue } = usePromptAnimations(
@@ -195,7 +195,11 @@ export const PromptDisplay: React.FC<{
     ...styles.container,
     borderColor: playerColor,
     width: promptWidth,
-    height: isSmallPhone ? screenHeight * 0.16 : screenHeight * 0.14,
+    height: isTablet
+      ? screenHeight * 0.17
+      : isSmallPhone
+      ? screenHeight * 0.16
+      : screenHeight * 0.14,
   };
 
   // Handler for skip button that updates letterIndex if AlphaBlitz

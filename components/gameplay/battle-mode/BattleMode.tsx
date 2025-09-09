@@ -196,10 +196,20 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
                 onTimeOut={handleTimeout}
               />
             </View>
-            <View style={styles.matchSection}>
+            <View
+              style={[
+                styles.matchSection,
+                { marginTop: isTablet ? -90 : isSmallPhone ? -45 : -65 },
+              ]}
+            >
               {!isGameStarted && currentMatch.length === 2 && (
                 <View style={styles.matchLabelContainer}>
-                  <Text style={styles.matchLabelText}>
+                  <Text
+                    style={[
+                      styles.matchLabelText,
+                      { fontSize: isTablet ? 35 : isSmallPhone ? 18 : 24 },
+                    ]}
+                  >
                     {getMatchLabel(globalMatchIndex, totalMatches)}
                   </Text>
                 </View>
@@ -233,10 +243,31 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
               {!isGameStarted && (
                 <View style={styles.startButtonWrapper}>
                   <TouchableOpacity
-                    style={styles.startButton}
+                    style={[
+                      styles.startButton,
+                      isTablet && {
+                        paddingVertical: 18,
+                        paddingHorizontal: 64,
+                        borderWidth: 6,
+                        borderRadius: 36,
+                      },
+                      isSmallPhone && {
+                        paddingVertical: 10,
+                        paddingHorizontal: 28,
+                        borderWidth: 3,
+                        borderRadius: 26,
+                      },
+                    ]}
                     onPress={handleStartRound}
                   >
-                    <Text style={styles.startButtonText}>START MATCH</Text>
+                    <Text
+                      style={[
+                        styles.startButtonText,
+                        { fontSize: isTablet ? 36 : isSmallPhone ? 22 : 28 },
+                      ]}
+                    >
+                      START MATCH
+                    </Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -246,26 +277,69 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
           <View style={styles.winnerOverlay}>
             {displayWinner && (
               <>
-                <View style={styles.winnerSection}>
-                  <Text style={styles.winnerHeaderText}>
+                <View
+                  style={[
+                    styles.winnerSection,
+                    { marginTop: isTablet ? 180 : isSmallPhone ? 110 : 130 },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.winnerHeaderText,
+                      { fontSize: isTablet ? 72 : isSmallPhone ? 36 : 52 },
+                    ]}
+                  >
                     {displayWinner?.name?.toUpperCase()}
                   </Text>
                   <LottieView
                     source={playerIcons[displayIconIndex]}
                     autoPlay
                     loop
-                    style={styles.lottieIcon}
+                    style={[
+                      styles.lottieIcon,
+                      {
+                        width: isTablet ? 220 : isSmallPhone ? 110 : 150,
+                        height: isTablet ? 220 : isSmallPhone ? 110 : 150,
+                      },
+                    ]}
                   />
-                  <Text style={styles.winnerText}>
+                  <Text
+                    style={[
+                      styles.winnerText,
+                      { fontSize: isTablet ? 64 : isSmallPhone ? 32 : 48 },
+                    ]}
+                  >
                     {isFinalMatch ? "WINS!" : "ADVANCES"}
                   </Text>
                 </View>
                 {isFinalMatch && (
                   <TouchableOpacity
-                    style={[styles.startButton, styles.nextRoundButton]}
+                    style={[
+                      styles.startButton,
+                      styles.nextRoundButton,
+                      isTablet && {
+                        paddingVertical: 18,
+                        paddingHorizontal: 64,
+                        borderWidth: 6,
+                        borderRadius: 36,
+                      },
+                      isSmallPhone && {
+                        paddingVertical: 10,
+                        paddingHorizontal: 28,
+                        borderWidth: 3,
+                        borderRadius: 26,
+                      },
+                    ]}
                     onPress={handleRestart}
                   >
-                    <Text style={styles.startButtonText}>START NEXT ROUND</Text>
+                    <Text
+                      style={[
+                        styles.startButtonText,
+                        { fontSize: isTablet ? 36 : isSmallPhone ? 22 : 28 },
+                      ]}
+                    >
+                      START NEXT ROUND
+                    </Text>
                   </TouchableOpacity>
                 )}
               </>
