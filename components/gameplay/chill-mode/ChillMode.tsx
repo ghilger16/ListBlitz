@@ -16,7 +16,7 @@ import {
   useAlphaCategory,
   AlphaCategoryWrapper,
 } from "../alpha-category-select";
-import { blitzPackIcons } from "@Utils";
+import { blitzPackIcons, useScreenInfo } from "@Utils";
 
 const handleScoreIncrement = (
   isGameStarted: boolean,
@@ -82,6 +82,8 @@ export const ChillMode: React.FC<ModeComponentProps> = ({
     handlePickRandom,
   } = useAlphaCategory();
 
+  const { isTablet, isSmallPhone } = useScreenInfo();
+
   const safeCurrentPlayer = currentPlayer!;
 
   useEffect(() => {
@@ -118,8 +120,15 @@ export const ChillMode: React.FC<ModeComponentProps> = ({
       resizeMode="cover"
       style={StyleSheet.absoluteFill}
     >
-      <SafeAreaView style={styles.wrapper}>
-        <View style={styles.promptWrapper}>
+      <SafeAreaView style={[styles.wrapper]}>
+        <View
+          style={[
+            styles.promptWrapper,
+            {
+              marginTop: isTablet ? 60 : 15,
+            },
+          ]}
+        >
           <PromptDisplay
             key={`${safeCurrentPlayer.id}-${selectedCategory}`}
             prompt={currentPrompt}

@@ -6,14 +6,8 @@ import * as d3 from "d3-shape";
 import LottieView from "lottie-react-native";
 
 import { Player, playerIcons } from "@Context";
-import { playTapSound } from "@Utils";
+import { playTapSound, useScreenInfo } from "@Utils";
 import { FlashingText } from "components/shared/flashing-text";
-
-const RADIUS = 160;
-const INNER_RADIUS = 110;
-const BORDER_RADIUS = 175;
-const CENTER_RADIUS = 60;
-const SECTIONS_COUNT = 5;
 
 interface IGameplayCounterProps {
   score: number;
@@ -29,6 +23,17 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   onIncrement,
   onDecrement,
 }) => {
+  const { isTablet, isSmallPhone } = useScreenInfo();
+
+  const RADIUS = isTablet ? 300 : isSmallPhone ? 120 : 160;
+  const INNER_RADIUS = isTablet ? 220 : isSmallPhone ? 80 : 110;
+  const BORDER_RADIUS = isTablet ? 315 : isSmallPhone ? 135 : 175;
+  const CENTER_RADIUS = isTablet ? 100 : isSmallPhone ? 45 : 60;
+
+  // Position the score slightly above the ring, consistent across sizes
+  const scoreYOffset = isTablet ? 20 : isSmallPhone ? 10 : 15;
+  const scoreY = -(RADIUS + scoreYOffset);
+
   const [fillAngle, setFillAngle] = useState(0);
   const [isPlayerStartVisible, setIsPlayerStartVisible] = useState(true);
   const lottieRef = useRef<LottieView>(null);
@@ -36,7 +41,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   const iconIndex = currentPlayer.iconIndex;
 
   useEffect(() => {
-    const percentage = Math.min(score / SECTIONS_COUNT, 1);
+    const percentage = Math.min(score / 5, 1);
     setFillAngle(percentage * Math.PI);
   }, [score]);
 
@@ -48,7 +53,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
         .outerRadius(RADIUS)
         .startAngle(-Math.PI / 2)
         .endAngle(-Math.PI / 2 + fillAngle),
-    [fillAngle]
+    [fillAngle, INNER_RADIUS, RADIUS]
   );
 
   const borderArcGenerator = useMemo(() => {
@@ -68,12 +73,12 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
       .endAngle(Math.PI / 2);
 
     return [arc1, arc2];
-  }, []);
+  }, [RADIUS, BORDER_RADIUS]);
 
   const sectionArcGenerator = useMemo(
     () => (index: number) => {
-      const startAngle = -Math.PI / 2 + (Math.PI / SECTIONS_COUNT) * index;
-      const endAngle = startAngle + Math.PI / SECTIONS_COUNT;
+      const startAngle = -Math.PI / 2 + (Math.PI / 5) * index;
+      const endAngle = startAngle + Math.PI / 5;
       return d3
         .arc()
         .innerRadius(INNER_RADIUS)
@@ -81,7 +86,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
         .startAngle(startAngle)
         .endAngle(endAngle);
     },
-    []
+    [INNER_RADIUS, RADIUS]
   );
 
   const dummyArcData: d3.DefaultArcObject = {
@@ -103,7 +108,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
 
   const sectionArcPaths = useMemo(
     () =>
-      Array.from({ length: SECTIONS_COUNT }).map(
+      Array.from({ length: 5 }).map(
         (_, index) => sectionArcGenerator(index)(dummyArcData) ?? ""
       ),
     [sectionArcGenerator]
@@ -125,9 +130,9 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
       <Svg width={RADIUS * 2 + 40} height={RADIUS + 140}>
         <G x={RADIUS + 20} y={RADIUS + 50}>
           <SvgText
-            x=""
-            y="-175"
-            fontSize="45"
+            x="0"
+            y={scoreY}
+            fontSize={isTablet ? 60 : isSmallPhone ? 30 : 45}
             fontWeight="bold"
             fill="#fff"
             textAnchor="middle"
@@ -163,6 +168,9 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
           {
             borderColor: currentPlayer.startColor,
             top: RADIUS - CENTER_RADIUS + 40,
+            width: CENTER_RADIUS * 2,
+            height: CENTER_RADIUS * 2,
+            borderRadius: CENTER_RADIUS,
           },
         ]}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -172,7 +180,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
           source={playerIcons[iconIndex]}
           autoPlay
           loop
-          style={styles.lottie}
+          style={{ width: CENTER_RADIUS * 2, height: CENTER_RADIUS * 2 }}
         />
       </TouchableOpacity>
 
@@ -190,9 +198,6 @@ const styles = StyleSheet.create({
   },
   tapButton: {
     position: "absolute",
-    width: CENTER_RADIUS * 2,
-    height: CENTER_RADIUS * 2,
-    borderRadius: CENTER_RADIUS,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 5,
@@ -202,10 +207,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
   },
-  lottie: {
-    width: CENTER_RADIUS * 2,
-    height: CENTER_RADIUS * 2,
-  },
+  lottie: {},
   tapTextWrapper: {
     height: 40,
     marginTop: -35,

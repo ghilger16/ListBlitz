@@ -24,7 +24,7 @@ export const BattleTimer: React.FC<BattleTimerProps> = ({
   const { isTablet, isSmallPhone } = useScreenInfo();
 
   const timer = 10;
-  const radius = isTablet ? 125 : isSmallPhone ? 60 : 75;
+  const radius = isTablet ? 115 : isSmallPhone ? 60 : 75;
   const containerWidth = isTablet ? 350 : isSmallPhone ? 260 : 320;
   const containerHeight = isTablet ? 450 : isSmallPhone ? 285 : 375;
 

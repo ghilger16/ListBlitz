@@ -54,7 +54,10 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
   const [finalWinner, setFinalWinner] = useState<Player | null>(null);
 
   const dynamicPadding = {
-    paddingTop: isTablet ? 65 : isSmallPhone ? 0 : 10,
+    paddingTop: isTablet ? 60 : isSmallPhone ? 0 : 10,
+  };
+  const dynamicPadding2 = {
+    paddingTop: isTablet ? 35 : isSmallPhone ? 0 : 10,
   };
 
   const {
@@ -187,7 +190,7 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
                   : {})}
               />
             </View>
-            <View style={[styles.timerContainer, dynamicPadding]}>
+            <View style={[styles.timerContainer, dynamicPadding2]}>
               <BattleTimer
                 currentPlayer={currentMatch[turnIndex]}
                 onStart={handleStartRound}
@@ -280,7 +283,7 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
                 <View
                   style={[
                     styles.winnerSection,
-                    { marginTop: isTablet ? 180 : isSmallPhone ? 110 : 130 },
+                    { marginTop: isTablet ? 250 : isSmallPhone ? 130 : 165 },
                   ]}
                 >
                   <Text

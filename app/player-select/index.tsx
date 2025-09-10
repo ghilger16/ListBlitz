@@ -21,7 +21,7 @@ import { useScreenInfo } from "@Utils";
 const PlayerSelect: React.FC = () => {
   const { setGameSettings, onGameStart, gameSettings, initializePlayers } =
     useGameplay();
-  const { isSmallPhone } = useScreenInfo();
+  const { isSmallPhone, isTablet } = useScreenInfo();
   const [selectedMode, setSelectedMode] = useState<GameMode>(gameSettings.mode);
   const [playersData, setPlayersData] = useState<Player[]>([]);
   const [startAttempted, setStartAttempted] = useState(false);
@@ -141,7 +141,8 @@ const PlayerSelect: React.FC = () => {
       <TouchableOpacity
         style={[
           styles.startButton,
-          isSmallPhone ? { marginTop: 40 } : {},
+          isSmallPhone ? { marginTop: 40, width: 275, height: 50 } : {},
+          isTablet && { width: 650, height: 80, alignContent: "center" }, // shorten width on tablets
           { opacity: playersData.length < 1 ? 0.5 : 1 },
         ]}
         onPress={handleGameStart}
@@ -149,7 +150,15 @@ const PlayerSelect: React.FC = () => {
         activeOpacity={0.9}
       >
         <Animated.Text
-          style={[styles.startText, { textShadowColor: glowInterpolation }]}
+          style={[
+            styles.startText,
+            { textShadowColor: glowInterpolation },
+            isSmallPhone ? { fontSize: 38, height: 50 } : {},
+            isTablet && {
+              fontSize: 75,
+              height: 100,
+            }, // shorten width on tablets
+          ]}
         >
           Start
         </Animated.Text>
@@ -162,6 +171,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#192c43",
+    alignItems: "center",
   },
   title: {
     fontFamily: "SourGummy",
@@ -214,16 +224,21 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     borderWidth: 3,
     borderColor: "#FFCC00",
+    width: 350,
+    height: 60,
   },
   startText: {
     fontSize: 50,
+    justifyContent: "center",
+    textAlign: "center",
     fontWeight: "bold",
     color: "white",
     textTransform: "uppercase",
-    textAlign: "center",
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
     fontFamily: "SourGummy",
+    width: "100%",
+    height: 65,
   },
   warningContainer: {
     height: 40,

@@ -106,7 +106,7 @@ const usePlayerManagement = (
 
 const useGameSettings = () => {
   const [gameSettings, setGameSettingsState] = useState<GameSettings>({
-    mode: GameMode.BLITZ,
+    mode: GameMode.BATTLE,
     playerCount: 0,
   });
 
