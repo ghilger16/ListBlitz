@@ -47,7 +47,7 @@ const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
   };
 
   const color = getModeColor(mode);
-  const circleSize = isTablet ? 200 : isSmallPhone ? 100 : 130;
+  const circleSize = isTablet ? 210 : isSmallPhone ? 105 : 130;
 
   const iconFontSize = isTablet ? 60 : isSmallPhone ? 35 : 40;
   const modeFontSize = isTablet ? 45 : isSmallPhone ? 18 : 26;
@@ -85,7 +85,7 @@ const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
     <View
       style={[
         styles.container,
-        { marginTop: isTablet ? -410 : isSmallPhone ? -210 : -262 },
+        { marginTop: isTablet ? -415 : isSmallPhone ? -210 : -260 },
       ]}
     >
       <TouchableWithoutFeedback

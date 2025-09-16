@@ -125,7 +125,7 @@ export const ChillMode: React.FC<ModeComponentProps> = ({
           style={[
             styles.promptWrapper,
             {
-              marginTop: isTablet ? 60 : 15,
+              marginTop: isTablet ? 75 : 15,
             },
           ]}
         >
@@ -145,8 +145,20 @@ export const ChillMode: React.FC<ModeComponentProps> = ({
             }
           />
         </View>
-        <Text style={styles.playerText}>Player {safeCurrentPlayer.id}</Text>
-        <View style={styles.counterContainer}>
+        <Text
+          style={[
+            styles.playerText,
+            { fontSize: isTablet ? 40 : isSmallPhone ? 20 : 25 },
+          ]}
+        >
+          Player {safeCurrentPlayer.id}
+        </Text>
+        <View
+          style={[
+            styles.counterContainer,
+            { marginTop: isTablet ? 80 : isSmallPhone ? 50 : 75 },
+          ]}
+        >
           <ChillCounter
             onIncrement={() =>
               handleScoreIncrement(isGameStarted, score, setScore)
@@ -161,7 +173,13 @@ export const ChillMode: React.FC<ModeComponentProps> = ({
         </View>
 
         {showNextPlayerBubble && (
-          <View style={styles.nextPlayerContainer}>
+          <View
+            style={{
+              marginTop: isTablet ? 525 : isSmallPhone ? 275 : 375,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <NextPlayerPrompt
               onNextPlayerClick={() =>
                 handleNextPlayerClick(
@@ -193,7 +211,6 @@ const styles = StyleSheet.create({
   playerText: {
     color: "#fff",
     fontFamily: "SourGummy",
-    fontSize: 24,
     textAlign: "center",
     marginTop: 15,
     letterSpacing: 1,
@@ -202,16 +219,6 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   counterContainer: {
-    position: "absolute",
-    top: 100,
-    left: 0,
-    right: 0,
-    bottom: 0,
     justifyContent: "center",
-  },
-  nextPlayerContainer: {
-    position: "absolute",
-    top: 650,
-    left: 50,
   },
 });

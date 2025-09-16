@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import LottieView from "lottie-react-native";
 import { Player } from "@Context";
+import { useScreenInfo } from "@Utils";
 
 interface NextPlayerPromptProps {
   onNextPlayerClick: () => void;
@@ -22,15 +23,50 @@ export const NextPlayerPrompt: React.FC<NextPlayerPromptProps> = ({
   iconSource,
   nextPlayer,
 }) => {
+  const { isTablet, isSmallPhone } = useScreenInfo();
+
   const playerBackgroundColor = { backgroundColor: nextPlayer.startColor };
+
+  const containerWidth = isTablet ? 500 : isSmallPhone ? 250 : 300;
+  const containerHeight = isTablet ? 60 : isSmallPhone ? 35 : 40;
+  const paddingLeft = isTablet ? 10 : 5;
+
+  const iconSize = isTablet ? 45 : isSmallPhone ? 25 : 30;
+  const fontSize = isTablet ? 40 : isSmallPhone ? 22 : 25;
+  const borderRadius = isTablet ? 30 : 20;
+  const marginLeft = isTablet ? 50 : isSmallPhone ? 20 : 30;
 
   return (
     <TouchableOpacity onPress={onNextPlayerClick} activeOpacity={0.9}>
-      <View style={[styles.nextPlayerContainer, playerBackgroundColor]}>
-        <View style={styles.nextPlayerIconContainer}>
-          <LottieView source={iconSource} style={styles.nextPlayerIcon} />
+      <View
+        style={[
+          styles.nextPlayerContainer,
+          playerBackgroundColor,
+          {
+            width: containerWidth,
+            height: containerHeight,
+            borderRadius,
+            paddingLeft,
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.nextPlayerIconContainer,
+            { width: iconSize, height: iconSize, borderRadius: iconSize / 2 },
+          ]}
+        >
+          <LottieView
+            source={iconSource}
+            style={[
+              styles.nextPlayerIcon,
+              { width: iconSize - 5, height: iconSize - 5 },
+            ]}
+          />
         </View>
-        <Text style={styles.nextPlayerText}>Start Player {nextPlayer.id}</Text>
+        <Text style={[styles.nextPlayerText, { fontSize, marginLeft }]}>
+          Start Player {nextPlayer.id}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -43,33 +79,21 @@ const styles = StyleSheet.create<{
   nextPlayerText: TextStyle;
 }>({
   nextPlayerContainer: {
-    width: 300,
-    height: 40,
-    borderRadius: 20,
     flexDirection: "row",
     alignItems: "center",
-    paddingLeft: 5,
     paddingRight: 5,
     marginTop: 5,
   },
   nextPlayerIconContainer: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
     backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
   },
-  nextPlayerIcon: {
-    width: 25,
-    height: 25,
-  },
+  nextPlayerIcon: {},
   nextPlayerText: {
-    fontSize: 25,
     fontWeight: "bold",
     color: "#000",
     marginTop: 8,
-    marginLeft: 30,
     fontFamily: "LuckiestGuy",
   },
 });

@@ -1,3 +1,4 @@
+import { useScreenInfo } from "@Utils";
 import React, { useEffect, useState } from "react";
 import { Animated, StyleSheet } from "react-native";
 
@@ -13,6 +14,9 @@ export const FlashingText: React.FC<FlashingTextProps> = ({
   style,
 }) => {
   const fadeAnim = useState(new Animated.Value(1))[0];
+
+  const { isTablet, isSmallPhone } = useScreenInfo();
+  const fontSize = isTablet ? 25 : isSmallPhone ? 15 : 20;
 
   useEffect(() => {
     Animated.loop(
@@ -32,7 +36,9 @@ export const FlashingText: React.FC<FlashingTextProps> = ({
   }, [fadeAnim, duration]);
 
   return (
-    <Animated.Text style={[styles.animatedText, style, { opacity: fadeAnim }]}>
+    <Animated.Text
+      style={[styles.animatedText, style, { opacity: fadeAnim }, { fontSize }]}
+    >
       {children}
     </Animated.Text>
   );
@@ -40,7 +46,6 @@ export const FlashingText: React.FC<FlashingTextProps> = ({
 
 const styles = StyleSheet.create({
   animatedText: {
-    fontSize: 14,
     color: "#fff",
     textAlign: "center",
   },

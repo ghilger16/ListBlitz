@@ -28,11 +28,17 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   const RADIUS = isTablet ? 300 : isSmallPhone ? 120 : 160;
   const INNER_RADIUS = isTablet ? 220 : isSmallPhone ? 80 : 110;
   const BORDER_RADIUS = isTablet ? 315 : isSmallPhone ? 135 : 175;
-  const CENTER_RADIUS = isTablet ? 100 : isSmallPhone ? 45 : 60;
+  const CENTER_RADIUS = isTablet ? 95 : isSmallPhone ? 45 : 60;
+
+  // Give the SVG more headroom on larger screens and avoid clipping at the top
+  const GROUP_Y_OFFSET = isTablet ? 80 : isSmallPhone ? 45 : 60;
+  // Keep the score just below the border arc so it doesn’t get clipped on tablets
+  const scoreYOffset = isTablet ? 10 : isSmallPhone ? 10 : 15;
 
   // Position the score slightly above the ring, consistent across sizes
-  const scoreYOffset = isTablet ? 20 : isSmallPhone ? 10 : 15;
   const scoreY = -(RADIUS + scoreYOffset);
+
+  const tapTextMarginTop = isTablet ? 0 : isSmallPhone ? -45 : -35;
 
   const [fillAngle, setFillAngle] = useState(0);
   const [isPlayerStartVisible, setIsPlayerStartVisible] = useState(true);
@@ -127,8 +133,8 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
 
   return (
     <View style={styles.container} pointerEvents="box-none">
-      <Svg width={RADIUS * 2 + 40} height={RADIUS + 140}>
-        <G x={RADIUS + 20} y={RADIUS + 50}>
+      <Svg width={RADIUS * 2 + 40} height={RADIUS + 180}>
+        <G x={RADIUS + 20} y={RADIUS + GROUP_Y_OFFSET}>
           <SvgText
             x="0"
             y={scoreY}
@@ -184,7 +190,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
         />
       </TouchableOpacity>
 
-      <View style={styles.tapTextWrapper}>
+      <View style={[styles.tapTextWrapper, { marginTop: tapTextMarginTop }]}>
         {isPlayerStartVisible && <FlashingText>Tap to Score</FlashingText>}
       </View>
     </View>
@@ -210,7 +216,6 @@ const styles = StyleSheet.create({
   lottie: {},
   tapTextWrapper: {
     height: 40,
-    marginTop: -35,
     marginLeft: 0,
     justifyContent: "center",
     alignItems: "center",
