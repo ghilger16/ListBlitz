@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { View, Text, ScrollView, StyleSheet, Animated } from "react-native";
 
 import { useRouter } from "expo-router";
@@ -9,6 +9,7 @@ import { BlitzPack } from "../blitz-packs";
 import { CustomHeader } from "components/landing/custom-header";
 import { usePackLibraryAnimations } from "./usePackLibraryAnimations";
 import { useScreenInfo } from "../../../utils/useScreenInfo";
+import { blitzPackIcons } from "@Utils";
 
 const PackLibrary: React.FC = () => {
   const router = useRouter();
@@ -74,7 +75,79 @@ const PackLibrary: React.FC = () => {
     router.push("/player-select");
   };
 
-  const rows = getRows(blitzPacks);
+  const categoriesOrder = [
+    "Family & Kids",
+    "Entertainment",
+    "Music",
+    "General Knowledge",
+  ];
+
+  const grouped = useMemo(() => {
+    const map = new Map<string, typeof blitzPacks>();
+    for (const p of blitzPacks) {
+      const meta = blitzPackIcons[p.title];
+      const cat = meta?.category || "Other";
+      if (!map.has(cat)) map.set(cat, []);
+      map.get(cat)!.push(p);
+    }
+    return map;
+  }, [blitzPacks]);
+
+  let globalIndex = 0;
+
+  const renderCategory = (cat: string) => {
+    const packs = grouped.get(cat) || [];
+    const rows = getRows(packs);
+    return (
+      <View key={cat} style={{ width: "100%" }}>
+        <Text
+          style={[
+            styles.title,
+            isTablet && { fontSize: 40 },
+            isSmallPhone && { fontSize: 20 },
+            { marginBottom: isTablet ? 60 : isSmallPhone ? 12 : 20 },
+          ]}
+        >
+          {cat}
+        </Text>
+        {rows.map((row, rowIndex) => (
+          <View
+            style={[
+              styles.row,
+              { width: "100%", marginBottom: getRowSpacing() },
+            ]}
+            key={`${cat}-${rowIndex}`}
+          >
+            {row.map((pack, index) => {
+              const animIndex = globalIndex++;
+              const meta = blitzPackIcons[pack.title];
+              const locked = !!meta?.productId; // replace with entitlement check later
+              return (
+                <Animated.View
+                  key={pack.id}
+                  style={[
+                    getAnimatedStyle(animIndex),
+                    {
+                      transform: [{ scale: getCardScale() }],
+                      alignItems: "center",
+                      marginHorizontal: getPackMargin(),
+                    },
+                  ]}
+                >
+                  <BlitzPack
+                    title={pack.title}
+                    onPress={() => handlePackPress(pack.title, pack.id)}
+                    index={animIndex}
+                    locked={locked}
+                  />
+                </Animated.View>
+              );
+            })}
+          </View>
+        ))}
+      </View>
+    );
+  };
 
   return (
     <>
@@ -93,54 +166,11 @@ const PackLibrary: React.FC = () => {
         ]}
         style={styles.scrollView}
       >
-        <Text
-          style={[
-            styles.title,
-            isTablet && { fontSize: 40 },
-            isSmallPhone && { fontSize: 20 },
-            {
-              marginBottom: isTablet ? 75 : isSmallPhone ? 15 : 25,
-            },
-          ]}
-        >
-          Blitz Packs
-        </Text>
         <View style={styles.contentContainer}>
-          {rows.map((row, rowIndex) => (
-            <View
-              style={[
-                styles.row,
-                {
-                  width: "100%",
-                  marginBottom: getRowSpacing(),
-                },
-              ]}
-              key={rowIndex}
-            >
-              {row.map((pack, index) => {
-                const animIndex = rowIndex * 3 + index;
-                return (
-                  <Animated.View
-                    key={pack.id}
-                    style={[
-                      getAnimatedStyle(animIndex),
-                      {
-                        transform: [{ scale: getCardScale() }],
-                        alignItems: "center",
-                        marginHorizontal: getPackMargin(),
-                      },
-                    ]}
-                  >
-                    <BlitzPack
-                      title={pack.title}
-                      onPress={() => handlePackPress(pack.title, pack.id)}
-                      index={animIndex}
-                    />
-                  </Animated.View>
-                );
-              })}
-            </View>
-          ))}
+          {categoriesOrder.filter((c) => grouped.has(c)).map(renderCategory)}
+          {Array.from(grouped.keys())
+            .filter((c) => !categoriesOrder.includes(c))
+            .map(renderCategory)}
         </View>
       </ScrollView>
     </>
@@ -154,7 +184,8 @@ const styles = StyleSheet.create({
     color: "#61D4FF",
     textTransform: "uppercase",
     letterSpacing: 1.5,
-    textAlign: "center",
+    // alignSelf: "center",
+    backgroundColor: "pink",
     marginBottom: 20,
   },
   scrollView: {
@@ -175,7 +206,6 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     position: "absolute",
-
     width: "100%",
     zIndex: 2,
   },

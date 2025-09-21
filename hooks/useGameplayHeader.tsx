@@ -5,12 +5,15 @@ import { useNavigation, router } from "expo-router";
 
 import { stopSound, setMuted } from "@Utils";
 import React from "react";
+import { useScreenInfo } from "@Utils";
 
 export const useGameplayHeader = (
   isMuted: boolean,
   setIsMuted: (muted: boolean) => void
 ) => {
   const navigation = useNavigation();
+  const { isTablet, isSmallPhone } = useScreenInfo();
+  const iconSize = isTablet ? 40 : isSmallPhone ? 26 : 30;
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -25,7 +28,7 @@ export const useGameplayHeader = (
           }}
           style={styles.backButton}
         >
-          <Text style={styles.backText}>←</Text>
+          <Text style={[styles.backText, { fontSize: iconSize }]}>←</Text>
         </TouchableOpacity>
       ),
       headerRight: () => (
@@ -37,20 +40,21 @@ export const useGameplayHeader = (
           }}
           style={styles.backButton}
         >
-          <Text style={styles.backText}>{isMuted ? "🔇" : "🔊"}</Text>
+          <Text style={[styles.backText, { fontSize: iconSize }]}>
+            {isMuted ? "🔇" : "🔊"}
+          </Text>
         </TouchableOpacity>
       ),
     });
-  }, [navigation, isMuted]);
+  }, [navigation, isMuted, iconSize]);
 };
 
 const styles = StyleSheet.create({
   backButton: {
     paddingHorizontal: 15,
-    paddingVertical: 5,
+    paddingVertical: 0,
   },
   backText: {
-    fontSize: 30,
     color: "#fff",
     fontWeight: "700",
   },

@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity, StyleSheet, Image, View } from "react-native";
+import { TouchableOpacity, StyleSheet, Image, View, Text } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -10,13 +10,23 @@ interface IBlitzPackProps {
   title: string;
   onPress: () => void;
   index: number;
+  locked?: boolean;
 }
-const BlitzPack: React.FC<IBlitzPackProps> = ({ title, onPress, index }) => {
+const BlitzPack: React.FC<IBlitzPackProps> = ({
+  title,
+  onPress,
+  index,
+  locked,
+}) => {
   const gradientColors = PACK_COLORS[index % PACK_COLORS.length];
   const { icon, titleImage } = blitzPackIcons[title] || {};
   return (
     <TouchableOpacity
-      style={[styles.cardContainer, { borderColor: gradientColors[0] }]}
+      style={[
+        styles.cardContainer,
+        { borderColor: gradientColors[0] },
+        locked && styles.lockedCard,
+      ]}
       onPress={onPress}
       activeOpacity={0.9}
       accessible
@@ -26,6 +36,11 @@ const BlitzPack: React.FC<IBlitzPackProps> = ({ title, onPress, index }) => {
         colors={gradientColors}
         style={styles.gradientBackground}
       />
+      {locked && (
+        <View style={styles.lockBadge}>
+          <Text style={styles.lockText}>LOCKED</Text>
+        </View>
+      )}
       <View style={styles.contentColumn}>
         {titleImage && (
           <Image
@@ -54,6 +69,25 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderRadius: 25,
     backgroundColor: "#fff",
+  },
+  lockedCard: {
+    opacity: 0.75,
+  },
+  lockBadge: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+    backgroundColor: "#113B62",
+    zIndex: 3,
+  },
+  lockText: {
+    color: "#fff",
+    fontWeight: "800",
+    fontSize: 10,
+    letterSpacing: 0.6,
   },
   gradientBackground: {
     ...StyleSheet.absoluteFillObject,
