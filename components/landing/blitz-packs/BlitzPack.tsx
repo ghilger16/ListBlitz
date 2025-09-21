@@ -5,6 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import { PACK_COLORS } from "@Context";
 import { blitzPackIcons } from "@Utils";
+import { useScreenInfo } from "../../../utils/useScreenInfo";
 
 interface IBlitzPackProps {
   title: string;
@@ -20,11 +21,15 @@ const BlitzPack: React.FC<IBlitzPackProps> = ({
 }) => {
   const gradientColors = PACK_COLORS[index % PACK_COLORS.length];
   const { icon, titleImage } = blitzPackIcons[title] || {};
+  const { isTablet, isSmallPhone } = useScreenInfo();
   return (
     <TouchableOpacity
       style={[
         styles.cardContainer,
-        { borderColor: gradientColors[0] },
+        {
+          borderColor: gradientColors[0],
+          margin: isTablet ? 28 : isSmallPhone ? -8 : 2,
+        },
         locked && styles.lockedCard,
       ]}
       onPress={onPress}
@@ -62,7 +67,6 @@ const styles = StyleSheet.create({
   cardContainer: {
     width: 125,
     height: 165,
-    margin: 2,
     elevation: 3,
     alignItems: "center",
     overflow: "hidden",

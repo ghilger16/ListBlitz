@@ -11,7 +11,7 @@ export const blitzPackIcons: Record<
   "Category Chaos": {
     icon: require("@Assets/icons/category-chaos.png"),
     titleImage: require("@Assets/icons/category-chaos-title.png"),
-    category: "Family & Kids",
+    category: "General Knowledge",
   },
   "Snack Attack": {
     icon: require("@Assets/icons/snack-attack.png"),

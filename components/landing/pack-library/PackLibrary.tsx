@@ -1,5 +1,12 @@
 import React, { useMemo } from "react";
-import { View, Text, ScrollView, StyleSheet, Animated } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  Animated,
+  FlatList,
+} from "react-native";
 
 import { useRouter } from "expo-router";
 
@@ -37,26 +44,26 @@ const PackLibrary: React.FC = () => {
     return getHeaderHeight() - 50;
   };
 
-  const getRows = (packs: typeof blitzPacks) => {
-    const itemsPerRow = 3;
-    const rows = [];
-    for (let i = 0; i < packs.length; i += itemsPerRow) {
-      rows.push(packs.slice(i, i + itemsPerRow));
-    }
-    return rows;
-  };
+  // const getRows = (packs: typeof blitzPacks) => {
+  //   const itemsPerRow = 3;
+  //   const rows = [];
+  //   for (let i = 0; i < packs.length; i += itemsPerRow) {
+  //     rows.push(packs.slice(i, i + itemsPerRow));
+  //   }
+  //   return rows;
+  // };
 
-  const getRowSpacing = () => {
-    if (isTablet) return 75 * getCardScale();
-    if (isSmallPhone) return -5;
-    return 20 * getCardScale();
-  };
+  // const getRowSpacing = () => {
+  //   if (isTablet) return 75 * getCardScale();
+  //   if (isSmallPhone) return -5;
+  //   return 20 * getCardScale();
+  // };
 
-  const getPackMargin = () => {
-    if (isTablet) return 35;
-    if (isSmallPhone) return -5;
-    return 0;
-  };
+  // const getPackMargin = () => {
+  //   if (isTablet) return 35;
+  //   if (isSmallPhone) return -5;
+  //   return 0;
+  // };
 
   const getAnimatedStyle = (index: number) => ({
     opacity: animatedValues[index],
@@ -95,56 +102,71 @@ const PackLibrary: React.FC = () => {
 
   let globalIndex = 0;
 
+  const getCategoryMinDims = () => {
+    const scale = getCardScale();
+    const baseCardHeight = 165; // matches BlitzPack styles
+    const headerMargin = isTablet ? 40 : isSmallPhone ? 12 : 20; // same as title marginBottom
+    const verticalPadding = isTablet ? 40 : 16; // FlatList content padding approximation
+    const minHeight = Math.ceil(
+      baseCardHeight * scale + headerMargin + verticalPadding + 40
+    ); // extra breathing room
+
+    const minWidth = isTablet ? 900 : isSmallPhone ? 360 : 440; // widen a bit on tablet
+
+    return { minWidth, minHeight };
+  };
+
   const renderCategory = (cat: string) => {
     const packs = grouped.get(cat) || [];
-    const rows = getRows(packs);
     return (
-      <View key={cat} style={{ width: "100%" }}>
+      <View key={cat} style={[styles.categoryContainer, getCategoryMinDims()]}>
         <Text
           style={[
             styles.title,
             isTablet && { fontSize: 40 },
             isSmallPhone && { fontSize: 20 },
-            { marginBottom: isTablet ? 60 : isSmallPhone ? 12 : 20 },
+            { marginBottom: isTablet ? 0 : isSmallPhone ? 0 : 0 },
+            { width: "100%" },
           ]}
         >
           {cat}
         </Text>
-        {rows.map((row, rowIndex) => (
-          <View
-            style={[
-              styles.row,
-              { width: "100%", marginBottom: getRowSpacing() },
-            ]}
-            key={`${cat}-${rowIndex}`}
-          >
-            {row.map((pack, index) => {
-              const animIndex = globalIndex++;
-              const meta = blitzPackIcons[pack.title];
-              const locked = !!meta?.productId; // replace with entitlement check later
-              return (
-                <Animated.View
-                  key={pack.id}
-                  style={[
-                    getAnimatedStyle(animIndex),
-                    {
-                      transform: [{ scale: getCardScale() }],
-                      alignItems: "center",
-                      marginHorizontal: getPackMargin(),
-                    },
-                  ]}
-                >
-                  <BlitzPack
-                    title={pack.title}
-                    onPress={() => handlePackPress(pack.title, pack.id)}
-                    index={animIndex}
-                    locked={locked}
-                  />
-                </Animated.View>
-              );
-            })}
-          </View>
-        ))}
+
+        <FlatList
+          horizontal
+          data={packs}
+          keyExtractor={(item) => String(item.id)}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={[
+            isTablet ? styles.flatListContentTablet : styles.flatListContent,
+          ]}
+          snapToAlignment="start"
+          decelerationRate="fast"
+          renderItem={({ item }) => {
+            const animIndex = globalIndex++;
+            const meta = blitzPackIcons[item.title];
+            const locked = !!meta?.productId; // replace with entitlement check later
+            return (
+              <Animated.View
+                style={[
+                  getAnimatedStyle(animIndex),
+                  {
+                    transform: [{ scale: getCardScale() }],
+                    alignItems: "center",
+                    marginRight: isTablet ? 24 : 12,
+                  },
+                ]}
+              >
+                <BlitzPack
+                  title={item.title}
+                  onPress={() => handlePackPress(item.title, item.id)}
+                  index={animIndex}
+                  locked={locked}
+                />
+              </Animated.View>
+            );
+          }}
+        />
       </View>
     );
   };
@@ -178,15 +200,18 @@ const PackLibrary: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  categoryContainer: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
   title: {
     fontFamily: "SourGummy",
     fontSize: 25,
     color: "#61D4FF",
     textTransform: "uppercase",
     letterSpacing: 1.5,
-    // alignSelf: "center",
-    backgroundColor: "pink",
-    marginBottom: 20,
   },
   scrollView: {
     flex: 1,
@@ -199,6 +224,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flexDirection: "column",
+    alignItems: "center",
   },
   row: {
     flexDirection: "row",
@@ -208,6 +234,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     zIndex: 2,
+  },
+  flatListContent: {
+    paddingHorizontal: 5,
+    paddingVertical: 20,
+  },
+  flatListContentTablet: {
+    paddingHorizontal: 70,
+    paddingVertical: 45,
   },
 });
 
