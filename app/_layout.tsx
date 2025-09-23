@@ -1,3 +1,5 @@
+import { OwnedProvider, useOwnedPacks } from "@Hooks";
+import { initPurchases, getEntitlements } from "../purchases/purchases";
 import React, { useEffect, useState } from "react";
 import { View, StatusBar } from "react-native";
 
@@ -16,6 +18,28 @@ import { allAssets, ddConfig, identifyDatadogUser } from "@Utils";
 import AppProviders from "./AppProviders";
 
 const containerStyle = { flex: 1 };
+
+const PurchasesBootstrap: React.FC = () => {
+  const { setOwned } = useOwnedPacks();
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        await initPurchases();
+        const ents = await getEntitlements();
+        if (mounted) setOwned(ents);
+      } catch (e) {
+        console.warn("[PurchasesBootstrap] init failed", e);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [setOwned]);
+
+  return null;
+};
 
 const Layout: React.FC = () => {
   const pathname = usePathname();
@@ -66,8 +90,11 @@ const Layout: React.FC = () => {
       ) : (
         <View style={containerStyle}>
           <AppProviders>
-            <StatusBar hidden />
-            <Stack screenOptions={{ animation: "none" }} />
+            <OwnedProvider>
+              <StatusBar hidden />
+              <Stack screenOptions={{ animation: "none" }} />
+              <PurchasesBootstrap />
+            </OwnedProvider>
           </AppProviders>
         </View>
       )}

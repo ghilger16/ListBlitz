@@ -9,6 +9,7 @@ export { useGetBlitzPacks } from "./useGetBlitzPacks";
 export { useGetPromptsByBlitzPack } from "./useGetPromptsByBlitzPack";
 export { useGlowAnimation } from "./useGlowAnimation";
 export { useModeSelectAnimations } from "./useModeSelectAnimations";
+export { useOwnedPacks, OwnedProvider } from "./useOwnedPacks";
 export { usePlayerSelectHeader } from "./usePlayerSelectHeader";
 export { usePlayerSelectAnimations } from "./usePlayerSelectAnimations";
 export { usePreloadAssets } from "./usePreloadAssets";

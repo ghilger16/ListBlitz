@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,8 @@ import { CustomHeader } from "components/landing/custom-header";
 import { usePackLibraryAnimations } from "./usePackLibraryAnimations";
 import { useScreenInfo } from "../../../utils/useScreenInfo";
 import { blitzPackIcons } from "@Utils";
+import { PaywallSheet } from "../../paywall/PaywallSheet";
+import { useOwnedPacks } from "@Hooks";
 
 const PackLibrary: React.FC = () => {
   const router = useRouter();
@@ -25,6 +27,13 @@ const PackLibrary: React.FC = () => {
     usePackLibraryAnimations();
 
   const { isSmallPhone, isTablet } = useScreenInfo();
+  const { isOwned } = useOwnedPacks();
+
+  const [paywall, setPaywall] = useState<{
+    visible: boolean;
+    productId?: string;
+    title?: string;
+  }>({ visible: false });
 
   const getCardScale = () => {
     if (isTablet) return 1.5;
@@ -145,7 +154,7 @@ const PackLibrary: React.FC = () => {
           renderItem={({ item }) => {
             const animIndex = globalIndex++;
             const meta = blitzPackIcons[item.title];
-            const locked = !!meta?.productId; // replace with entitlement check later
+            const locked = !!meta?.productId && !isOwned(meta.productId);
             return (
               <Animated.View
                 style={[
@@ -159,7 +168,17 @@ const PackLibrary: React.FC = () => {
               >
                 <BlitzPack
                   title={item.title}
-                  onPress={() => handlePackPress(item.title, item.id)}
+                  onPress={() => {
+                    if (locked && meta?.productId) {
+                      setPaywall({
+                        visible: true,
+                        productId: meta.productId,
+                        title: item.title,
+                      });
+                    } else {
+                      handlePackPress(item.title, item.id);
+                    }
+                  }}
                   index={animIndex}
                   locked={locked}
                 />
@@ -195,6 +214,17 @@ const PackLibrary: React.FC = () => {
             .map(renderCategory)}
         </View>
       </ScrollView>
+
+      <PaywallSheet
+        visible={paywall.visible}
+        title={paywall.title}
+        productId={paywall.productId}
+        onClose={() => setPaywall({ visible: false })}
+        onUnlocked={(entitlements) => {
+          // When purchase or restore succeeds, you can refresh local state here if needed.
+          setPaywall({ visible: false });
+        }}
+      />
     </>
   );
 };
