@@ -21,3 +21,27 @@ export const BLITZ_TITLE_TO_KEY_MAP: Record<
   "The Thing Is": "the_thing_is",
   "Music Mania": "music_mania",
 };
+
+export const SAMPLE_PROMPTS: Record<string, string[]> = {
+  big_screen_blitz: [
+    "List movies from the 80s",
+    "List movies with a number in the title",
+    "List movies with a dragon",
+    "List Christmas movies",
+    "List movies based on books",
+  ],
+  category_chaos: [
+    "List fast food chains",
+    "List cartoon characters",
+    "List NFL teams",
+    "List U.S. presidents",
+    "List shoe brands",
+  ],
+  music_mania: [
+    "List famous bands from the 70s",
+    "List one-hit wonders",
+    "List songs with a color in the title",
+    "List boy bands",
+    "List songs by Michael Jackson",
+  ],
+};

@@ -21,6 +21,7 @@ export const categoryChaosPrompts = [
   "List sports that use a net",
   "List types of board games",
   "List Olympic sports",
+  "List NFL teams",
 
   // 🚗 Transportation & Movement
   "List modes of transportation",
@@ -70,6 +71,7 @@ export const categoryChaosPrompts = [
   "List gas station brands",
   "List coffee shop chains",
   "List pizza chains",
+  "List fast food chains",
   "List delivery apps",
   "List airline companies",
   "List hotel chains",

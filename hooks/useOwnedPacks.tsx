@@ -10,6 +10,7 @@ type OwnedContextType = {
   setOwned: (ids: string[]) => void; // replace all
   addOwned: (ids: string[]) => void; // add/merge
   isOwned: (id?: string | null) => boolean;
+  hasFullAccess: boolean;
 };
 
 const OwnedContext = createContext<OwnedContextType | undefined>(undefined);
@@ -30,6 +31,7 @@ export const OwnedProvider: React.FC<React.PropsWithChildren<{}>> = ({
           return next;
         }),
       isOwned: (id?: string | null) => (!!id ? owned.has(id) : false),
+      hasFullAccess: owned.has("com.listblitz.app.iap.all_packs"),
     }),
     [owned]
   );

@@ -1,6 +1,6 @@
-import { OwnedProvider, useOwnedPacks } from "@Hooks";
+import { OwnedProvider, useOwnedPacks, useAssetsReady } from "@Hooks";
 import { initPurchases, getEntitlements } from "../purchases/purchases";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { View, StatusBar } from "react-native";
 
 import { Stack, usePathname } from "expo-router";
@@ -13,8 +13,7 @@ import {
 } from "@datadog/mobile-react-native";
 
 import { SplashScreen } from "@Components";
-import { usePreloadAssets } from "@Hooks";
-import { allAssets, ddConfig, identifyDatadogUser } from "@Utils";
+import { ddConfig, identifyDatadogUser } from "@Utils";
 import AppProviders from "./AppProviders";
 
 const containerStyle = { flex: 1 };
@@ -22,7 +21,11 @@ const containerStyle = { flex: 1 };
 const PurchasesBootstrap: React.FC = () => {
   const { setOwned } = useOwnedPacks();
 
+  const ranRef = useRef(false);
   useEffect(() => {
+    if (ranRef.current) return; // avoid hot-reload / remount double-run
+    ranRef.current = true;
+
     let mounted = true;
     (async () => {
       try {
@@ -36,7 +39,7 @@ const PurchasesBootstrap: React.FC = () => {
     return () => {
       mounted = false;
     };
-  }, [setOwned]);
+  }, []); // run once on mount only
 
   return null;
 };
@@ -50,7 +53,7 @@ const Layout: React.FC = () => {
     SourGummy: require("@Assets/fonts/SourGummy-Italic.ttf"),
   });
 
-  const assetsLoaded = usePreloadAssets(allAssets);
+  const assetsLoaded = useAssetsReady();
 
   useEffect(() => {
     const initDatadog = async () => {

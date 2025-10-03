@@ -1,4 +1,5 @@
 export const allAssets = [
+  require("assets/images/landing-splash.png"),
   require("assets/images/blitz-splash.png"),
   require("assets/images/chill-splash.png"),
   require("assets/images/battle-splash.png"),

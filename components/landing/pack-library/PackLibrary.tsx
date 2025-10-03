@@ -1,12 +1,5 @@
 import React, { useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Animated,
-  FlatList,
-} from "react-native";
+import { View, Text, ScrollView, StyleSheet, Animated } from "react-native";
 
 import { useRouter } from "expo-router";
 
@@ -27,13 +20,16 @@ const PackLibrary: React.FC = () => {
     usePackLibraryAnimations();
 
   const { isSmallPhone, isTablet } = useScreenInfo();
-  const { isOwned } = useOwnedPacks();
+  const { isOwned, hasFullAccess } = useOwnedPacks();
 
   const [paywall, setPaywall] = useState<{
     visible: boolean;
+    index: number;
     productId?: string;
     title?: string;
-  }>({ visible: false });
+  }>({ visible: false, index: 0 });
+
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
   const getCardScale = () => {
     if (isTablet) return 1.5;
@@ -53,27 +49,6 @@ const PackLibrary: React.FC = () => {
     return getHeaderHeight() - 50;
   };
 
-  // const getRows = (packs: typeof blitzPacks) => {
-  //   const itemsPerRow = 3;
-  //   const rows = [];
-  //   for (let i = 0; i < packs.length; i += itemsPerRow) {
-  //     rows.push(packs.slice(i, i + itemsPerRow));
-  //   }
-  //   return rows;
-  // };
-
-  // const getRowSpacing = () => {
-  //   if (isTablet) return 75 * getCardScale();
-  //   if (isSmallPhone) return -5;
-  //   return 20 * getCardScale();
-  // };
-
-  // const getPackMargin = () => {
-  //   if (isTablet) return 35;
-  //   if (isSmallPhone) return -5;
-  //   return 0;
-  // };
-
   const getAnimatedStyle = (index: number) => ({
     opacity: animatedValues[index],
     transform: [
@@ -92,103 +67,13 @@ const PackLibrary: React.FC = () => {
   };
 
   const categoriesOrder = [
+    "All",
     "Family & Kids",
     "Entertainment",
-    "Music",
     "General Knowledge",
   ];
 
-  const grouped = useMemo(() => {
-    const map = new Map<string, typeof blitzPacks>();
-    for (const p of blitzPacks) {
-      const meta = blitzPackIcons[p.title];
-      const cat = meta?.category || "Other";
-      if (!map.has(cat)) map.set(cat, []);
-      map.get(cat)!.push(p);
-    }
-    return map;
-  }, [blitzPacks]);
-
   let globalIndex = 0;
-
-  const getCategoryMinDims = () => {
-    const scale = getCardScale();
-    const baseCardHeight = 165; // matches BlitzPack styles
-    const headerMargin = isTablet ? 40 : isSmallPhone ? 12 : 20; // same as title marginBottom
-    const verticalPadding = isTablet ? 40 : 16; // FlatList content padding approximation
-    const minHeight = Math.ceil(
-      baseCardHeight * scale + headerMargin + verticalPadding + 40
-    ); // extra breathing room
-
-    const minWidth = isTablet ? 900 : isSmallPhone ? 360 : 440; // widen a bit on tablet
-
-    return { minWidth, minHeight };
-  };
-
-  const renderCategory = (cat: string) => {
-    const packs = grouped.get(cat) || [];
-    return (
-      <View key={cat} style={[styles.categoryContainer, getCategoryMinDims()]}>
-        <Text
-          style={[
-            styles.title,
-            isTablet && { fontSize: 40 },
-            isSmallPhone && { fontSize: 20 },
-            { marginBottom: isTablet ? 0 : isSmallPhone ? 0 : 0 },
-            { width: "100%" },
-          ]}
-        >
-          {cat}
-        </Text>
-
-        <FlatList
-          horizontal
-          data={packs}
-          keyExtractor={(item) => String(item.id)}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={[
-            isTablet ? styles.flatListContentTablet : styles.flatListContent,
-          ]}
-          snapToAlignment="start"
-          decelerationRate="fast"
-          renderItem={({ item }) => {
-            const animIndex = globalIndex++;
-            const meta = blitzPackIcons[item.title];
-            const locked = !!meta?.productId && !isOwned(meta.productId);
-            return (
-              <Animated.View
-                style={[
-                  getAnimatedStyle(animIndex),
-                  {
-                    transform: [{ scale: getCardScale() }],
-                    alignItems: "center",
-                    marginRight: isTablet ? 24 : 12,
-                  },
-                ]}
-              >
-                <BlitzPack
-                  title={item.title}
-                  onPress={() => {
-                    if (locked && meta?.productId) {
-                      setPaywall({
-                        visible: true,
-                        productId: meta.productId,
-                        title: item.title,
-                      });
-                    } else {
-                      handlePackPress(item.title, item.id);
-                    }
-                  }}
-                  index={animIndex}
-                  locked={locked}
-                />
-              </Animated.View>
-            );
-          }}
-        />
-      </View>
-    );
-  };
 
   return (
     <>
@@ -207,22 +92,81 @@ const PackLibrary: React.FC = () => {
         ]}
         style={styles.scrollView}
       >
-        <View style={styles.contentContainer}>
-          {categoriesOrder.filter((c) => grouped.has(c)).map(renderCategory)}
-          {Array.from(grouped.keys())
-            .filter((c) => !categoriesOrder.includes(c))
-            .map(renderCategory)}
+        <View style={styles.chipsRow}>
+          {categoriesOrder.map((cat) => (
+            <Animated.View key={cat} style={{ opacity: 1 }}>
+              <Text
+                suppressHighlighting
+                onPress={() => setSelectedCategory(cat)}
+                style={[
+                  styles.chip,
+                  selectedCategory === cat && styles.chipSelected,
+                  isTablet && styles.chipTablet,
+                  isSmallPhone && styles.chipSmall,
+                ]}
+              >
+                {cat}
+              </Text>
+            </Animated.View>
+          ))}
+        </View>
+
+        <View style={styles.grid}>
+          {blitzPacks.map((item, i) => {
+            const animIndex = globalIndex++;
+            const meta = blitzPackIcons[item.title];
+            const isHidden =
+              selectedCategory !== "All" &&
+              (blitzPackIcons[item.title]?.category || "Other") !==
+                selectedCategory;
+            const locked =
+              !hasFullAccess && !!meta?.productId && !isOwned(meta.productId);
+            return (
+              <Animated.View
+                key={item.id}
+                style={[
+                  getAnimatedStyle(animIndex),
+                  styles.gridItem,
+                  { transform: [{ scale: getCardScale() }] },
+                  isHidden && { display: "none" },
+                ]}
+              >
+                <BlitzPack
+                  title={item.title}
+                  onPress={() => {
+                    if (hasFullAccess) {
+                      handlePackPress(item.title, item.id);
+                      return;
+                    }
+                    if (locked && meta?.productId) {
+                      setPaywall({
+                        visible: true,
+                        index: animIndex,
+                        productId: meta.productId,
+                        title: item.title,
+                      });
+                    } else {
+                      handlePackPress(item.title, item.id);
+                    }
+                  }}
+                  index={animIndex}
+                  locked={locked}
+                />
+              </Animated.View>
+            );
+          })}
         </View>
       </ScrollView>
 
       <PaywallSheet
         visible={paywall.visible}
-        title={paywall.title}
-        productId={paywall.productId}
-        onClose={() => setPaywall({ visible: false })}
+        index={paywall.index}
+        title={paywall?.title ?? ""}
+        productId={paywall?.productId}
+        onClose={() => setPaywall({ visible: false, index: 0 })}
         onUnlocked={(entitlements) => {
           // When purchase or restore succeeds, you can refresh local state here if needed.
-          setPaywall({ visible: false });
+          setPaywall({ visible: false, index: 0 });
         }}
       />
     </>
@@ -230,19 +174,6 @@ const PackLibrary: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  categoryContainer: {
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  title: {
-    fontFamily: "SourGummy",
-    fontSize: 25,
-    color: "#61D4FF",
-    textTransform: "uppercase",
-    letterSpacing: 1.5,
-  },
   scrollView: {
     flex: 1,
     zIndex: 1,
@@ -256,22 +187,46 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
   },
-  row: {
-    flexDirection: "row",
-    marginBottom: 10,
-  },
   headerContainer: {
     position: "absolute",
     width: "100%",
     zIndex: 2,
   },
-  flatListContent: {
-    paddingHorizontal: 5,
-    paddingVertical: 20,
+  chipsRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 8,
+    paddingHorizontal: 16,
+    marginBottom: 12,
   },
-  flatListContentTablet: {
-    paddingHorizontal: 70,
-    paddingVertical: 45,
+  chip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 18,
+    backgroundColor: "#0f2539",
+    color: "#8fdcff",
+    fontFamily: "SourGummy",
+    fontSize: 16,
+    overflow: "hidden",
+  },
+  chipSelected: {
+    backgroundColor: "#61D4FF",
+    color: "#0b1c2c",
+  },
+  chipTablet: { fontSize: 20, paddingHorizontal: 18, paddingVertical: 10 },
+  chipSmall: { fontSize: 14, paddingHorizontal: 12, paddingVertical: 6 },
+
+  grid: {
+    width: "100%",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    paddingHorizontal: 8,
+  },
+  gridItem: {
+    flexBasis: "33.33%",
+    maxWidth: "33.33%",
   },
 });
 

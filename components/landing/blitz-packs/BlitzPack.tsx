@@ -4,8 +4,7 @@ import { TouchableOpacity, StyleSheet, Image, View, Text } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { PACK_COLORS } from "@Context";
-import { blitzPackIcons } from "@Utils";
-import { useScreenInfo } from "../../../utils/useScreenInfo";
+import { blitzPackIcons, useScreenInfo } from "@Utils";
 
 interface IBlitzPackProps {
   title: string;
@@ -79,8 +78,8 @@ const styles = StyleSheet.create({
   },
   lockBadge: {
     position: "absolute",
-    top: 8,
-    right: 8,
+    bottom: 75,
+    right: 25,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 10,
