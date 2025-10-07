@@ -64,8 +64,8 @@ const BlitzPack: React.FC<IBlitzPackProps> = ({
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: 125,
-    height: 165,
+    width: 120,
+    height: 160,
     elevation: 3,
     alignItems: "center",
     overflow: "hidden",

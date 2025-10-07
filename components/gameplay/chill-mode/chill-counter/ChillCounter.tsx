@@ -6,8 +6,9 @@ import * as d3 from "d3-shape";
 import LottieView from "lottie-react-native";
 
 import { Player, playerIcons } from "@Context";
-import { playTapSound, useScreenInfo } from "@Utils";
+import { playTapSound } from "@Utils";
 import { FlashingText } from "components/shared/flashing-text";
+import { useResponsiveStyles } from "@Hooks";
 
 interface IGameplayCounterProps {
   score: number;
@@ -23,22 +24,80 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   onIncrement,
   onDecrement,
 }) => {
-  const { isTablet, isSmallPhone } = useScreenInfo();
+  const styles = useResponsiveStyles(BASE_STYLES, (device) => {
+    if (device.isLargeTablet) {
+      return {
+        ringBox: { width: 365 },
+        innerBox: { width: 265 },
+        borderBox: { width: 380 },
+        centerBox: { width: 115 },
+        groupOffset: { marginTop: 80 },
+        scoreOffset: { marginTop: 12 },
+        tapTextOffset: { marginTop: 0 },
+        scoreText: { fontSize: 72 },
+      } as const;
+    }
+    if (device.isTablet) {
+      return {
+        ringBox: { width: 300 },
+        innerBox: { width: 220 },
+        borderBox: { width: 315 },
+        centerBox: { width: 95 },
+        groupOffset: { marginTop: 80 },
+        scoreOffset: { marginTop: 10 },
+        tapTextOffset: { marginTop: 0 },
+        scoreText: { fontSize: 60 },
+      } as const;
+    }
+    if (device.isLargePhone) {
+      return {
+        ringBox: { width: 190 },
+        innerBox: { width: 135 },
+        borderBox: { width: 205 },
+        centerBox: { width: 70 },
+        groupOffset: { marginTop: 65 },
+        scoreOffset: { marginTop: 14 },
+        tapTextOffset: { marginTop: -32 },
+        scoreText: { fontSize: 50 },
+      } as const;
+    }
+    if (device.isSmallPhone) {
+      return {
+        ringBox: { width: 120 },
+        innerBox: { width: 80 },
+        borderBox: { width: 135 },
+        centerBox: { width: 45 },
+        groupOffset: { marginTop: 45 },
+        scoreOffset: { marginTop: 10 },
+        tapTextOffset: { marginTop: -45 },
+        scoreText: { fontSize: 30 },
+      } as const;
+    }
+    // default / regular phones
+    return {
+      ringBox: { width: 160 },
+      innerBox: { width: 110 },
+      borderBox: { width: 175 },
+      centerBox: { width: 60 },
+      groupOffset: { marginTop: 60 },
+      scoreOffset: { marginTop: 15 },
+      tapTextOffset: { marginTop: -35 },
+      scoreText: { fontSize: 45 },
+    } as const;
+  });
 
-  const RADIUS = isTablet ? 300 : isSmallPhone ? 120 : 160;
-  const INNER_RADIUS = isTablet ? 220 : isSmallPhone ? 80 : 110;
-  const BORDER_RADIUS = isTablet ? 315 : isSmallPhone ? 135 : 175;
-  const CENTER_RADIUS = isTablet ? 95 : isSmallPhone ? 45 : 60;
-
-  // Give the SVG more headroom on larger screens and avoid clipping at the top
-  const GROUP_Y_OFFSET = isTablet ? 80 : isSmallPhone ? 45 : 60;
-  // Keep the score just below the border arc so it doesn’t get clipped on tablets
-  const scoreYOffset = isTablet ? 10 : isSmallPhone ? 10 : 15;
+  // derive numeric tokens from styles
+  const RADIUS = (styles as any).ringBox.width as number;
+  const INNER_RADIUS = (styles as any).innerBox.width as number;
+  const BORDER_RADIUS = (styles as any).borderBox.width as number;
+  const CENTER_RADIUS = (styles as any).centerBox.width as number;
+  const GROUP_Y_OFFSET = (styles as any).groupOffset.marginTop as number;
+  const scoreYOffset = (styles as any).scoreOffset.marginTop as number;
+  const scoreFontSize = (styles as any).scoreText.fontSize as number;
+  const tapTextMarginTop = (styles as any).tapTextOffset.marginTop as number;
 
   // Position the score slightly above the ring, consistent across sizes
   const scoreY = -(RADIUS + scoreYOffset);
-
-  const tapTextMarginTop = isTablet ? 0 : isSmallPhone ? -45 : -35;
 
   const [fillAngle, setFillAngle] = useState(0);
   const [isPlayerStartVisible, setIsPlayerStartVisible] = useState(true);
@@ -138,7 +197,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
           <SvgText
             x="0"
             y={scoreY}
-            fontSize={isTablet ? 60 : isSmallPhone ? 30 : 45}
+            fontSize={scoreFontSize}
             fontWeight="bold"
             fill="#fff"
             textAnchor="middle"
@@ -197,7 +256,7 @@ export const ChillCounter: React.FC<IGameplayCounterProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const BASE_STYLES = StyleSheet.create({
   container: {
     alignItems: "center",
     justifyContent: "center",
@@ -213,11 +272,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
   },
-  lottie: {},
   tapTextWrapper: {
     height: 40,
     marginLeft: 0,
     justifyContent: "center",
     alignItems: "center",
   },
+  // numeric tokens encoded as style props
+  ringBox: { width: 160 }, // RADIUS
+  innerBox: { width: 110 }, // INNER_RADIUS
+  borderBox: { width: 175 }, // BORDER_RADIUS
+  centerBox: { width: 60 }, // CENTER_RADIUS
+  groupOffset: { marginTop: 60 }, // GROUP_Y_OFFSET
+  scoreOffset: { marginTop: 15 }, // scoreYOffset
+  tapTextOffset: { marginTop: -35 }, // tap text marginTop
+  scoreText: { fontSize: 45 },
 });

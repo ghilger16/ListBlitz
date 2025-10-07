@@ -16,6 +16,7 @@ import {
 } from "../../purchases/purchases";
 import { useOwnedPacks } from "@Hooks";
 import { useScreenInfo } from "../../utils/useScreenInfo";
+import { useResponsiveStyles } from "@Hooks";
 import { blitzPackIcons } from "@Utils";
 import { PACK_COLORS } from "@Context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -23,15 +24,14 @@ import { BLITZ_TITLE_TO_KEY_MAP, SAMPLE_PROMPTS } from "@Data";
 
 interface PaywallSheetProps {
   visible: boolean;
-  title: string; // current pack title
-  index: number; // index of the pack in the list, for styling
-  productId?: string; // current pack's product id
+  title: string;
+  index: number;
+  productId?: string;
   onClose: () => void;
   onUnlocked: (entitlements: string[]) => void;
 }
 
-// TODO: change this to your actual Full Access product id when ready
-const FULL_ACCESS_PRODUCT_ID = "com.listblitz.app.iap.all_packs"; // or com.listblitz.app.iap.full_access
+const FULL_ACCESS_PRODUCT_ID = "com.listblitz.app.iap.all_packs";
 
 type OptionKey = "full" | "single";
 
@@ -44,7 +44,67 @@ export const PaywallSheet: React.FC<PaywallSheetProps> = ({
   onUnlocked,
 }) => {
   const { addOwned, setOwned } = useOwnedPacks();
-  const { isTablet } = useScreenInfo();
+  const { device } = useScreenInfo();
+
+  const styles = useResponsiveStyles(BASE_STYLES, (device) => {
+    const fs = (base: number) => {
+      if (device.isLargeTablet) return Math.round(base * 1.5);
+      if (device.isTablet) return Math.round(base * 1.25);
+      if (device.isLargePhone) return Math.round(base * 1.05);
+      if (device.isSmallPhone) return Math.round(base * 0.9);
+      return base;
+    };
+
+    const paddingX = device.isLargeTablet
+      ? 24
+      : device.isTablet
+      ? 18
+      : device.isLargePhone
+      ? 18
+      : device.isSmallPhone
+      ? 12
+      : 16;
+
+    const sheetMaxWidth = device.isLargeTablet
+      ? 820
+      : device.isTablet
+      ? 720
+      : 640;
+
+    const heroClosePadH = device.isTablet || device.isLargeTablet ? 12 : 8;
+    const heroClosePadV = device.isTablet || device.isLargeTablet ? 6 : 2;
+    const heroCloseRadius = device.isTablet || device.isLargeTablet ? 18 : 14;
+    const heroCloseFont = device.isLargeTablet ? 26 : device.isTablet ? 22 : 18;
+
+    return {
+      sheet: { maxWidth: sheetMaxWidth },
+      contentPad: { paddingHorizontal: paddingX },
+      headline: { fontSize: fs(21) },
+      promptText: { fontSize: fs(20) },
+      selectTitle: { fontSize: fs(16) },
+      selectSub: { fontSize: fs(14) },
+      selectPrice: { fontSize: fs(14) },
+      buyButtonText: { fontSize: fs(17) },
+      checkBullet: { fontSize: fs(15) },
+      restoreText: { fontSize: fs(16) },
+      heroClose: {
+        paddingHorizontal: heroClosePadH,
+        paddingVertical: heroClosePadV,
+        borderRadius: heroCloseRadius,
+        right: 12,
+        top: 12,
+      },
+      heroCloseLabel: { fontSize: heroCloseFont },
+    };
+  });
+
+  const radioOuter = useMemo(() => {
+    if (device.isLargeTablet) return 30;
+    if (device.isTablet) return 22;
+    if (device.isLargePhone) return 22;
+    if (device.isSmallPhone) return 20;
+    return 22;
+  }, [device]);
 
   const [loadingPurchase, setLoadingPurchase] = useState(false);
   const [loadingRestore, setLoadingRestore] = useState(false);
@@ -103,7 +163,6 @@ export const PaywallSheet: React.FC<PaywallSheetProps> = ({
     return () => clearInterval(interval);
   }, [visible, promptList, promptFade, promptTranslate]);
 
-  // DRY price fetching helper
   const fetchPrice = React.useCallback(
     async (id: string | undefined, set: (v: string | null) => void) => {
       if (!id) {
@@ -147,8 +206,6 @@ export const PaywallSheet: React.FC<PaywallSheetProps> = ({
   const canBuy =
     !loadingPurchase && !loadingRestore && (selected === "full" || !!productId);
 
-  // Memoized flags and handlers
-  const hasSingle = !!productId;
   const onSelectFull = React.useCallback(() => setSelected("full"), []);
   const onSelectSingle = React.useCallback(() => setSelected("single"), []);
   const handlePurchase = React.useCallback(async () => {
@@ -186,7 +243,7 @@ export const PaywallSheet: React.FC<PaywallSheetProps> = ({
   return (
     <Modal transparent visible={visible} animationType="slide">
       <View style={styles.overlay}>
-        <View style={[styles.sheet, isTablet && styles.sheetTablet]}>
+        <View style={styles.sheet}>
           <View style={styles.heroWrap}>
             <LinearGradient colors={gradientColors} style={styles.heroImage}>
               {titleImage && (
@@ -207,7 +264,6 @@ export const PaywallSheet: React.FC<PaywallSheetProps> = ({
               <Text style={styles.heroCloseLabel}>✕</Text>
             </TouchableOpacity>
           </View>
-          {/* Headline & bullets */}
           <View style={styles.contentPad}>
             <Text style={styles.headline}>
               Unlock our complete Blitz library
@@ -224,7 +280,6 @@ export const PaywallSheet: React.FC<PaywallSheetProps> = ({
               </Text>
             </View>
 
-            {/* Rotating sample prompt */}
             <View style={styles.promptTicker}>
               <Animated.View
                 style={[
@@ -243,9 +298,7 @@ export const PaywallSheet: React.FC<PaywallSheetProps> = ({
             </View>
           </View>
 
-          {/* Content scroll to avoid overflow on small screens */}
           <View style={[styles.optionsWrap, styles.contentPad]}>
-            {/* Full Access Option */}
             <TouchableOpacity
               activeOpacity={0.9}
               onPress={onSelectFull}
@@ -259,7 +312,11 @@ export const PaywallSheet: React.FC<PaywallSheetProps> = ({
             >
               <View style={styles.selectHeader}>
                 <View style={styles.selectLeft}>
-                  <Radio selected={selected === "full"} color={accentColor} />
+                  <Radio
+                    selected={selected === "full"}
+                    color={accentColor}
+                    size={radioOuter}
+                  />
                   <Text style={styles.selectTitle}>Full Access</Text>
                 </View>
                 <View style={styles.discountPill}>
@@ -273,7 +330,6 @@ export const PaywallSheet: React.FC<PaywallSheetProps> = ({
               </Text>
             </TouchableOpacity>
 
-            {/* Single Pack Option */}
             <TouchableOpacity
               activeOpacity={0.9}
               onPress={onSelectSingle}
@@ -287,7 +343,11 @@ export const PaywallSheet: React.FC<PaywallSheetProps> = ({
             >
               <View style={styles.selectHeader}>
                 <View style={styles.selectLeft}>
-                  <Radio selected={selected === "single"} color={accentColor} />
+                  <Radio
+                    selected={selected === "single"}
+                    color={accentColor}
+                    size={radioOuter}
+                  />
                   <Text style={styles.selectTitle}>This Pack Only</Text>
                 </View>
               </View>
@@ -339,30 +399,42 @@ export const PaywallSheet: React.FC<PaywallSheetProps> = ({
   );
 };
 
-const Radio: React.FC<{ selected: boolean; color?: string }> = ({
+const Radio: React.FC<{ selected: boolean; color?: string; size?: number }> = ({
   selected,
   color,
-}) => (
-  <View
-    style={[
-      styles.radioOuter,
-      selected && {
-        borderColor: color || styles.radioOuterSelected.borderColor,
-      },
-    ]}
-  >
-    {selected ? (
-      <View
-        style={[
-          styles.radioInner,
-          { backgroundColor: color || styles.radioInner.backgroundColor },
-        ]}
-      />
-    ) : null}
-  </View>
-);
+  size,
+}) => {
+  const outerSize = size ?? 22;
+  const innerSize = Math.round(outerSize * 0.45);
 
-const styles = StyleSheet.create({
+  return (
+    <View
+      style={[
+        BASE_STYLES.radioOuter,
+        { width: outerSize, height: outerSize, borderRadius: outerSize / 2 },
+        selected && {
+          borderColor: color || BASE_STYLES.radioOuterSelected.borderColor,
+        },
+      ]}
+    >
+      {selected ? (
+        <View
+          style={[
+            BASE_STYLES.radioInner,
+            {
+              width: innerSize,
+              height: innerSize,
+              borderRadius: innerSize / 2,
+              backgroundColor: color || BASE_STYLES.radioInner.backgroundColor,
+            },
+          ]}
+        />
+      ) : null}
+    </View>
+  );
+};
+
+const BASE_STYLES = {
   gradientBackground: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 25,
@@ -389,9 +461,6 @@ const styles = StyleSheet.create({
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 12 },
     elevation: 6,
-  },
-  sheetTablet: {
-    maxWidth: 720,
   },
   headerRow: {
     flexDirection: "row",
@@ -515,10 +584,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     alignItems: "center",
   },
-
   restoreText: {
     color: "#536f86",
-    fontSize: 15,
+    fontSize: 16,
     textDecorationLine: "underline",
     fontWeight: "600",
   },
@@ -537,7 +605,6 @@ const styles = StyleSheet.create({
   heroImage: {
     width: "100%",
     aspectRatio: 32 / 9,
-    // backgroundColor: "#e9eef6", // Now handled by gradient
   },
   heroClose: {
     position: "absolute",
@@ -602,8 +669,6 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
     flexShrink: 1,
   },
-
-  // Selection cards (radio style)
   selectCard: {
     backgroundColor: "#fff",
     borderRadius: 14,
@@ -640,6 +705,6 @@ const styles = StyleSheet.create({
   optionsWrap: {
     paddingBottom: 8,
   },
-});
+} as const;
 
 export default PaywallSheet;

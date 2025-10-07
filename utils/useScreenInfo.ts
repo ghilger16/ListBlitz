@@ -5,17 +5,30 @@ export const useScreenInfo = () => {
 
   const aspectRatio = height / width;
 
-  // Small phone example: iPhone SE / 12 mini
   const isSmallPhone = width < 380;
+  const isPhone = width >= 380 && width < 420;
+  const isLargePhone = width >= 420 && width < 768;
+  const isTablet = width >= 768 && width < 1000;
+  const isLargeTablet = width >= 1000;
 
-  // Tablet detection using size and aspect ratio
-  const isTablet = width >= 768 && height >= 768 && aspectRatio < 1.6;
+  const device = {
+    isSmallPhone,
+    isPhone,
+    isLargePhone,
+    isTablet,
+    isLargeTablet,
+  };
 
   return {
     width,
     height,
-    isSmallPhone,
-    isTablet,
     aspectRatio,
-  };
+    device,
+    // Backwards-compatible flags (deprecated):
+    isSmallPhone,
+    isPhone,
+    isLargePhone,
+    isTablet,
+    isLargeTablet,
+  } as const;
 };

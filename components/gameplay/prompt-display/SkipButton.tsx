@@ -1,75 +1,109 @@
 import React from "react";
-import { TouchableWithoutFeedback } from "react-native";
-import Svg, { Path, Text as SvgText } from "react-native-svg";
-import { useScreenInfo } from "@Utils";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ViewStyle,
+  StyleProp,
+} from "react-native";
+import { useResponsiveStyles } from "@Hooks";
 
 export const SkipButton: React.FC<{
   playerColor: string;
   onPress: () => void;
-}> = ({ playerColor, onPress }) => {
-  const { isTablet, isSmallPhone } = useScreenInfo();
+  style?: StyleProp<ViewStyle>;
+}> = ({ playerColor, onPress, style }) => {
+  const BASE_STYLES = StyleSheet.create({
+    button: {
+      minWidth: 86,
+      height: 40,
+      paddingHorizontal: 14,
+      borderRadius: 16,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "#FFD700",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.28,
+      shadowRadius: 4.5,
+      elevation: 5,
+      flexDirection: "row",
+      gap: 6,
+      marginTop: 8,
+    },
+    label: {
+      fontFamily: "LuckiestGuy",
+      fontWeight: "bold",
+      color: "#000",
+      fontSize: 18,
+      textTransform: "uppercase",
+      letterSpacing: 0.5,
+    },
+  });
 
-  let buttonHeight: number,
-    buttonWidth: number,
-    path: string,
-    textX: number,
-    textY: number,
-    fontSize: number,
-    bottom: number,
-    right: number;
-  if (isTablet) {
-    buttonHeight = 95;
-    buttonWidth = 100;
-    path = "M0,95 L70,95 Q85,85 100,65 L100,0 Z";
-    textX = 10;
-    textY = 85;
-    fontSize = 26;
-    bottom = 5;
-    right = 65;
-  } else if (isSmallPhone) {
-    buttonHeight = 50;
-    buttonWidth = 55;
-    path = "M0,50 L40,50 Q55,45 60,35 L55,0 Z";
-    textX = 21;
-    textY = 43;
-    fontSize = 15;
-    bottom = 3;
-    right = 23;
-  } else {
-    buttonHeight = 60;
-    buttonWidth = 70;
-    path = "M0,60 L45,60 Q60,50 60,35 L60,0 Z";
-    textX = 15;
-    textY = 50;
-    fontSize = 18;
-    bottom = 5;
-    right = 12;
-  }
+  const styles = useResponsiveStyles(BASE_STYLES, (device) => {
+    const fs = (base: number) => {
+      if (device.isLargeTablet) return Math.round(base * 1.4);
+      if (device.isTablet) return Math.round(base * 1.25);
+      if (device.isLargePhone) return Math.round(base * 1.1);
+      if (device.isSmallPhone) return Math.round(base * 0.9);
+      return base;
+    };
+
+    const height = device.isLargeTablet
+      ? 60
+      : device.isTablet
+      ? 52
+      : device.isSmallPhone
+      ? 34
+      : 40;
+
+    const minWidth = device.isLargeTablet
+      ? 120
+      : device.isTablet
+      ? 110
+      : device.isSmallPhone
+      ? 64
+      : 86;
+
+    const padH = device.isLargeTablet
+      ? 22
+      : device.isTablet
+      ? 18
+      : device.isSmallPhone
+      ? 10
+      : 14;
+
+    const radius = device.isLargeTablet
+      ? 26
+      : device.isTablet
+      ? 22
+      : device.isSmallPhone
+      ? 14
+      : 16;
+
+    return {
+      button: {
+        height,
+        minWidth,
+        paddingHorizontal: padH,
+        borderRadius: radius,
+        backgroundColor: playerColor,
+      } as ViewStyle,
+      label: { fontSize: fs(20) },
+    } as const;
+  });
 
   return (
-    <TouchableWithoutFeedback onPress={onPress}>
-      <Svg
-        height={buttonHeight}
-        width={buttonWidth}
-        style={{
-          position: "absolute",
-          bottom: bottom,
-          right: right,
-        }}
-      >
-        <Path d={path} fill={playerColor} />
-        <SvgText
-          x={textX}
-          y={textY}
-          fill="#000"
-          fontSize={fontSize}
-          fontWeight="bold"
-          fontFamily="LuckiestGuy"
-          transform="rotate(-45, 30, 30)"
-        >
-          Skip
-        </SvgText>
-      </Svg>
-    </TouchableWithoutFeedback>
+    <TouchableOpacity
+      onPress={onPress}
+      style={[styles.button, style]}
+      activeOpacity={0.9}
+      hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+      accessibilityRole="button"
+      accessibilityLabel="Skip"
+    >
+      <Text style={styles.label}>Skip</Text>
+    </TouchableOpacity>
   );
 };

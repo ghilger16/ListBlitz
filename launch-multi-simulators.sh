@@ -11,10 +11,10 @@ fi
 # List of simulators to boot and run the app on
 DEVICES=(
   "iPhone SE (3rd generation)"
-  "iPhone 12 mini"
-  "iPhone 16 Pro Max"
+  "iPhone 17"
+  "iPhone 17 Pro Max"
   "iPad (10th generation)"
-  "iPad Pro (12.9-inch) (6th generation)"
+  "iPad Pro 13-inch (M4)"
 )
 
 echo "🛑 Closing existing Simulators and Metro processes..."

@@ -3,7 +3,7 @@ import { View, Animated, Easing, StyleSheet } from "react-native";
 import Svg, { G, Path as SvgPath, Text as SvgText } from "react-native-svg";
 import * as d3 from "d3-shape";
 import { Player } from "@Context";
-import { useScreenInfo } from "@Utils";
+import { useResponsiveStyles } from "@Hooks";
 
 interface BattleTimerProps {
   currentPlayer: Player;
@@ -21,14 +21,54 @@ export const BattleTimer: React.FC<BattleTimerProps> = ({
   isCountdownActive,
   onTimeOut,
 }) => {
-  const { isTablet, isSmallPhone } = useScreenInfo();
+  const styles = useResponsiveStyles(BASE_STYLES, (device) => {
+    if (device.isLargeTablet) {
+      return {
+        svgBox: { width: 420, height: 540 },
+        radiusBox: { width: 140 },
+        strokeBox: { borderWidth: 24 },
+        timeText: { fontSize: 110 },
+      };
+    }
+    if (device.isTablet) {
+      return {
+        svgBox: { width: 350, height: 450 },
+        radiusBox: { width: 115 },
+        strokeBox: { borderWidth: 20 },
+        timeText: { fontSize: 100 },
+      };
+    }
+    if (device.isLargePhone) {
+      return {
+        svgBox: { width: 340, height: 390 },
+        radiusBox: { width: 82 },
+        strokeBox: { borderWidth: 14 },
+        timeText: { fontSize: 70 },
+      };
+    }
+    if (device.isSmallPhone) {
+      return {
+        svgBox: { width: 260, height: 285 },
+        radiusBox: { width: 60 },
+        strokeBox: { borderWidth: 10 },
+        timeText: { fontSize: 40 },
+      };
+    }
+    return {
+      svgBox: { width: 320, height: 375 },
+      radiusBox: { width: 75 },
+      strokeBox: { borderWidth: 12 },
+      timeText: { fontSize: 60 },
+    };
+  });
 
   const timer = 10;
-  const radius = isTablet ? 115 : isSmallPhone ? 60 : 75;
-  const containerWidth = isTablet ? 350 : isSmallPhone ? 260 : 320;
-  const containerHeight = isTablet ? 450 : isSmallPhone ? 285 : 375;
 
-  const strokeWidth = isTablet ? 20 : isSmallPhone ? 10 : 12;
+  const containerWidth = (styles as any).svgBox.width as number;
+  const containerHeight = (styles as any).svgBox.height as number;
+  const radius = (styles as any).radiusBox.width as number;
+  const strokeWidth = (styles as any).strokeBox.borderWidth as number;
+  const timeFontSize = (styles as any).timeText.fontSize as number;
 
   const animatedTimer = useRef(new Animated.Value(timer)).current;
   const flashAnim = useRef(new Animated.Value(0)).current;
@@ -107,7 +147,7 @@ export const BattleTimer: React.FC<BattleTimerProps> = ({
           <SvgText
             x="0"
             y="20"
-            fontSize={isTablet ? 100 : isSmallPhone ? 40 : 60}
+            fontSize={timeFontSize}
             fontWeight="bold"
             fill="#fff"
             textAnchor="middle"
@@ -121,8 +161,18 @@ export const BattleTimer: React.FC<BattleTimerProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const BASE_STYLES = StyleSheet.create({
   container: {
     alignItems: "center",
+  },
+  svgBox: { width: 320, height: 375 },
+  radiusBox: { width: 75, height: 75 },
+  strokeBox: { borderWidth: 12 },
+  timeText: {
+    fontSize: 60,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
+    fontFamily: "LuckiestGuy",
   },
 });

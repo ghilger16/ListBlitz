@@ -16,7 +16,42 @@ import {
   useAlphaCategory,
   AlphaCategoryWrapper,
 } from "../alpha-category-select";
-import { blitzPackIcons, useScreenInfo } from "@Utils";
+import { blitzPackIcons } from "@Utils";
+import { SkipButton } from "../prompt-display/SkipButton";
+import { useResponsiveStyles } from "@Hooks";
+
+const BASE_STYLES = StyleSheet.create({
+  wrapper: { flex: 1, paddingTop: 15 },
+  promptWrapper: { marginTop: 15 },
+  playerText: {
+    color: "#fff",
+    fontFamily: "SourGummy",
+    textAlign: "center",
+    marginTop: 15,
+    letterSpacing: 1,
+    textShadowColor: "#000",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+    fontSize: 25,
+  },
+  counterContainer: { justifyContent: "center", marginTop: 75 },
+  nextPlayerWrap: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    top: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 20,
+  },
+  skipButtonContainer: {
+    position: "absolute",
+    bottom: 40,
+    right: 25,
+    zIndex: 10,
+  },
+});
 
 const handleScoreIncrement = (
   isGameStarted: boolean,
@@ -53,14 +88,6 @@ const handleNextPlayerClick = (
   }
 };
 
-const wrappedHandleSkipPrompt = (
-  handleSkipPrompt: () => void,
-  setSkipTrigger: React.Dispatch<React.SetStateAction<number>>
-) => {
-  handleSkipPrompt?.();
-  setSkipTrigger((prev) => prev + 1);
-};
-
 export const ChillMode: React.FC<ModeComponentProps> = ({
   currentPrompt,
   handleNextPlayer,
@@ -82,7 +109,60 @@ export const ChillMode: React.FC<ModeComponentProps> = ({
     handlePickRandom,
   } = useAlphaCategory();
 
-  const { isTablet, isSmallPhone } = useScreenInfo();
+  const styles = useResponsiveStyles(BASE_STYLES, (device) => {
+    const fs = (base: number) => {
+      if (device.isLargeTablet) return Math.round(base * 1.4);
+      if (device.isTablet) return Math.round(base * 1.22);
+      if (device.isLargePhone) return Math.round(base * 1.08);
+      if (device.isSmallPhone) return Math.round(base * 0.9);
+      return base;
+    };
+
+    const promptTop = device.isLargeTablet
+      ? 90
+      : device.isTablet
+      ? 75
+      : device.isSmallPhone
+      ? 12
+      : 15;
+    const counterTop = device.isLargeTablet
+      ? 100
+      : device.isTablet
+      ? 80
+      : device.isSmallPhone
+      ? 50
+      : 75;
+    const nextPlayerTop = device.isLargeTablet
+      ? 850
+      : device.isTablet
+      ? 750
+      : device.isSmallPhone
+      ? 325
+      : 450;
+
+    const skipBottom = device.isLargeTablet
+      ? 60
+      : device.isTablet
+      ? 50
+      : device.isSmallPhone
+      ? 24
+      : 40;
+    const skipRight = device.isLargeTablet
+      ? 40
+      : device.isTablet
+      ? 32
+      : device.isSmallPhone
+      ? 16
+      : 25;
+
+    return {
+      promptWrapper: { marginTop: promptTop },
+      playerText: { fontSize: fs(25) },
+      counterContainer: { marginTop: counterTop },
+      nextPlayerWrap: { top: nextPlayerTop },
+      skipButtonContainer: { bottom: skipBottom, right: skipRight },
+    } as const;
+  });
 
   const safeCurrentPlayer = currentPlayer!;
 
@@ -121,14 +201,7 @@ export const ChillMode: React.FC<ModeComponentProps> = ({
       style={StyleSheet.absoluteFill}
     >
       <SafeAreaView style={[styles.wrapper]}>
-        <View
-          style={[
-            styles.promptWrapper,
-            {
-              marginTop: isTablet ? 75 : 15,
-            },
-          ]}
-        >
+        <View style={styles.promptWrapper}>
           <PromptDisplay
             key={`${safeCurrentPlayer.id}-${selectedCategory}`}
             prompt={currentPrompt}
@@ -137,28 +210,12 @@ export const ChillMode: React.FC<ModeComponentProps> = ({
             categoryBubble={blitzPackIcons[packTitle]?.titleImage}
             isAlphaBlitz={packTitle === "Alpha Blitz"}
             selectedCategory={selectedCategory}
-            handleSkipPrompt={() =>
-              wrappedHandleSkipPrompt(
-                handleSkipPrompt ?? (() => {}),
-                setSkipTrigger
-              )
-            }
+            handleSkipPrompt={handleSkipPrompt ?? (() => {})}
+            skipSignal={skipTrigger}
           />
         </View>
-        <Text
-          style={[
-            styles.playerText,
-            { fontSize: isTablet ? 40 : isSmallPhone ? 20 : 25 },
-          ]}
-        >
-          Player {safeCurrentPlayer.id}
-        </Text>
-        <View
-          style={[
-            styles.counterContainer,
-            { marginTop: isTablet ? 80 : isSmallPhone ? 50 : 75 },
-          ]}
-        >
+        <Text style={styles.playerText}>Player {safeCurrentPlayer.id}</Text>
+        <View style={styles.counterContainer}>
           <ChillCounter
             onIncrement={() =>
               handleScoreIncrement(isGameStarted, score, setScore)
@@ -171,15 +228,8 @@ export const ChillMode: React.FC<ModeComponentProps> = ({
             currentPlayer={safeCurrentPlayer}
           />
         </View>
-
         {showNextPlayerBubble && (
-          <View
-            style={{
-              marginTop: isTablet ? 525 : isSmallPhone ? 275 : 375,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <View style={styles.nextPlayerWrap}>
             <NextPlayerPrompt
               onNextPlayerClick={() =>
                 handleNextPlayerClick(
@@ -195,30 +245,13 @@ export const ChillMode: React.FC<ModeComponentProps> = ({
             />
           </View>
         )}
+        <View style={styles.skipButtonContainer}>
+          <SkipButton
+            playerColor={safeCurrentPlayer.startColor!}
+            onPress={() => setSkipTrigger((prev) => prev + 1)}
+          />
+        </View>
       </SafeAreaView>
     </ImageBackground>
   );
 };
-
-const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    paddingTop: 15,
-  },
-  promptWrapper: {
-    marginTop: 15,
-  },
-  playerText: {
-    color: "#fff",
-    fontFamily: "SourGummy",
-    textAlign: "center",
-    marginTop: 15,
-    letterSpacing: 1,
-    textShadowColor: "#000",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
-  counterContainer: {
-    justifyContent: "center",
-  },
-});

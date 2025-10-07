@@ -17,14 +17,37 @@ import * as d3 from "d3-shape";
 import { clickSound } from "@Assets";
 import { PLAYER_COLORS, playerIcons } from "@Context";
 import { playSound, useScreenInfo } from "@Utils";
+import { useResponsiveStyles } from "@Hooks";
+
+const BASE_STYLES = {
+  root: {},
+  lottieContainer: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+} as const;
 
 const SECTIONS_COUNT = 10;
 
 const PlayerSelectWheel: React.FC<{
   onPlayerCountChange: (players: { id: number; iconIndex: number }[]) => void;
 }> = ({ onPlayerCountChange }) => {
-  const { isTablet, isSmallPhone } = useScreenInfo();
-  const RADIUS = isTablet ? 300 : isSmallPhone ? 150 : 185;
+  const { device } = useScreenInfo();
+
+  const styles = useResponsiveStyles(BASE_STYLES, (d) => ({
+    lottieContainer: {
+      ...(d.isSmallPhone ? {} : {}),
+    },
+  }));
+
+  const RADIUS = device.isLargeTablet
+    ? 360
+    : device.isTablet
+    ? 300
+    : device.isSmallPhone
+    ? 150
+    : 185;
   const OUTER_CIRCLE_RADIUS = RADIUS * 0.54;
 
   const [playerAssignments, setPlayerAssignments] = useState<
@@ -121,21 +144,27 @@ const PlayerSelectWheel: React.FC<{
     const iconSource = playerIcons[index];
     let iconSize;
     if (index === 3) {
-      iconSize = isTablet
+      iconSize = device.isLargeTablet
+        ? { width: 210, height: 210 }
+        : device.isTablet
         ? { width: 180, height: 180 }
-        : isSmallPhone
+        : device.isSmallPhone
         ? { width: 93, height: 90 }
         : { width: 110, height: 110 };
     } else if (index === 6) {
-      iconSize = isTablet
+      iconSize = device.isLargeTablet
+        ? { width: 150, height: 210 }
+        : device.isTablet
         ? { width: 130, height: 180 }
-        : isSmallPhone
+        : device.isSmallPhone
         ? { width: 65, height: 90 }
         : { width: 80, height: 110 };
     } else {
-      iconSize = isTablet
+      iconSize = device.isLargeTablet
+        ? { width: 190, height: 190 }
+        : device.isTablet
         ? { width: 160, height: 160 }
-        : isSmallPhone
+        : device.isSmallPhone
         ? { width: 75, height: 75 }
         : { width: 95, height: 95 };
     }
@@ -156,7 +185,15 @@ const PlayerSelectWheel: React.FC<{
         <Text
           x={labelX * 0.9}
           y={labelY * 0.9}
-          fontSize={isTablet ? 25 : isSmallPhone ? 15 : 18}
+          fontSize={
+            device.isLargeTablet
+              ? 30
+              : device.isTablet
+              ? 25
+              : device.isSmallPhone
+              ? 15
+              : 18
+          }
           fontWeight="bold"
           fill={isSelected ? "#FFF" : "#000"}
           textAnchor="middle"
@@ -166,14 +203,30 @@ const PlayerSelectWheel: React.FC<{
         </Text>
         {iconSource && (
           <View
-            style={{
-              position: "absolute",
-              left: x - (isTablet ? 70 : isSmallPhone ? 30 : 40),
-              top: y - (isTablet ? 55 : isSmallPhone ? 15 : 25),
-              justifyContent: "center",
-              alignItems: "center",
-              opacity: isSelected ? 1 : 0.5,
-            }}
+            style={[
+              styles.lottieContainer,
+              {
+                left:
+                  x -
+                  (device.isLargeTablet
+                    ? 85
+                    : device.isTablet
+                    ? 70
+                    : device.isSmallPhone
+                    ? 30
+                    : 40),
+                top:
+                  y -
+                  (device.isLargeTablet
+                    ? 70
+                    : device.isTablet
+                    ? 55
+                    : device.isSmallPhone
+                    ? 15
+                    : 25),
+                opacity: isSelected ? 1 : 0.5,
+              },
+            ]}
           >
             <LottieView
               ref={(ref) => {
@@ -203,9 +256,11 @@ const PlayerSelectWheel: React.FC<{
 
     handleSliceTap(tappedIndex);
   };
-  const size = isTablet
+  const size = device.isLargeTablet
+    ? RADIUS + 60
+    : device.isTablet
     ? RADIUS + 50
-    : isSmallPhone
+    : device.isSmallPhone
     ? RADIUS + 25
     : RADIUS + 38;
   return (
@@ -237,7 +292,15 @@ const PlayerSelectWheel: React.FC<{
             </Defs>
             <Text
               fill="white"
-              fontSize={isTablet ? 22 : isSmallPhone ? 12 : 15}
+              fontSize={
+                device.isLargeTablet
+                  ? 24
+                  : device.isTablet
+                  ? 22
+                  : device.isSmallPhone
+                  ? 12
+                  : 15
+              }
               fontWeight="bold"
               letterSpacing="1"
               textAnchor="middle"

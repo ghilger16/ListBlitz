@@ -1,11 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from "react";
-import {
-  Animated,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  View,
-} from "react-native";
+import { Animated, TouchableOpacity, SafeAreaView, View } from "react-native";
 
 import { router } from "expo-router";
 
@@ -15,22 +9,96 @@ import {
   PlayerSelectFlashMessage,
   PlayerSelectWheel,
 } from "@Components";
-import { usePlayerSelectHeader, usePlayerSelectAnimations } from "@Hooks";
-import { useScreenInfo } from "@Utils";
+import {
+  usePlayerSelectHeader,
+  usePlayerSelectAnimations,
+  useResponsiveStyles,
+} from "@Hooks";
 
 const PlayerSelect: React.FC = () => {
   const { setGameSettings, onGameStart, gameSettings, initializePlayers } =
     useGameplay();
-  const { isSmallPhone, isTablet } = useScreenInfo();
   const [selectedMode, setSelectedMode] = useState<GameMode>(gameSettings.mode);
   const [playersData, setPlayersData] = useState<Player[]>([]);
   const [startAttempted, setStartAttempted] = useState(false);
   const [flashMessage, setFlashMessage] = useState("Select Players & Mode");
 
-  usePlayerSelectHeader(gameSettings);
+  usePlayerSelectHeader(gameSettings.blitzPackTitle ?? "");
 
   const { glowInterpolation, entryAnim, shakeAnim } =
     usePlayerSelectAnimations();
+
+  const styles = useResponsiveStyles(BASE_STYLES, (device) => {
+    const wrapperMarginTop = device.isLargeTablet
+      ? 55
+      : device.isTablet
+      ? 55
+      : device.isLargePhone
+      ? 55
+      : device.isSmallPhone
+      ? 25
+      : 55;
+
+    const textContainerMarginBottom = device.isLargeTablet
+      ? 30
+      : device.isTablet
+      ? 30
+      : device.isLargePhone
+      ? 30
+      : device.isSmallPhone
+      ? 20
+      : 30;
+
+    const startButtonWidth = device.isLargeTablet
+      ? 650
+      : device.isTablet
+      ? 650
+      : device.isLargePhone
+      ? 380
+      : device.isSmallPhone
+      ? 275
+      : 350;
+
+    const startButtonHeight = device.isLargeTablet
+      ? 80
+      : device.isTablet
+      ? 80
+      : device.isLargePhone
+      ? 70
+      : device.isSmallPhone
+      ? 50
+      : 60;
+
+    const startTextFontSize = device.isLargeTablet
+      ? 75
+      : device.isTablet
+      ? 75
+      : device.isLargePhone
+      ? 56
+      : device.isSmallPhone
+      ? 38
+      : 50;
+
+    const startTextHeight = device.isLargeTablet
+      ? 100
+      : device.isTablet
+      ? 100
+      : device.isLargePhone
+      ? 80
+      : device.isSmallPhone
+      ? 50
+      : 65;
+
+    return {
+      playersWrapper: { marginTop: wrapperMarginTop },
+      textContainer: { marginBottom: textContainerMarginBottom },
+      startButton: {
+        width: startButtonWidth,
+        height: startButtonHeight,
+      },
+      startText: { fontSize: startTextFontSize, height: startTextHeight },
+    };
+  });
 
   const handlePlayerCountChange = useCallback(
     (players: { id: number; iconIndex: number }[]) => {
@@ -97,15 +165,8 @@ const PlayerSelect: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View
-        style={[styles.playersWrapper, isSmallPhone ? { marginTop: 25 } : {}]}
-      >
-        <View
-          style={[
-            styles.textContainer,
-            isSmallPhone ? { marginBottom: 20 } : {},
-          ]}
-        >
+      <View style={styles.playersWrapper}>
+        <View style={styles.textContainer}>
           <PlayerSelectFlashMessage
             startAttempted={startAttempted}
             shakeAnim={shakeAnim}
@@ -141,8 +202,6 @@ const PlayerSelect: React.FC = () => {
       <TouchableOpacity
         style={[
           styles.startButton,
-          isSmallPhone ? { marginTop: 40, width: 275, height: 50 } : {},
-          isTablet && { width: 650, height: 80, alignContent: "center" }, // shorten width on tablets
           { opacity: playersData.length < 1 ? 0.5 : 1 },
         ]}
         onPress={handleGameStart}
@@ -150,15 +209,7 @@ const PlayerSelect: React.FC = () => {
         activeOpacity={0.9}
       >
         <Animated.Text
-          style={[
-            styles.startText,
-            { textShadowColor: glowInterpolation },
-            isSmallPhone ? { fontSize: 38, height: 50 } : {},
-            isTablet && {
-              fontSize: 75,
-              height: 100,
-            }, // shorten width on tablets
-          ]}
+          style={[styles.startText, { textShadowColor: glowInterpolation }]}
         >
           Start
         </Animated.Text>
@@ -167,7 +218,7 @@ const PlayerSelect: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const BASE_STYLES = {
   safeArea: {
     flex: 1,
     backgroundColor: "#192c43",
@@ -265,6 +316,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-});
+} as const;
 
 export default PlayerSelect;

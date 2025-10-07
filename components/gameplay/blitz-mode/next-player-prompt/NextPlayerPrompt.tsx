@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import LottieView from "lottie-react-native";
 import { Player } from "@Context";
-import { useScreenInfo } from "@Utils";
+import { useResponsiveStyles } from "@Hooks";
 
 interface NextPlayerPromptProps {
   onNextPlayerClick: () => void;
@@ -23,56 +23,81 @@ export const NextPlayerPrompt: React.FC<NextPlayerPromptProps> = ({
   iconSource,
   nextPlayer,
 }) => {
-  const { isTablet, isSmallPhone } = useScreenInfo();
+  const styles = useResponsiveStyles(BASE_STYLES, (device) => {
+    const fs = (base: number) => {
+      if (device.isLargeTablet) return Math.round(base * 1.8);
+      if (device.isTablet) return Math.round(base * 1.5);
+      if (device.isLargePhone) return Math.round(base * 1.08);
+      if (device.isSmallPhone) return Math.round(base * 0.9);
+      return base;
+    };
 
-  const playerBackgroundColor = { backgroundColor: nextPlayer.startColor };
+    const containerSize = device.isLargeTablet
+      ? { width: 560, height: 72, radius: 34, padL: 12 }
+      : device.isTablet
+      ? { width: 500, height: 60, radius: 30, padL: 10 }
+      : device.isSmallPhone
+      ? { width: 250, height: 35, radius: 18, padL: 6 }
+      : { width: 300, height: 40, radius: 20, padL: 8 };
 
-  const containerWidth = isTablet ? 500 : isSmallPhone ? 250 : 300;
-  const containerHeight = isTablet ? 60 : isSmallPhone ? 35 : 40;
-  const paddingLeft = isTablet ? 10 : 5;
+    const iconSize = device.isLargeTablet
+      ? 56
+      : device.isTablet
+      ? 45
+      : device.isSmallPhone
+      ? 25
+      : 30;
 
-  const iconSize = isTablet ? 45 : isSmallPhone ? 25 : 30;
-  const fontSize = isTablet ? 40 : isSmallPhone ? 22 : 25;
-  const borderRadius = isTablet ? 30 : 20;
-  const marginLeft = isTablet ? 50 : isSmallPhone ? 20 : 30;
+    const textSize = fs(25);
+    const textLeft = device.isLargeTablet
+      ? 60
+      : device.isTablet
+      ? 50
+      : device.isSmallPhone
+      ? 20
+      : 30;
+
+    return {
+      nextPlayerContainer: {
+        width: containerSize.width,
+        height: containerSize.height,
+        borderRadius: containerSize.radius,
+        paddingLeft: containerSize.padL,
+      },
+      nextPlayerIconContainer: {
+        width: iconSize,
+        height: iconSize,
+        borderRadius: iconSize / 2,
+      },
+      nextPlayerIcon: {
+        width: iconSize - 5,
+        height: iconSize - 5,
+      },
+      nextPlayerText: {
+        fontSize: textSize,
+        marginLeft: textLeft,
+      },
+    } as const;
+  });
 
   return (
     <TouchableOpacity onPress={onNextPlayerClick} activeOpacity={0.9}>
       <View
         style={[
           styles.nextPlayerContainer,
-          playerBackgroundColor,
-          {
-            width: containerWidth,
-            height: containerHeight,
-            borderRadius,
-            paddingLeft,
-          },
+          { backgroundColor: nextPlayer.startColor },
         ]}
       >
-        <View
-          style={[
-            styles.nextPlayerIconContainer,
-            { width: iconSize, height: iconSize, borderRadius: iconSize / 2 },
-          ]}
-        >
-          <LottieView
-            source={iconSource}
-            style={[
-              styles.nextPlayerIcon,
-              { width: iconSize - 5, height: iconSize - 5 },
-            ]}
-          />
+        <View style={styles.nextPlayerIconContainer}>
+          <LottieView source={iconSource} style={styles.nextPlayerIcon} />
         </View>
-        <Text style={[styles.nextPlayerText, { fontSize, marginLeft }]}>
-          Start Player {nextPlayer.id}
-        </Text>
+        <Text style={styles.nextPlayerText}>Start Player {nextPlayer.id}</Text>
       </View>
     </TouchableOpacity>
   );
 };
 
-const styles = StyleSheet.create<{
+const BASE_STYLES = StyleSheet.create<{
   nextPlayerContainer: ViewStyle;
   nextPlayerIconContainer: ViewStyle;
   nextPlayerIcon: ViewStyle;
@@ -83,17 +108,30 @@ const styles = StyleSheet.create<{
     alignItems: "center",
     paddingRight: 5,
     marginTop: 5,
+    // defaults (phone)
+    width: 300,
+    height: 40,
+    borderRadius: 20,
+    paddingLeft: 5,
   },
   nextPlayerIconContainer: {
     backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
+    width: 30,
+    height: 30,
+    borderRadius: 15,
   },
-  nextPlayerIcon: {},
+  nextPlayerIcon: {
+    width: 25,
+    height: 25,
+  },
   nextPlayerText: {
     fontWeight: "bold",
     color: "#000",
     marginTop: 8,
     fontFamily: "LuckiestGuy",
+    fontSize: 25,
+    marginLeft: 30,
   },
 });

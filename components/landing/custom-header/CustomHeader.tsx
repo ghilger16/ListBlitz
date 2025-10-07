@@ -1,41 +1,37 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { View, Image, StyleSheet } from "react-native";
+import React from "react";
+import { View, Image } from "react-native";
 
-import { Asset } from "expo-asset";
-import { useScreenInfo } from "@Utils";
+import { useResponsiveStyles } from "@Hooks";
 
 const CustomHeader: React.FC = () => {
-  const [headerUri, setHeaderUri] = useState<string | null>(null);
-  const { isTablet, isSmallPhone } = useScreenInfo();
+  const styles = useResponsiveStyles(BASE_STYLES, (device) => {
+    const headerHeight = device.isLargeTablet
+      ? 450
+      : device.isTablet
+      ? 400
+      : device.isLargePhone
+      ? 240
+      : device.isSmallPhone
+      ? 185
+      : 220;
 
-  const loadHeaderAsset = useCallback(() => {
-    const asset = Asset.fromModule(require("@Assets/gifs/header.gif"));
-    setHeaderUri(asset.localUri || asset.uri);
-  }, []);
-
-  useEffect(() => {
-    loadHeaderAsset();
-  }, [loadHeaderAsset]);
-
-  const getHeaderHeight = () => {
-    if (isTablet) return 400;
-    if (isSmallPhone) return 185;
-    return 220;
-  };
-
-  if (!headerUri) return null;
+    return {
+      headerContainer: { height: headerHeight },
+      headerImage: { height: headerHeight },
+    };
+  });
 
   return (
-    <View style={[styles.headerContainer, { height: getHeaderHeight() }]}>
+    <View style={styles.headerContainer} pointerEvents="none">
       <Image
-        source={{ uri: headerUri }}
-        style={[styles.headerImage, { height: getHeaderHeight() }]}
+        source={require("@Assets/gifs/header.gif")}
+        style={styles.headerImage}
       />
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const BASE_STYLES = {
   headerContainer: {
     position: "absolute",
     top: 0,
@@ -47,9 +43,8 @@ const styles = StyleSheet.create({
   headerImage: {
     position: "absolute",
     width: "100%",
-    height: "100%",
-    resizeMode: "cover",
+    resizeMode: "cover" as const,
   },
-});
+} as const;
 
 export default CustomHeader;

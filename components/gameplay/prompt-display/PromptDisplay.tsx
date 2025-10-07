@@ -5,7 +5,6 @@ import {
   Animated,
   Text,
   StyleSheet,
-  ViewStyle,
   Image,
   ImageSourcePropType,
   Dimensions,
@@ -15,21 +14,13 @@ import LottieView from "lottie-react-native";
 
 import { countdownSound } from "@Assets";
 import { alphabetIcons, GameMode } from "@Context";
-import { usePromptAnimations } from "@Hooks";
-import { playSound, useScreenInfo } from "@Utils";
-import { SkipButton } from "./SkipButton";
+import { usePromptAnimations, useResponsiveStyles } from "@Hooks";
+import { playSound } from "@Utils";
 import { getUniqueRandomLetter } from "./utils";
 
 const CUSTOM_ACTION = RumActionType.CUSTOM;
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
-
-// Calculate aspect ratio and prompt width for Pro vs Max models
-// const aspectRatio = screenHeight / screenWidth;
-// const promptWidth =
-//   screenWidth >= 420
-//     ? Math.min(screenWidth * 0.94, 500) // Max phones (wider screens)
-//     : Math.min(screenWidth * 0.936, 500); // Standard Pros
 
 export const PromptDisplay: React.FC<{
   prompt: string;
@@ -41,6 +32,7 @@ export const PromptDisplay: React.FC<{
   isAlphaBlitz?: boolean;
   selectedCategory?: string | null;
   handleSkipPrompt?: () => void;
+  skipSignal?: number;
 }> = ({
   prompt,
   playerColor,
@@ -51,23 +43,60 @@ export const PromptDisplay: React.FC<{
   isAlphaBlitz,
   selectedCategory,
   handleSkipPrompt,
+  skipSignal,
 }) => {
-  const { isTablet, isSmallPhone } = useScreenInfo();
+  const styles = useResponsiveStyles(BASE_STYLES, (device) => {
+    const fs = (base: number) => {
+      if (device.isLargeTablet) return Math.round(base * 1.85);
+      if (device.isTablet) return Math.round(base * 1.4);
+      if (device.isLargePhone) return Math.round(base * 1.1);
+      if (device.isSmallPhone) return Math.round(base * 0.75);
+      return base;
+    };
 
-  const categoryBubbleBottom = isTablet
-    ? screenHeight * 0.126
-    : isSmallPhone
-    ? screenHeight * 0.125
-    : screenHeight * 0.11;
+    const promptWidth = device.isLargeTablet
+      ? Math.min(screenWidth * 0.92, 820)
+      : device.isTablet
+      ? Math.min(screenWidth * 0.9, 700)
+      : device.isSmallPhone
+      ? Math.min(screenWidth * 0.9, 360)
+      : Math.min(screenWidth * 0.92, 500);
 
-  const promptWidth = isTablet
-    ? Math.min(screenWidth * 0.9, 700)
-    : isSmallPhone
-    ? Math.min(screenWidth * 0.9, 360)
-    : Math.min(screenWidth * 0.92, 500);
+    const containerHeight = device.isLargeTablet
+      ? screenHeight * 0.15
+      : device.isTablet
+      ? screenHeight * 0.14
+      : device.isSmallPhone
+      ? screenHeight * 0.12
+      : screenHeight * 0.11;
 
-  const promptFontSize = isTablet ? 40 : isSmallPhone ? 22 : 30;
-  const goFontSize = isTablet ? 100 : isSmallPhone ? 55 : 75;
+    const bubbleBottom = device.isLargeTablet
+      ? screenHeight * 0.12
+      : device.isTablet
+      ? screenHeight * 0.11
+      : device.isSmallPhone
+      ? screenHeight * 0.1
+      : screenHeight * 0.09;
+
+    const goSize = device.isLargeTablet
+      ? 120
+      : device.isTablet
+      ? 100
+      : device.isSmallPhone
+      ? 55
+      : 75;
+
+    const alphaW = device.isLargeTablet ? 80 : device.isTablet ? 60 : 55;
+    const alphaH = device.isLargeTablet ? 85 : device.isTablet ? 65 : 60;
+
+    return {
+      container: { width: promptWidth, height: containerHeight },
+      promptText: { fontSize: fs(28) },
+      countdownText: { fontSize: goSize },
+      bubbleImage: { bottom: bubbleBottom },
+      alphaIcon: { width: alphaW, height: alphaH },
+    } as const;
+  });
 
   const { bounceValue, fadeValue, scaleValue } = usePromptAnimations(
     countdown ?? null,
@@ -78,7 +107,13 @@ export const PromptDisplay: React.FC<{
   const [letterIndex, setLetterIndex] = useState<string | null>(null);
   const hasSetLetterRef = useRef(false);
   const iconReadyRef = useRef(false);
-  ``;
+  const lastSkipSignalRef = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    if (skipSignal !== undefined && skipSignal !== lastSkipSignalRef.current) {
+      lastSkipSignalRef.current = skipSignal;
+      handleSkip();
+    }
+  }, [skipSignal]);
 
   const alphaIcon = alphabetIcons[letterIndex!];
 
@@ -122,11 +157,10 @@ export const PromptDisplay: React.FC<{
     <Animated.Text
       style={[
         styles.promptText,
+        styles.countdownText,
         {
           opacity: fadeValue,
           transform: [{ scale: scaleValue }],
-          fontSize: goFontSize,
-          color: "#fff",
           marginTop: shouldShowCountdown ? 20 : 5,
         },
       ]}
@@ -143,12 +177,8 @@ export const PromptDisplay: React.FC<{
             transform: [{ scale: bounceValue }],
           }}
         >
-          <Text style={[styles.promptText, { fontSize: promptFontSize }]}>
-            List {selectedCategory}
-          </Text>
-          <Text style={[styles.promptText, { fontSize: promptFontSize }]}>
-            that start with the letter
-          </Text>
+          <Text style={styles.promptText}>List {selectedCategory}</Text>
+          <Text style={styles.promptText}>that start with the letter</Text>
         </Animated.View>
       </View>
       <View style={{ position: "absolute", bottom: -5, alignItems: "center" }}>
@@ -161,7 +191,6 @@ export const PromptDisplay: React.FC<{
                 transform: [{ scale: scaleValue }],
                 ...styles.countdownText,
                 ...styles.countdownMarginTop,
-                fontSize: goFontSize,
               },
             ]}
           >
@@ -177,30 +206,11 @@ export const PromptDisplay: React.FC<{
             />
           ) : null
         ) : (
-          <Text
-            style={[
-              styles.promptText,
-              styles.countdownText,
-              { fontSize: promptFontSize },
-            ]}
-          >
-            ?
-          </Text>
+          <Text style={[styles.promptText, styles.countdownText]}>?</Text>
         )}
       </View>
     </>
   );
-
-  const containerStyle: ViewStyle = {
-    ...styles.container,
-    borderColor: playerColor,
-    width: promptWidth,
-    height: isTablet
-      ? screenHeight * 0.17
-      : isSmallPhone
-      ? screenHeight * 0.16
-      : screenHeight * 0.14,
-  };
 
   // Handler for skip button that updates letterIndex if AlphaBlitz
   const handleSkip = () => {
@@ -229,55 +239,47 @@ export const PromptDisplay: React.FC<{
 
   return (
     <View style={{ alignItems: "center" }}>
-      <View style={containerStyle}>
-        {isAlphaBlitz && selectedCategory && !isObscured ? (
-          renderAlphaBlitz()
-        ) : isAlphaBlitz && isObscured ? (
-          shouldShowCountdown ? (
-            renderCountdown()
-          ) : (
-            <Text style={[styles.promptText, { fontSize: promptFontSize }]}>
-              List Blitz
-            </Text>
-          )
-        ) : isObscured ? (
-          shouldShowCountdown ? (
-            renderCountdown()
-          ) : (
-            <Text style={[styles.promptText, { fontSize: promptFontSize }]}>
-              List Blitz
-            </Text>
-          )
-        ) : (
-          <View style={styles.promptBubble}>
-            <Animated.Text
-              style={[
-                styles.promptText,
-                {
-                  transform: [{ scale: bounceValue }],
-                  fontSize: promptFontSize,
-                },
-              ]}
-            >
-              {selectedCategory ? selectedCategory : prompt}
-            </Animated.Text>
+      <View style={[styles.container, { borderColor: playerColor }]}>
+        <View style={styles.inner}>
+          <View style={styles.contentSlot}>
+            {isAlphaBlitz && selectedCategory && !isObscured ? (
+              renderAlphaBlitz()
+            ) : isAlphaBlitz && isObscured ? (
+              shouldShowCountdown ? (
+                renderCountdown()
+              ) : (
+                <Text style={styles.promptText}>List Blitz</Text>
+              )
+            ) : isObscured ? (
+              shouldShowCountdown ? (
+                renderCountdown()
+              ) : (
+                <Text style={styles.promptText}>List Blitz</Text>
+              )
+            ) : (
+              <View style={styles.promptBubble}>
+                <Animated.Text
+                  style={[
+                    styles.promptText,
+                    { transform: [{ scale: bounceValue }] },
+                  ]}
+                >
+                  {selectedCategory ? selectedCategory : prompt}
+                </Animated.Text>
+              </View>
+            )}
           </View>
-        )}
+        </View>
       </View>
-      {handleSkipPrompt && (
-        <SkipButton playerColor={playerColor} onPress={handleSkip} />
-      )}
+
       {categoryBubble && (
-        <Image
-          source={categoryBubble}
-          style={[styles.bubbleImage, { bottom: categoryBubbleBottom }]}
-        />
+        <Image source={categoryBubble} style={styles.bubbleImage} />
       )}
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const BASE_STYLES = StyleSheet.create({
   container: {
     backgroundColor: "#192c43",
     borderRadius: screenWidth * 0.07,
@@ -325,21 +327,6 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     zIndex: 2,
   },
-  skipButtonContainer: {
-    position: "absolute",
-    bottom: 10,
-    right: 20,
-    backgroundColor: "#ffffff22",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-  },
-  skipButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-    fontFamily: "LuckiestGuy",
-  },
   promptBubble: {
     position: "relative",
     justifyContent: "center",
@@ -356,5 +343,18 @@ const styles = StyleSheet.create({
     fontSize: 70,
     color: "#fff",
     marginTop: 20,
+  },
+  inner: {
+    width: "100%",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingBottom: 6,
+  },
+  contentSlot: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    flexGrow: 1,
   },
 });

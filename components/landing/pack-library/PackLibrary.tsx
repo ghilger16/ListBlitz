@@ -8,10 +8,10 @@ import { useGameplay } from "@Context";
 import { BlitzPack } from "../blitz-packs";
 import { CustomHeader } from "components/landing/custom-header";
 import { usePackLibraryAnimations } from "./usePackLibraryAnimations";
-import { useScreenInfo } from "../../../utils/useScreenInfo";
 import { blitzPackIcons } from "@Utils";
 import { PaywallSheet } from "../../paywall/PaywallSheet";
 import { useOwnedPacks } from "@Hooks";
+import { useResponsiveStyles } from "@Hooks";
 
 const PackLibrary: React.FC = () => {
   const router = useRouter();
@@ -19,7 +19,91 @@ const PackLibrary: React.FC = () => {
   const { animatedValues, headerFadeAnim, blitzPacks } =
     usePackLibraryAnimations();
 
-  const { isSmallPhone, isTablet } = useScreenInfo();
+  const styles = useResponsiveStyles(BASE_STYLES, (device) => {
+    const gutter = device.isLargeTablet
+      ? 22
+      : device.isTablet
+      ? 15
+      : device.isLargePhone
+      ? 12
+      : device.isSmallPhone
+      ? 8
+      : 12;
+
+    const headerHeight = device.isLargeTablet
+      ? 350
+      : device.isTablet
+      ? 300
+      : device.isLargePhone
+      ? 240
+      : device.isSmallPhone
+      ? 160
+      : 220;
+
+    const cardScale = device.isLargeTablet
+      ? 1.95
+      : device.isTablet
+      ? 1.6
+      : device.isLargePhone
+      ? 1.1
+      : device.isSmallPhone
+      ? 0.95
+      : 1;
+
+    const scrollPaddingTop = device.isLargeTablet
+      ? headerHeight + 125
+      : device.isTablet
+      ? headerHeight + 125
+      : device.isSmallPhone
+      ? headerHeight + 40
+      : headerHeight - 50;
+
+    const gridItemBasis =
+      device.isTablet || device.isLargeTablet ? "25%" : "33.3333%";
+
+    const itemPadV = device.isLargeTablet
+      ? 85
+      : device.isTablet
+      ? 30
+      : device.isLargePhone
+      ? 15
+      : device.isSmallPhone
+      ? 10
+      : 8;
+
+    return {
+      headerContainer: { height: headerHeight },
+      scrollContent: { paddingTop: scrollPaddingTop },
+      grid: { paddingHorizontal: gutter, justifyContent: "center" as const },
+      gridItem: {
+        flexBasis: gridItemBasis as any,
+        maxWidth: gridItemBasis as any,
+        paddingHorizontal: gutter / 2,
+        paddingVertical: itemPadV,
+      },
+      cardScaleStyle: { transform: [{ scale: cardScale }] },
+      chip: {
+        fontSize: device.isLargeTablet
+          ? 30
+          : device.isTablet
+          ? 25
+          : device.isLargePhone
+          ? 18
+          : device.isSmallPhone
+          ? 15
+          : 16,
+        paddingHorizontal: device.isLargeTablet
+          ? 25
+          : device.isTablet
+          ? 20
+          : device.isSmallPhone
+          ? 12
+          : 14,
+        paddingVertical: device.isTablet ? 10 : device.isSmallPhone ? 6 : 8,
+      },
+    };
+  });
+
   const { isOwned, hasFullAccess } = useOwnedPacks();
 
   const [paywall, setPaywall] = useState<{
@@ -30,24 +114,6 @@ const PackLibrary: React.FC = () => {
   }>({ visible: false, index: 0 });
 
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
-
-  const getCardScale = () => {
-    if (isTablet) return 1.5;
-    if (isSmallPhone) return 0.9;
-    return 1;
-  };
-
-  const getHeaderHeight = () => {
-    if (isTablet) return 300;
-    if (isSmallPhone) return 160;
-    return 220;
-  };
-
-  const getScrollPaddingTop = () => {
-    if (isTablet) return getHeaderHeight() + 125;
-    if (isSmallPhone) return getHeaderHeight() + 40;
-    return getHeaderHeight() - 50;
-  };
 
   const getAnimatedStyle = (index: number) => ({
     opacity: animatedValues[index],
@@ -74,10 +140,9 @@ const PackLibrary: React.FC = () => {
   ];
 
   let globalIndex = 0;
-
   return (
     <>
-      <View style={[styles.headerContainer, { height: getHeaderHeight() }]}>
+      <View style={styles.headerContainer}>
         <Animated.View style={{ opacity: headerFadeAnim }}>
           <CustomHeader />
         </Animated.View>
@@ -86,10 +151,7 @@ const PackLibrary: React.FC = () => {
       <ScrollView
         horizontal={false}
         showsVerticalScrollIndicator={true}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingTop: getScrollPaddingTop() },
-        ]}
+        contentContainerStyle={styles.scrollContent}
         style={styles.scrollView}
       >
         <View style={styles.chipsRow}>
@@ -101,8 +163,6 @@ const PackLibrary: React.FC = () => {
                 style={[
                   styles.chip,
                   selectedCategory === cat && styles.chipSelected,
-                  isTablet && styles.chipTablet,
-                  isSmallPhone && styles.chipSmall,
                 ]}
               >
                 {cat}
@@ -117,8 +177,7 @@ const PackLibrary: React.FC = () => {
             const meta = blitzPackIcons[item.title];
             const isHidden =
               selectedCategory !== "All" &&
-              (blitzPackIcons[item.title]?.category || "Other") !==
-                selectedCategory;
+              blitzPackIcons[item.title]?.category !== selectedCategory;
             const locked =
               !hasFullAccess && !!meta?.productId && !isOwned(meta.productId);
             return (
@@ -127,7 +186,7 @@ const PackLibrary: React.FC = () => {
                 style={[
                   getAnimatedStyle(animIndex),
                   styles.gridItem,
-                  { transform: [{ scale: getCardScale() }] },
+                  styles.cardScaleStyle,
                   isHidden && { display: "none" },
                 ]}
               >
@@ -173,7 +232,7 @@ const PackLibrary: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const BASE_STYLES = {
   scrollView: {
     flex: 1,
     zIndex: 1,
@@ -199,6 +258,7 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 16,
     marginBottom: 12,
+    zIndex: 2,
   },
   chip: {
     paddingHorizontal: 14,
@@ -214,20 +274,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#61D4FF",
     color: "#0b1c2c",
   },
-  chipTablet: { fontSize: 20, paddingHorizontal: 18, paddingVertical: 10 },
-  chipSmall: { fontSize: 14, paddingHorizontal: 12, paddingVertical: 6 },
-
   grid: {
     width: "100%",
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "center",
-    paddingHorizontal: 8,
   },
   gridItem: {
-    flexBasis: "33.33%",
-    maxWidth: "33.33%",
+    flexGrow: 1,
+    flexShrink: 1,
+    alignItems: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 8,
   },
-});
+  cardScaleStyle: {},
+} as const;
 
 export default PackLibrary;

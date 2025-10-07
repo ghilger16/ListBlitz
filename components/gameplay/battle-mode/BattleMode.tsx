@@ -7,9 +7,11 @@ import {
   Text,
   TouchableOpacity,
   Animated,
+  Dimensions,
 } from "react-native";
 import { PromptDisplay } from "components/gameplay/prompt-display";
-import { blitzPackIcons, useScreenInfo } from "@Utils";
+import { SkipButton } from "components/gameplay/prompt-display/SkipButton";
+import { blitzPackIcons } from "@Utils";
 import { Asset } from "expo-asset";
 import { GameMode, ModeComponentProps, Player } from "@Context";
 import { BattleTimer } from "./battle-timer";
@@ -18,7 +20,7 @@ import { playerIcons } from "@Context";
 import LottieView from "lottie-react-native";
 import { useGameplay } from "@Context";
 
-import { useBattleAnimation } from "@Hooks";
+import { useBattleAnimation, useResponsiveStyles } from "@Hooks";
 import { playSound, playTapSound, stopSound } from "@Utils";
 import { timerSound } from "@Assets";
 import {
@@ -26,14 +28,7 @@ import {
   useAlphaCategory,
 } from "../alpha-category-select";
 
-const useSkipPrompt = (handleSkipPrompt?: () => void) => {
-  const [skipTrigger, setSkipTrigger] = useState(0);
-  const wrappedHandleSkipPrompt = () => {
-    handleSkipPrompt?.();
-    setSkipTrigger((prev) => prev + 1);
-  };
-  return { skipTrigger, wrappedHandleSkipPrompt };
-};
+const { width: sw, height: sh } = Dimensions.get("window");
 
 export const BattleMode: React.FC<ModeComponentProps> = ({
   currentPrompt,
@@ -43,7 +38,6 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
   onRestart,
   handleSkipPrompt,
 }) => {
-  const { isTablet, isSmallPhone } = useScreenInfo();
   const matchRef = useRef<Player[] | null>(null);
   const turnIndexRef = useRef(0);
   const [turnIndex, setTurnIndex] = useState(0);
@@ -52,13 +46,183 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isWinnerAnnounced, setIsWinnerAnnounced] = useState(false);
   const [finalWinner, setFinalWinner] = useState<Player | null>(null);
+  const [skipTrigger, setSkipTrigger] = useState(0);
 
-  const dynamicPadding = {
-    paddingTop: isTablet ? 60 : isSmallPhone ? 0 : 10,
-  };
-  const dynamicPadding2 = {
-    paddingTop: isTablet ? 35 : isSmallPhone ? 0 : 10,
-  };
+  // Base on screen size; the band is ~30-36% of screen height, so use ~70% of that for the wheel
+  const timerSize = Math.min(sw * 0.6, sh * 0.24);
+
+  const styles = useResponsiveStyles(BASE_STYLES, (device) => {
+    const fs = (base: number) => {
+      if (device.isLargeTablet) return Math.round(base * 1.7);
+      if (device.isTablet) return Math.round(base * 1.35);
+      if (device.isLargePhone) return Math.round(base * 1.1);
+      if (device.isSmallPhone) return Math.round(base * 0.9);
+      return base;
+    };
+
+    const bandH = device.isLargeTablet
+      ? Math.round(sh * 0.36)
+      : device.isTablet
+      ? Math.round(sh * 0.34)
+      : device.isLargePhone
+      ? Math.round(sh * 0.32)
+      : device.isSmallPhone
+      ? Math.round(sh * 0.3)
+      : Math.round(sh * 0.31);
+
+    const promptPadTop = device.isLargeTablet ? 60 : device.isTablet ? 50 : 0;
+
+    const matchTop = device.isLargeTablet
+      ? 0
+      : device.isTablet
+      ? -20
+      : device.isSmallPhone
+      ? 0
+      : 0;
+    const vsFontSize = device.isLargeTablet
+      ? 96
+      : device.isTablet
+      ? 80
+      : device.isSmallPhone
+      ? 50
+      : 60;
+    const cardSize = device.isLargeTablet
+      ? 310
+      : device.isTablet
+      ? 225
+      : device.isLargePhone
+      ? 150
+      : device.isSmallPhone
+      ? 125
+      : 130;
+    const winnerTop = device.isLargeTablet
+      ? 300
+      : device.isTablet
+      ? 250
+      : device.isSmallPhone
+      ? 130
+      : 165;
+    const lottieSize = device.isLargeTablet
+      ? 260
+      : device.isTablet
+      ? 220
+      : device.isSmallPhone
+      ? 110
+      : 150;
+    const btnTextSize = device.isLargeTablet
+      ? 42
+      : device.isTablet
+      ? 36
+      : device.isSmallPhone
+      ? 22
+      : 28;
+    const startBtn = device.isLargeTablet
+      ? {
+          paddingVertical: 22,
+          paddingHorizontal: 72,
+          borderWidth: 7,
+          borderRadius: 40,
+        }
+      : device.isTablet
+      ? {
+          paddingVertical: 18,
+          paddingHorizontal: 64,
+          borderWidth: 6,
+          borderRadius: 36,
+        }
+      : device.isSmallPhone
+      ? {
+          paddingVertical: 10,
+          paddingHorizontal: 28,
+          borderWidth: 3,
+          borderRadius: 26,
+        }
+      : {};
+    const labelFont = device.isLargeTablet
+      ? 42
+      : device.isTablet
+      ? 35
+      : device.isSmallPhone
+      ? 18
+      : 24;
+
+    // Reserve vertical space for the skip button row
+    const skipRowHeight = device.isLargeTablet
+      ? 68
+      : device.isTablet
+      ? 56
+      : device.isLargePhone
+      ? 48
+      : device.isSmallPhone
+      ? 40
+      : 44;
+
+    return {
+      // Tighten space below the prompt/skip area
+      promptWrapper: {
+        paddingTop: promptPadTop,
+        marginBottom: device.isLargeTablet
+          ? 14
+          : device.isTablet
+          ? 12
+          : device.isSmallPhone
+          ? 6
+          : 10,
+      },
+
+      // Wheel band height + slight negative top to visually pull timer closer to skip
+      wheelArea: {
+        height: bandH,
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: device.isLargeTablet
+          ? -12
+          : device.isTablet
+          ? -10
+          : device.isSmallPhone
+          ? -6
+          : -8,
+      },
+
+      matchSection: {
+        marginTop: matchTop,
+        alignItems: "center",
+        justifyContent: "flex-end",
+        flexDirection: "column",
+      },
+      vsText: { fontSize: vsFontSize },
+      playerCard: { width: cardSize, height: cardSize },
+      startButton: { ...(startBtn as any) },
+      startButtonText: { fontSize: btnTextSize },
+
+      // Add a small bottom margin so the Start button breathes above the home indicator (esp. small phones)
+      startButtonWrapper: {
+        marginBottom: device.isLargeTablet
+          ? 18
+          : device.isTablet
+          ? 16
+          : device.isSmallPhone
+          ? 14
+          : 12,
+      },
+
+      winnerSection: {
+        marginTop: winnerTop,
+        alignItems: "center",
+        justifyContent: "flex-end",
+        flexDirection: "column",
+      },
+      lottieIcon: { width: lottieSize, height: lottieSize },
+      winnerHeaderText: { fontSize: fs(52) },
+      winnerText: { fontSize: fs(48) },
+      matchLabelText: { fontSize: labelFont },
+      skipRow: {
+        height: skipRowHeight,
+        alignItems: "center",
+        justifyContent: "center",
+      },
+    } as const;
+  });
 
   const {
     selectedCategory,
@@ -70,8 +234,6 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
   const { globalMatchIndex, totalMatches, getMatchLabel } = useGameplay();
 
   const { vsScale } = useBattleAnimation(currentMatch);
-  const { skipTrigger, wrappedHandleSkipPrompt } =
-    useSkipPrompt(handleSkipPrompt);
 
   useEffect(() => {
     const asset = Asset.fromModule(require("assets/images/battle-bg.png"));
@@ -98,8 +260,8 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
   const handleStartRound = () => {
     setIsTimerActive(true);
     setIsGameStarted(true);
-    stopSound(); // make sure any previous sound is stopped
-    playSound(timerSound); // start looping timer sound
+    stopSound();
+    playSound(timerSound);
   };
 
   const handlePlayerSelect = () => {
@@ -177,7 +339,7 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
       <SafeAreaView style={styles.wrapper}>
         {!isWinnerAnnounced ? (
           <>
-            <View style={[styles.promptWrapper, dynamicPadding]}>
+            <View style={styles.promptWrapper}>
               <PromptDisplay
                 prompt={currentPrompt}
                 playerColor={currentMatch[turnIndex].startColor}
@@ -185,12 +347,21 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
                 categoryBubble={blitzPackIcons[packTitle]?.titleImage}
                 isAlphaBlitz={packTitle === "Alpha Blitz"}
                 selectedCategory={selectedCategory}
+                skipSignal={skipTrigger}
                 {...(!isGameStarted
-                  ? { handleSkipPrompt: wrappedHandleSkipPrompt }
+                  ? { handleSkipPrompt: handleSkipPrompt ?? (() => {}) }
                   : {})}
               />
+              <View style={styles.skipRow}>
+                {!isGameStarted && (
+                  <SkipButton
+                    playerColor={currentMatch[turnIndex].startColor}
+                    onPress={() => setSkipTrigger((prev) => prev + 1)}
+                  />
+                )}
+              </View>
             </View>
-            <View style={[styles.timerContainer, dynamicPadding2]}>
+            <View style={styles.wheelArea}>
               <BattleTimer
                 currentPlayer={currentMatch[turnIndex]}
                 onStart={handleStartRound}
@@ -199,20 +370,10 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
                 onTimeOut={handleTimeout}
               />
             </View>
-            <View
-              style={[
-                styles.matchSection,
-                { marginTop: isTablet ? -90 : isSmallPhone ? -45 : -65 },
-              ]}
-            >
+            <View style={styles.matchSection}>
               {!isGameStarted && currentMatch.length === 2 && (
                 <View style={styles.matchLabelContainer}>
-                  <Text
-                    style={[
-                      styles.matchLabelText,
-                      { fontSize: isTablet ? 35 : isSmallPhone ? 18 : 24 },
-                    ]}
-                  >
+                  <Text style={styles.matchLabelText}>
                     {getMatchLabel(globalMatchIndex, totalMatches)}
                   </Text>
                 </View>
@@ -222,15 +383,11 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
                   player={currentMatch[0]}
                   onPress={turnIndex === 0 ? handlePlayerSelect : undefined}
                   dimmed={turnIndex !== 0}
-                  size={isTablet ? 250 : isSmallPhone ? 125 : 150}
+                  size={(styles as any).playerCard?.width ?? 150}
                 />
                 {!isGameStarted && (
                   <Animated.Text
-                    style={[
-                      styles.vsText,
-                      { transform: [{ scale: vsScale }] },
-                      { fontSize: isTablet ? 80 : isSmallPhone ? 50 : 60 },
-                    ]}
+                    style={[styles.vsText, { transform: [{ scale: vsScale }] }]}
                   >
                     VS
                   </Animated.Text>
@@ -239,40 +396,21 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
                   player={currentMatch[1]}
                   onPress={turnIndex === 1 ? handlePlayerSelect : undefined}
                   dimmed={turnIndex !== 1}
-                  size={isTablet ? 250 : isSmallPhone ? 125 : 150}
+                  size={(styles as any).playerCard?.width ?? 150}
                   isRightCard
                 />
               </View>
               {!isGameStarted && (
-                <View style={styles.startButtonWrapper}>
-                  <TouchableOpacity
-                    style={[
-                      styles.startButton,
-                      isTablet && {
-                        paddingVertical: 18,
-                        paddingHorizontal: 64,
-                        borderWidth: 6,
-                        borderRadius: 36,
-                      },
-                      isSmallPhone && {
-                        paddingVertical: 10,
-                        paddingHorizontal: 28,
-                        borderWidth: 3,
-                        borderRadius: 26,
-                      },
-                    ]}
-                    onPress={handleStartRound}
-                  >
-                    <Text
-                      style={[
-                        styles.startButtonText,
-                        { fontSize: isTablet ? 36 : isSmallPhone ? 22 : 28 },
-                      ]}
+                <>
+                  <View style={styles.startButtonWrapper}>
+                    <TouchableOpacity
+                      style={styles.startButton}
+                      onPress={handleStartRound}
                     >
-                      START MATCH
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                      <Text style={styles.startButtonText}>START MATCH</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
               )}
             </View>
           </>
@@ -280,69 +418,26 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
           <View style={styles.winnerOverlay}>
             {displayWinner && (
               <>
-                <View
-                  style={[
-                    styles.winnerSection,
-                    { marginTop: isTablet ? 250 : isSmallPhone ? 130 : 165 },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.winnerHeaderText,
-                      { fontSize: isTablet ? 72 : isSmallPhone ? 36 : 52 },
-                    ]}
-                  >
+                <View style={styles.winnerSection}>
+                  <Text style={styles.winnerHeaderText}>
                     {displayWinner?.name?.toUpperCase()}
                   </Text>
                   <LottieView
                     source={playerIcons[displayIconIndex]}
                     autoPlay
                     loop
-                    style={[
-                      styles.lottieIcon,
-                      {
-                        width: isTablet ? 220 : isSmallPhone ? 110 : 150,
-                        height: isTablet ? 220 : isSmallPhone ? 110 : 150,
-                      },
-                    ]}
+                    style={styles.lottieIcon}
                   />
-                  <Text
-                    style={[
-                      styles.winnerText,
-                      { fontSize: isTablet ? 64 : isSmallPhone ? 32 : 48 },
-                    ]}
-                  >
+                  <Text style={styles.winnerText}>
                     {isFinalMatch ? "WINS!" : "ADVANCES"}
                   </Text>
                 </View>
                 {isFinalMatch && (
                   <TouchableOpacity
-                    style={[
-                      styles.startButton,
-                      styles.nextRoundButton,
-                      isTablet && {
-                        paddingVertical: 18,
-                        paddingHorizontal: 64,
-                        borderWidth: 6,
-                        borderRadius: 36,
-                      },
-                      isSmallPhone && {
-                        paddingVertical: 10,
-                        paddingHorizontal: 28,
-                        borderWidth: 3,
-                        borderRadius: 26,
-                      },
-                    ]}
+                    style={[styles.startButton, styles.nextRoundButton]}
                     onPress={handleRestart}
                   >
-                    <Text
-                      style={[
-                        styles.startButtonText,
-                        { fontSize: isTablet ? 36 : isSmallPhone ? 22 : 28 },
-                      ]}
-                    >
-                      START NEXT ROUND
-                    </Text>
+                    <Text style={styles.startButtonText}>START NEXT ROUND</Text>
                   </TouchableOpacity>
                 )}
               </>
@@ -354,14 +449,25 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  wrapper: { flex: 1, paddingTop: 15 },
-  promptWrapper: { marginTop: 15 },
-  timerContainer: { alignItems: "center", marginTop: -30 },
+const BASE_STYLES = StyleSheet.create({
+  wrapper: { flex: 1 },
+  promptWrapper: {
+    marginTop: 15,
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    alignContent: "center",
+    zIndex: 10,
+    alignSelf: "stretch",
+    textAlign: "center",
+  },
+  wheelArea: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
   playerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 10,
   },
   vsText: {
     fontFamily: "LuckiestGuy",
@@ -437,7 +543,6 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "flex-end",
-    marginTop: -65,
   },
   winnerSection: {
     flexDirection: "column",
@@ -449,4 +554,6 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
   },
+  playerCard: { width: 150, height: 150 },
+  skipRow: { height: 44, alignItems: "center", justifyContent: "center" },
 });

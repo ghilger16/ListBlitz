@@ -16,6 +16,7 @@ export { usePlayerSelectAnimations } from "./usePlayerSelectAnimations";
 export { usePreloadAssets } from "./usePreloadAssets";
 export { usePromptAnimations } from "./usePromptAnimations";
 export { usePulseAnimation } from "./usePulseAnimation";
+export { useResponsiveStyles, scaleFont } from "./useResponsiveStyles";
 export { useRoundOverAnimation } from "./useRoundOverAnimation";
 export { useTimer } from "./useTimer";
 export { useWinnerPulseAnimation } from "./useWinnerPulseAnimation";

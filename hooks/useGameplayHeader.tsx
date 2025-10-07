@@ -1,25 +1,35 @@
 import { useLayoutEffect } from "react";
-import { TouchableOpacity, Text, StyleSheet } from "react-native";
+import { TouchableOpacity, Text } from "react-native";
 
 import { useNavigation, router } from "expo-router";
 
 import { stopSound, setMuted } from "@Utils";
 import React from "react";
-import { useScreenInfo } from "@Utils";
+import { useResponsiveStyles } from "@Hooks";
 
 export const useGameplayHeader = (
   isMuted: boolean,
   setIsMuted: (muted: boolean) => void
 ) => {
   const navigation = useNavigation();
-  const { isTablet, isSmallPhone } = useScreenInfo();
-  const iconSize = isTablet ? 40 : isSmallPhone ? 26 : 30;
+  const styles = useResponsiveStyles(BASE_STYLES, (device) => ({
+    iconSize: device.isLargeTablet
+      ? 50
+      : device.isTablet
+      ? 40
+      : device.isLargePhone
+      ? 34
+      : device.isSmallPhone
+      ? 26
+      : 30,
+  }));
 
   useLayoutEffect(() => {
     navigation.setOptions({
       animation: "none",
       headerTransparent: true,
       headerTitle: "",
+
       headerLeft: () => (
         <TouchableOpacity
           onPress={() => {
@@ -28,7 +38,9 @@ export const useGameplayHeader = (
           }}
           style={styles.backButton}
         >
-          <Text style={[styles.backText, { fontSize: iconSize }]}>←</Text>
+          <Text style={[styles.backText, { fontSize: styles.iconSize }]}>
+            ←
+          </Text>
         </TouchableOpacity>
       ),
       headerRight: () => (
@@ -40,16 +52,16 @@ export const useGameplayHeader = (
           }}
           style={styles.backButton}
         >
-          <Text style={[styles.backText, { fontSize: iconSize }]}>
+          <Text style={[styles.backText, { fontSize: styles.iconSize }]}>
             {isMuted ? "🔇" : "🔊"}
           </Text>
         </TouchableOpacity>
       ),
     });
-  }, [navigation, isMuted, iconSize]);
+  }, [navigation, isMuted, styles.iconSize]);
 };
 
-const styles = StyleSheet.create({
+const BASE_STYLES = {
   backButton: {
     paddingHorizontal: 15,
     paddingVertical: 0,
@@ -58,4 +70,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "700",
   },
-});
+  iconSize: 0,
+} as const;

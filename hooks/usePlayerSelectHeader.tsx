@@ -1,83 +1,51 @@
-import React, { useCallback, useMemo, useLayoutEffect } from "react";
+import React, { useLayoutEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
-
 import { useNavigation, router } from "expo-router";
+import { useResponsiveStyles } from "@Hooks";
 
-import { GameSettings } from "@Context";
-import { useScreenInfo } from "@Utils";
-
-export const usePlayerSelectHeader = (gameSettings: GameSettings) => {
-  const navigation = useNavigation();
-  const { isTablet, isSmallPhone } = useScreenInfo();
-
-  const handleBackPress = useCallback(() => {
-    router.back();
-  }, []);
-
-  const headerOptions = useMemo(
-    () => ({
-      animation: "none",
-      headerTransparent: true,
-      headerTitle: () => (
-        <Text
-          style={[
-            styles.headerTitle,
-            {
-              fontSize: isTablet ? 20 : isSmallPhone ? 13 : 15,
-              paddingHorizontal: isTablet ? -65 : isSmallPhone ? 12 : 25,
-              paddingBottom: isTablet ? 15 : isSmallPhone ? 4 : 5,
-            },
-          ]}
-        >
-          ✨ {gameSettings.blitzPackTitle}
-        </Text>
-      ),
-      headerStyle: {
-        backgroundColor: "#192c43",
-      },
-      headerLeft: () => (
-        <TouchableOpacity
-          onPress={handleBackPress}
-          style={styles.headerLeftTouchable}
-        >
-          <Text style={styles.headerLeftText}>←</Text>
-        </TouchableOpacity>
-      ),
-    }),
-    [gameSettings.blitzPackTitle, handleBackPress, isTablet, isSmallPhone]
-  );
-
-  useLayoutEffect(() => {
-    navigation.setOptions(headerOptions);
-  }, [navigation, headerOptions]);
-};
-
-const styles = StyleSheet.create({
+const BASE_STYLES = StyleSheet.create({
   headerTitle: {
     fontFamily: "SourGummy",
     textTransform: "uppercase",
     color: "#fff",
-    backgroundColor: "#0B3D91",
-    borderRadius: 20,
-    overflow: "hidden",
-    textAlign: "center",
-    alignSelf: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
-    letterSpacing: 1.5,
-    borderWidth: 2,
-    borderColor: "#61D4FF",
-  },
-  headerLeftTouchable: {
-    paddingHorizontal: 15,
-    paddingVertical: 5,
+    fontSize: 18,
   },
   headerLeftText: {
-    fontSize: 30,
     color: "#fff",
-    fontWeight: "700",
+    fontSize: 24,
   },
-});
+} as const);
+
+export const usePlayerSelectHeader = (blitzPackTitle: string) => {
+  const navigation = useNavigation();
+
+  const styles = useResponsiveStyles(BASE_STYLES, (device) => {
+    const fs = (base: number) => {
+      if (device.isLargeTablet) return Math.round(base * 2);
+      if (device.isTablet) return Math.round(base * 1.8);
+      if (device.isLargePhone) return Math.round(base * 1.2);
+      if (device.isSmallPhone) return Math.round(base * 0.9);
+      return base;
+    };
+
+    return {
+      headerTitle: { fontSize: fs(18) },
+      headerLeftText: { fontSize: fs(24) },
+    } as const;
+  });
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTransparent: true,
+      headerTitle: blitzPackTitle,
+      headerTitleAlign: "center",
+      headerTitleStyle: styles.headerTitle,
+
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text style={styles.headerLeftText}>←</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, blitzPackTitle, styles]);
+};
