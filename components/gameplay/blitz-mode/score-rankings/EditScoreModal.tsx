@@ -8,6 +8,7 @@ import {
   StyleSheet,
 } from "react-native";
 import LottieView from "lottie-react-native";
+import { useResponsiveStyles } from "@Hooks";
 
 interface EditScoreModalProps {
   visible: boolean;
@@ -29,6 +30,75 @@ export const EditScoreModal: React.FC<EditScoreModalProps> = ({
   playerIcon,
 }) => {
   const [score, setScore] = useState((initialScore ?? 0).toString());
+
+  const styles = useResponsiveStyles(BASE_STYLES, (device) => {
+    const fs = (base: number) => {
+      if (device.isLargeTablet) return Math.round(base * 1.85);
+      if (device.isTablet) return Math.round(base * 1.4);
+      if (device.isLargePhone) return Math.round(base * 1.1);
+      if (device.isSmallPhone) return Math.round(base * 0.85);
+      return base;
+    };
+    const ds = (base: number) => {
+      if (device.isLargeTablet) return Math.round(base * 1.6);
+      if (device.isTablet) return Math.round(base * 1.3);
+      if (device.isLargePhone) return Math.round(base * 1.1);
+      if (device.isSmallPhone) return Math.round(base * 0.9);
+      return base;
+    };
+
+    return {
+      modalContainer: {
+        width: ds(320),
+        height: ds(360),
+        borderRadius: ds(30),
+        paddingVertical: ds(50),
+      },
+      playerNamePill: {
+        width: ds(260),
+        height: ds(50),
+        borderRadius: ds(20),
+      },
+      playerIcon: {
+        width: ds(40),
+        height: ds(40),
+        marginRight: -ds(10),
+        marginLeft: ds(10),
+      },
+      playerName: {
+        fontSize: fs(30),
+        marginTop: ds(10),
+      },
+      inputWrapper: {
+        width: ds(80),
+        height: ds(80),
+        borderRadius: ds(40),
+        borderWidth: device.isLargeTablet || device.isTablet ? 3 : 2,
+      },
+      input: {
+        fontSize: fs(50),
+        marginTop: ds(15),
+      },
+      incrementButton: {
+        width: ds(60),
+        height: ds(60),
+        borderRadius: ds(30),
+        marginHorizontal: ds(10),
+      },
+      incrementButtonText: {
+        fontSize: fs(60),
+        marginTop: device.isSmallPhone ? 2 : 5,
+      },
+      saveButton: {
+        width: ds(200),
+        height: ds(50),
+        borderRadius: ds(30),
+      },
+      buttonText: {
+        fontSize: fs(18),
+      },
+    } as const;
+  });
 
   const incrementScore = () => {
     setScore((prev) => (parseInt(prev || "0", 10) + 1).toString());
@@ -103,7 +173,7 @@ export const EditScoreModal: React.FC<EditScoreModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const BASE_STYLES = StyleSheet.create({
   overlay: {
     flex: 1,
     justifyContent: "center",

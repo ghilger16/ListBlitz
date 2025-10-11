@@ -48,9 +48,6 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
   const [finalWinner, setFinalWinner] = useState<Player | null>(null);
   const [skipTrigger, setSkipTrigger] = useState(0);
 
-  // Base on screen size; the band is ~30-36% of screen height, so use ~70% of that for the wheel
-  const timerSize = Math.min(sw * 0.6, sh * 0.24);
-
   const styles = useResponsiveStyles(BASE_STYLES, (device) => {
     const fs = (base: number) => {
       if (device.isLargeTablet) return Math.round(base * 1.7);
@@ -68,12 +65,12 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
       ? Math.round(sh * 0.32)
       : device.isSmallPhone
       ? Math.round(sh * 0.3)
-      : Math.round(sh * 0.31);
+      : Math.round(sh * 0.3);
 
-    const promptPadTop = device.isLargeTablet ? 60 : device.isTablet ? 50 : 0;
+    const promptPadTop = device.isLargeTablet ? 30 : device.isTablet ? 55 : 0;
 
     const matchTop = device.isLargeTablet
-      ? 0
+      ? -60
       : device.isTablet
       ? -20
       : device.isSmallPhone
@@ -87,7 +84,7 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
       ? 50
       : 60;
     const cardSize = device.isLargeTablet
-      ? 310
+      ? 260
       : device.isTablet
       ? 225
       : device.isLargePhone
@@ -220,6 +217,26 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
         height: skipRowHeight,
         alignItems: "center",
         justifyContent: "center",
+      },
+      playerCol: {
+        alignItems: "center",
+        justifyContent: "flex-start",
+      },
+      turnLabel: {
+        fontFamily: "SourGummy",
+        color: "#FFF",
+        textAlign: "center",
+        textShadowColor: "#000",
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 2,
+        marginBottom: device.isLargeTablet
+          ? 12
+          : device.isTablet
+          ? 10
+          : device.isSmallPhone
+          ? 6
+          : 8,
+        fontSize: fs(24),
       },
     } as const;
   });
@@ -379,12 +396,20 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
                 </View>
               )}
               <View style={styles.playerRow}>
-                <PlayerCard
-                  player={currentMatch[0]}
-                  onPress={turnIndex === 0 ? handlePlayerSelect : undefined}
-                  dimmed={turnIndex !== 0}
-                  size={(styles as any).playerCard?.width ?? 150}
-                />
+                <View style={styles.playerCol}>
+                  {isGameStarted && turnIndex === 0 && (
+                    <Text
+                      style={styles.turnLabel}
+                    >{`List ${currentMatch[0].id}`}</Text>
+                  )}
+                  <PlayerCard
+                    player={currentMatch[0]}
+                    onPress={turnIndex === 0 ? handlePlayerSelect : undefined}
+                    dimmed={turnIndex !== 0}
+                    size={(styles as any).playerCard?.width ?? 150}
+                  />
+                </View>
+
                 {!isGameStarted && (
                   <Animated.Text
                     style={[styles.vsText, { transform: [{ scale: vsScale }] }]}
@@ -392,13 +417,21 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
                     VS
                   </Animated.Text>
                 )}
-                <PlayerCard
-                  player={currentMatch[1]}
-                  onPress={turnIndex === 1 ? handlePlayerSelect : undefined}
-                  dimmed={turnIndex !== 1}
-                  size={(styles as any).playerCard?.width ?? 150}
-                  isRightCard
-                />
+
+                <View style={styles.playerCol}>
+                  {isGameStarted && turnIndex === 1 && (
+                    <Text
+                      style={styles.turnLabel}
+                    >{`List ${currentMatch[1].id}`}</Text>
+                  )}
+                  <PlayerCard
+                    player={currentMatch[1]}
+                    onPress={turnIndex === 1 ? handlePlayerSelect : undefined}
+                    dimmed={turnIndex !== 1}
+                    size={(styles as any).playerCard?.width ?? 150}
+                    isRightCard
+                  />
+                </View>
               </View>
               {!isGameStarted && (
                 <>

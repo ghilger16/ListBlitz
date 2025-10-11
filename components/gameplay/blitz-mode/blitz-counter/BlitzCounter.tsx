@@ -14,6 +14,7 @@ import { playSound, playTapSound, stopSound, useScreenInfo } from "@Utils";
 import { blitzTimerSound } from "@Assets";
 
 import LottieView from "lottie-react-native";
+import { useResponsiveStyles } from "@Hooks";
 
 interface BlitzCounterProps {
   score: number;
@@ -40,6 +41,81 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   timer,
   isCountdownActive,
 }) => {
+  const { device } = useScreenInfo();
+
+  const responsive = useMemo(() => {
+    let svgWidth = 365;
+    let svgHeight = 425;
+    let scale = 1.15;
+    let pillHeight = 40;
+    let pillFontSize = 25;
+    let pillMarginTop = 10;
+
+    if (device.isLargeTablet) {
+      svgWidth = 660; // ~20% larger than tablet
+      svgHeight = 750;
+      scale = 2.1; // ~20% larger than tablet scale
+      pillHeight = 60;
+      pillFontSize = 45;
+      pillMarginTop = 15;
+    } else if (device.isTablet) {
+      svgWidth = 550;
+      svgHeight = 625;
+      scale = 1.75;
+      pillHeight = 50;
+      pillFontSize = 38;
+      pillMarginTop = 12;
+    } else if (device.isLargePhone) {
+      svgWidth = 352; // 10% larger than 320
+      svgHeight = 412; // 10% larger than 375
+      scale = 1.1; // 10% increase
+      pillHeight = 38.5; // 10% larger than 35
+      pillFontSize = 24; // ~10% larger than 22
+      pillMarginTop = 10;
+    } else if (device.isSmallPhone) {
+      svgWidth = 270;
+      svgHeight = 325;
+      scale = 0.85;
+      pillHeight = 30;
+      pillFontSize = 20;
+      pillMarginTop = 7;
+    }
+
+    const RADIUS = BASE_RADIUS * scale;
+    const CENTER_RADIUS = BASE_CENTER_RADIUS * scale;
+    const strokeW = 12 * scale;
+    const scoreFont = 60 * scale;
+    const timeFont = 24 * scale;
+    const nameFont = 20 * scale;
+    const iconTranslateX = 114 * scale;
+    const iconTranslateY = 75 * scale;
+    const scoreY = 70 * scale;
+    const timeY = 115 * scale;
+    const nameY = 150 * scale;
+
+    return {
+      svgWidth,
+      svgHeight,
+      RADIUS,
+      CENTER_RADIUS,
+      strokeW,
+      scoreFont,
+      timeFont,
+      nameFont,
+      iconTranslateX,
+      iconTranslateY,
+      scoreY,
+      timeY,
+      nameY,
+      pillHeight,
+      pillFontSize,
+      pillMarginTop,
+      pillBorderRadius: pillHeight / 2,
+    } as const;
+  }, [device]);
+
+  const styles = useResponsiveStyles(BASE_STYLES, () => ({} as const));
+
   const lottieRef = useRef<LottieView>(null);
   const animatedTimer = useRef(new Animated.Value(timer)).current;
   const flashAnim = useRef(new Animated.Value(0)).current;
@@ -53,41 +129,6 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
     const secs = seconds % 60;
     return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
   };
-
-  // Determine device type flags (assuming they are defined somewhere in scope)
-  // For this rewrite, assume isTablet and isSmallPhone are available variables.
-  // If not, they should be imported or derived appropriately.
-  const { isTablet, isSmallPhone } = useScreenInfo();
-
-  // Dynamic sizing for the pill (start/tap button)
-  const pillHeight = isTablet ? 50 : isSmallPhone ? 30 : 40;
-  const pillFontSize = isTablet ? 38 : isSmallPhone ? 20 : 25;
-  const pillBorderRadius = pillHeight / 2;
-  const pillMarginTop = isTablet ? 12 : isSmallPhone ? 7 : 10;
-
-  let svgWidth = 365;
-  let svgHeight = 425;
-  if (isTablet) {
-    svgWidth = 550;
-    svgHeight = 625;
-  } else if (isSmallPhone) {
-    svgWidth = 270;
-    svgHeight = 325;
-  }
-
-  // Scale all drawing dimensions instead of only the SVG canvas
-  const scale = isTablet ? 1.75 : isSmallPhone ? 0.85 : 1.15;
-  const RADIUS = BASE_RADIUS * scale;
-  const CENTER_RADIUS = BASE_CENTER_RADIUS * scale;
-  const strokeW = 12 * scale;
-  const scoreFont = 60 * scale;
-  const timeFont = 24 * scale;
-  const nameFont = 20 * scale;
-  const iconTranslateX = 114 * scale;
-  const iconTranslateY = 75 * scale;
-  const scoreY = 70 * scale;
-  const timeY = 115 * scale;
-  const nameY = 150 * scale;
 
   useEffect(() => {
     if (isGameStarted) {
@@ -137,18 +178,18 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
     const endAngle = Math.PI * 1 - MISSING_ANGLE / 2;
     const fillArc = d3
       .arc()
-      .innerRadius(RADIUS)
-      .outerRadius(RADIUS + 10)
+      .innerRadius(responsive.RADIUS)
+      .outerRadius(responsive.RADIUS + 10)
       .startAngle(-Math.PI / 1 + MISSING_ANGLE / 2)
       .endAngle(endAngle);
     const animatedFillArc = d3
       .arc()
-      .innerRadius(RADIUS)
-      .outerRadius(RADIUS + 10)
+      .innerRadius(responsive.RADIUS)
+      .outerRadius(responsive.RADIUS + 10)
       .startAngle(fillAngle)
       .endAngle(endAngle);
     return { fillArc, animatedFillArc };
-  }, [fillAngle, isGameStarted, RADIUS]);
+  }, [fillAngle, isGameStarted, responsive.RADIUS]);
 
   const handleIncrement = () => {
     if (isCountdownActive) return;
@@ -162,9 +203,14 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   };
 
   return (
-    <View style={[styles.container, { width: svgWidth, height: svgHeight }]}>
-      <Svg width={svgWidth} height={svgHeight}>
-        <G x={svgWidth / 2} y={svgWidth / 2}>
+    <View
+      style={[
+        styles.container,
+        { width: responsive.svgWidth, height: responsive.svgHeight },
+      ]}
+    >
+      <Svg width={responsive.svgWidth} height={responsive.svgHeight}>
+        <G x={responsive.svgWidth / 2} y={responsive.svgWidth / 2}>
           {playerIcons.length > 0 && (
             <G>
               <LottieView
@@ -176,12 +222,12 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
                   borderWidth: 5,
                   borderColor: currentPlayer.startColor,
                   backgroundColor: "#fff",
-                  borderRadius: CENTER_RADIUS,
-                  width: CENTER_RADIUS * 1.5,
-                  height: CENTER_RADIUS * 1.5,
+                  borderRadius: responsive.CENTER_RADIUS,
+                  width: responsive.CENTER_RADIUS * 1.5,
+                  height: responsive.CENTER_RADIUS * 1.5,
                   transform: [
-                    { translateX: iconTranslateX },
-                    { translateY: iconTranslateY },
+                    { translateX: responsive.iconTranslateX },
+                    { translateY: responsive.iconTranslateY },
                   ],
                 }}
               />
@@ -191,20 +237,20 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
             d={borderArcGenerator.fillArc({} as any) || ""}
             fill="none"
             stroke={isGameStarted ? "#FFF" : currentPlayer.startColor}
-            strokeWidth={strokeW}
+            strokeWidth={responsive.strokeW}
             strokeLinecap="round"
           />
           <AnimatedSvgPath
             d={borderArcGenerator.animatedFillArc({} as any) || ""}
             fill="none"
             stroke={isGameStarted ? currentPlayer.startColor : "transparent"}
-            strokeWidth={strokeW}
+            strokeWidth={responsive.strokeW}
             strokeLinecap="round"
           />
           <SvgText
             x="0"
-            y={scoreY}
-            fontSize={scoreFont}
+            y={responsive.scoreY}
+            fontSize={responsive.scoreFont}
             fontWeight="bold"
             fill="#fff"
             fontFamily="LuckiestGuy"
@@ -214,8 +260,8 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
           </SvgText>
           <SvgText
             x="0"
-            y={timeY}
-            fontSize={timeFont}
+            y={responsive.timeY}
+            fontSize={responsive.timeFont}
             fontWeight="bold"
             fill="#fff"
             textAnchor="middle"
@@ -225,8 +271,8 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
           {!isGameStarted && (
             <SvgText
               x="0"
-              y={nameY}
-              fontSize={nameFont}
+              y={responsive.nameY}
+              fontSize={responsive.nameFont}
               fontWeight="bold"
               fill="#fff"
               textAnchor="middle"
@@ -244,8 +290,8 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
             styles.animatedPill,
             {
               backgroundColor: animatedColor,
-              height: pillHeight,
-              borderRadius: pillBorderRadius,
+              height: responsive.pillHeight,
+              borderRadius: responsive.pillBorderRadius,
             },
           ]}
         >
@@ -253,7 +299,10 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
             <Text
               style={[
                 styles.pillText,
-                { fontSize: pillFontSize, marginTop: pillMarginTop },
+                {
+                  fontSize: responsive.pillFontSize,
+                  marginTop: responsive.pillMarginTop,
+                },
               ]}
             >
               {isGameStarted ? "Tap to Score" : `Start`}
@@ -265,7 +314,7 @@ export const BlitzCounter: React.FC<BlitzCounterProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const BASE_STYLES = StyleSheet.create({
   container: {
     alignItems: "center",
     width: 320,

@@ -19,66 +19,6 @@ interface WinnerOverlayProps {
   fadeAnim: Animated.Value;
 }
 
-const BASE_STYLES = StyleSheet.create({
-  container: {
-    flex: 1,
-
-    justifyContent: "center",
-    alignItems: "stretch",
-  },
-  startButton: {
-    backgroundColor: "#FF6600",
-    borderRadius: 60,
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "center",
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    elevation: 8,
-    shadowColor: "rgba(255, 165, 0, 0.5)",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    borderWidth: 3,
-    borderColor: "#FFCC00",
-  },
-  startText: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "white",
-    textTransform: "uppercase",
-    textAlign: "center",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
-    fontFamily: "SourGummy",
-  },
-  rankingsContainer: {
-    flex: 1,
-    justifyContent: "center",
-    marginTop: 50,
-    paddingHorizontal: 35,
-    zIndex: 1,
-  },
-  winnerText: {
-    fontSize: 48,
-    fontWeight: "bold",
-    color: "#ffffff",
-    textAlign: "center",
-    marginTop: 60,
-    fontFamily: "LuckiestGuy",
-    textShadowColor: "#FFD700",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 15,
-  },
-  trophyIcon: {
-    marginTop: -20,
-    marginBottom: 50,
-    width: 210,
-    height: 210,
-    alignSelf: "center",
-  },
-});
-
 export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
   players,
   handleNextRound,
@@ -96,7 +36,7 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
 
   const styles = useResponsiveStyles(
     BASE_STYLES,
-    ({ isSmallPhone, isPhone, isLargePhone, isTablet, isLargeTablet }) => {
+    ({ isSmallPhone, isLargePhone, isTablet, isLargeTablet }) => {
       const fs = (base: number) => {
         if (isLargeTablet) return base * 1.5;
         if (isTablet) return base * 1.25;
@@ -157,16 +97,14 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
       const btnRadius = isLargeTablet || isTablet ? 60 : 50;
 
       const rankingsTop = isLargeTablet
-        ? 60
+        ? 40
         : isTablet
-        ? -75
+        ? 20
         : isLargePhone
-        ? 50
+        ? 60
         : isSmallPhone
-        ? 120
-        : 75;
-
-      const rankingsPadH = isLargeTablet ? 60 : isTablet ? 45 : 30;
+        ? 70
+        : 45;
 
       return {
         winnerText: { fontSize: fs(48), marginTop: winnerTop },
@@ -184,7 +122,6 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
         },
         rankingsContainer: {
           marginTop: rankingsTop,
-          paddingHorizontal: rankingsPadH,
         },
       };
     }
@@ -210,16 +147,78 @@ export const WinnerOverlay: React.FC<WinnerOverlayProps> = ({
         loop={false}
         style={styles.trophyIcon}
       />
-      <TouchableOpacity style={styles.startButton} onPress={handleNextRound}>
+      <View style={styles.rankingsContainer}>
+        <ScoreRankings players={players} isRoundOver />
+      </View>
+      <TouchableOpacity
+        style={styles.startButton}
+        activeOpacity={1}
+        onPress={handleNextRound}
+      >
         <Animated.Text
           style={[styles.startText, { textShadowColor: glowInterpolation }]}
         >
           Next Round
         </Animated.Text>
       </TouchableOpacity>
-      <View style={styles.rankingsContainer}>
-        <ScoreRankings players={players} isRoundOver />
-      </View>
     </Animated.View>
   );
 };
+
+const BASE_STYLES = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "space-between",
+    alignItems: "stretch",
+  },
+  startButton: {
+    backgroundColor: "#FF6600",
+    borderRadius: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    elevation: 8,
+    shadowColor: "rgba(255, 165, 0, 0.5)",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    borderWidth: 3,
+    borderColor: "#FFCC00",
+    marginBottom: 15,
+  },
+  startText: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "white",
+    textTransform: "uppercase",
+    textAlign: "center",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+    fontFamily: "SourGummy",
+  },
+  rankingsContainer: {
+    marginBottom: 80, // increased space to separate rankings from bottom button
+    alignItems: "center",
+    width: "100%",
+  },
+  winnerText: {
+    fontSize: 48,
+    fontWeight: "bold",
+    color: "#ffffff",
+    textAlign: "center",
+
+    fontFamily: "LuckiestGuy",
+    textShadowColor: "#FFD700",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 15,
+  },
+  trophyIcon: {
+    marginTop: -20,
+    marginBottom: 50,
+    width: 210,
+    height: 210,
+    alignSelf: "center",
+  },
+});

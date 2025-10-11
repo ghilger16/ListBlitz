@@ -58,6 +58,8 @@ export const PromptDisplay: React.FC<{
       ? Math.min(screenWidth * 0.92, 820)
       : device.isTablet
       ? Math.min(screenWidth * 0.9, 700)
+      : device.isLargePhone
+      ? Math.min(screenWidth * 0.92, 450)
       : device.isSmallPhone
       ? Math.min(screenWidth * 0.9, 360)
       : Math.min(screenWidth * 0.92, 500);
@@ -66,33 +68,66 @@ export const PromptDisplay: React.FC<{
       ? screenHeight * 0.15
       : device.isTablet
       ? screenHeight * 0.14
-      : device.isSmallPhone
+      : device.isLargePhone
       ? screenHeight * 0.12
-      : screenHeight * 0.11;
+      : device.isSmallPhone
+      ? screenHeight * 0.13
+      : screenHeight * 0.12;
 
     const bubbleBottom = device.isLargeTablet
       ? screenHeight * 0.12
       : device.isTablet
       ? screenHeight * 0.11
+      : device.isLargePhone
+      ? screenHeight * 0.105
       : device.isSmallPhone
       ? screenHeight * 0.1
       : screenHeight * 0.09;
 
-    const goSize = device.isLargeTablet
-      ? 120
-      : device.isTablet
-      ? 100
-      : device.isSmallPhone
-      ? 55
-      : 75;
+    // const goSize = device.isLargeTablet
+    //   ? 120
+    //   : device.isTablet
+    //   ? 100
+    //   : device.isSmallPhone
+    //   ? 55
+    //   : 75;
 
-    const alphaW = device.isLargeTablet ? 80 : device.isTablet ? 60 : 55;
-    const alphaH = device.isLargeTablet ? 85 : device.isTablet ? 65 : 60;
+    const alphaW = device.isLargeTablet
+      ? 90
+      : device.isTablet
+      ? 70
+      : device.isLargePhone
+      ? 65
+      : 55;
+    const alphaH = device.isLargeTablet
+      ? 85
+      : device.isTablet
+      ? 65
+      : device.isLargePhone
+      ? 35
+      : device.isSmallPhone
+      ? 30
+      : 60;
+
+    const borderWidth = device.isLargeTablet
+      ? 10
+      : device.isTablet
+      ? 8
+      : device.isLargePhone
+      ? 6
+      : device.isSmallPhone
+      ? 4
+      : 5;
 
     return {
-      container: { width: promptWidth, height: containerHeight },
+      container: {
+        width: promptWidth,
+        height: containerHeight,
+        borderWidth,
+      },
       promptText: { fontSize: fs(28) },
-      countdownText: { fontSize: goSize },
+      countdownText: { fontSize: fs(50) },
+      alphaText: { fontSize: fs(20) },
       bubbleImage: { bottom: bubbleBottom },
       alphaIcon: { width: alphaW, height: alphaH },
     } as const;
@@ -161,7 +196,6 @@ export const PromptDisplay: React.FC<{
         {
           opacity: fadeValue,
           transform: [{ scale: scaleValue }],
-          marginTop: shouldShowCountdown ? 20 : 5,
         },
       ]}
     >
@@ -170,46 +204,35 @@ export const PromptDisplay: React.FC<{
   );
 
   const renderAlphaBlitz = () => (
-    <>
-      <View style={{ position: "absolute", top: 15, alignItems: "center" }}>
-        <Animated.View
-          style={{
-            transform: [{ scale: bounceValue }],
-          }}
+    <View style={{ alignItems: "center" }}>
+      <Animated.View style={{ transform: [{ scale: bounceValue }] }}>
+        <Text style={styles.alphaText}>List {selectedCategory}</Text>
+        <Text style={styles.alphaText}>that start with the letter</Text>
+      </Animated.View>
+
+      {mode === GameMode.BLITZ && shouldShowCountdown ? (
+        <Animated.Text
+          style={[
+            styles.promptText,
+            styles.countdownText,
+            { opacity: fadeValue, transform: [{ scale: scaleValue }] },
+          ]}
         >
-          <Text style={styles.promptText}>List {selectedCategory}</Text>
-          <Text style={styles.promptText}>that start with the letter</Text>
-        </Animated.View>
-      </View>
-      <View style={{ position: "absolute", bottom: -5, alignItems: "center" }}>
-        {mode === GameMode.BLITZ && shouldShowCountdown ? (
-          <Animated.Text
-            style={[
-              styles.promptText,
-              {
-                opacity: fadeValue,
-                transform: [{ scale: scaleValue }],
-                ...styles.countdownText,
-                ...styles.countdownMarginTop,
-              },
-            ]}
-          >
-            {countdown}
-          </Animated.Text>
-        ) : !isObscured ? (
-          alphaIcon && iconReadyRef.current ? (
-            <LottieView
-              source={alphaIcon}
-              autoPlay
-              loop={false}
-              style={[styles.alphaIcon, styles.countdownMarginTop]}
-            />
-          ) : null
-        ) : (
-          <Text style={[styles.promptText, styles.countdownText]}>?</Text>
-        )}
-      </View>
-    </>
+          {countdown}
+        </Animated.Text>
+      ) : !isObscured ? (
+        alphaIcon && iconReadyRef.current ? (
+          <LottieView
+            source={alphaIcon}
+            autoPlay
+            loop={false}
+            style={[styles.alphaIcon]}
+          />
+        ) : null
+      ) : (
+        <Text style={[styles.alphaText, styles.countdownText]}>?</Text>
+      )}
+    </View>
   );
 
   // Handler for skip button that updates letterIndex if AlphaBlitz
@@ -297,11 +320,22 @@ const BASE_STYLES = StyleSheet.create({
     fontFamily: "LuckiestGuy",
     fontWeight: "bold",
     color: "#ffffff",
-    textAlign: "center",
     textShadowColor: "rgba(0, 0, 0, 0.5)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
     flexWrap: "wrap",
+    textAlign: "center",
+  },
+  alphaText: {
+    fontFamily: "LuckiestGuy",
+    fontWeight: "bold",
+    color: "#ffffff",
+    textShadowColor: "rgba(0, 0, 0, 0.5)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+    flexWrap: "wrap",
+    textAlign: "center",
+    marginTop: 5,
   },
   bubbleImage: {
     position: "absolute",
@@ -349,12 +383,13 @@ const BASE_STYLES = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingBottom: 6,
+    paddingTop: 5,
   },
   contentSlot: {
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    flexGrow: 1,
+    flexGrow: 0,
+    flexShrink: 1,
   },
 });

@@ -12,7 +12,7 @@ import { Player, useGameplay } from "@Context";
 import { playerIcons } from "@Context";
 import LottieView from "lottie-react-native";
 import { useRoundOverAnimation, useWinnerPulseAnimation } from "@Hooks";
-import { useScreenInfo } from "@Utils";
+import { useResponsiveStyles } from "@Hooks";
 
 const getPlayerIcon = (playerIconIndex: number) => playerIcons[playerIconIndex];
 
@@ -27,18 +27,6 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
   isRoundOver,
   isGameStarted,
 }) => {
-  const { isTablet, isSmallPhone } = useScreenInfo();
-
-  const pillWidth = isTablet ? 525 : isSmallPhone ? 260 : 350;
-  const pillHeight = isTablet ? 50 : isSmallPhone ? 30 : 39;
-  const nameFontSize = isTablet ? 38 : isSmallPhone ? 20 : 25;
-  const nameMargin = isTablet ? 10 : isSmallPhone ? 5 : 8;
-  const scoreFontSize = isTablet ? 45 : isSmallPhone ? 28 : 35;
-  const rankFontSize = isTablet ? 22 : isSmallPhone ? 16 : 18;
-
-  const iconSize = Math.round(pillHeight * 1.25);
-  const rankSize = Math.round(pillHeight * 0.75);
-
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { updatePlayerScore } = useGameplay();
@@ -50,6 +38,76 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
   } = useRoundOverAnimation();
   const { pulseAnim, trigger: triggerWinnerPulseAnimation } =
     useWinnerPulseAnimation();
+
+  const styles = useResponsiveStyles(BASE_STYLES, (device) => {
+    const fs = (base: number) => {
+      if (device.isLargeTablet) return Math.round(base * 1.85);
+      if (device.isTablet) return Math.round(base * 1.4);
+      if (device.isLargePhone) return Math.round(base * 1);
+      if (device.isSmallPhone) return Math.round(base * 0.75);
+      return base;
+    };
+
+    const pillWidth = device.isLargeTablet
+      ? 640
+      : device.isTablet
+      ? 525
+      : device.isLargePhone
+      ? 340
+      : device.isSmallPhone
+      ? 260
+      : 350;
+
+    const pillHeight = device.isLargeTablet
+      ? 60
+      : device.isTablet
+      ? 50
+      : device.isLargePhone
+      ? 38
+      : device.isSmallPhone
+      ? 30
+      : 39;
+
+    const nameMargin = device.isLargeTablet
+      ? 12
+      : device.isTablet
+      ? 10
+      : device.isLargePhone
+      ? 8
+      : device.isSmallPhone
+      ? 5
+      : 8;
+
+    const iconSize = Math.round(pillHeight * 1.3); // keep icon within pill height for true vertical centering
+    const rankSize = Math.round(pillHeight * 0.75);
+
+    return {
+      // Merge dynamic sizing directly into base styles
+      pill: {
+        width: pillWidth,
+        height: pillHeight,
+        borderRadius: pillHeight / 2,
+      },
+      rankContainer: {
+        width: rankSize,
+        height: rankSize,
+        borderRadius: rankSize / 2,
+      },
+      rank: { fontSize: fs(19) },
+
+      name: {
+        fontSize: fs(25),
+        // lineHeight: fs(25),
+      },
+      icon: { width: iconSize, height: iconSize },
+      scoreText: {
+        fontSize: fs(36),
+        ...(device.isTablet || device.isLargeTablet
+          ? { paddingTop: 4, paddingRight: 4 }
+          : {}),
+      },
+    } as const;
+  });
 
   const sortedPlayers = [...players]
     .filter((p) => p.score !== null)
@@ -99,48 +157,22 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
           <View
             style={[
               styles.pill,
-              {
-                backgroundColor: player.startColor || "#000",
-                width: pillWidth,
-                height: pillHeight,
-                borderRadius: pillHeight / 2,
-                paddingHorizontal: 12,
-              },
+              { backgroundColor: player.startColor || "#000" },
             ]}
           >
-            <View
-              style={[
-                styles.rankContainer,
-                {
-                  width: rankSize,
-                  height: rankSize,
-                  borderRadius: rankSize / 2,
-                },
-              ]}
-            >
-              <Text style={[styles.rank, { fontSize: rankFontSize }]}>
-                {sortedPlayers.findIndex((p) => p.id === player.id) + 1}
-              </Text>
+            <View style={styles.left}>
+              <View style={styles.rankContainer}>
+                <Text style={styles.rank}>
+                  {sortedPlayers.findIndex((p) => p.id === player.id) + 1}
+                </Text>
+              </View>
             </View>
-            <View>
-              <Text
-                style={[
-                  styles.name,
-                  { fontSize: nameFontSize, marginTop: nameMargin },
-                ]}
-              >
-                {player.name}
-              </Text>
+            <View style={styles.nameContainer}>
+              <Text style={styles.name}>{player.name}</Text>
             </View>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <LottieView
-                source={icon}
-                style={{
-                  width: iconSize,
-                  height: iconSize,
-                  marginLeft: 2,
-                }}
-              />
+
+            <View style={styles.right}>
+              <LottieView source={icon} style={styles.icon} />
               <Animated.View
                 style={
                   sortedPlayers[0].id === player.id
@@ -148,17 +180,7 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
                     : {}
                 }
               >
-                <Text
-                  style={[
-                    styles.scoreText,
-                    {
-                      fontSize: scoreFontSize,
-                      marginLeft: player.score! < 10 ? 10 : 15,
-                    },
-                  ]}
-                >
-                  {player.score}
-                </Text>
+                <Text style={styles.scoreText}>{player.score}</Text>
               </Animated.View>
             </View>
           </View>
@@ -173,7 +195,7 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
       <FlatList
         data={isRoundOver ? restPlayers : sortedPlayers}
         keyExtractor={(player) => player.id.toString()}
-        style={{ maxHeight: 170, overflow: "hidden" }}
+        style={{ maxHeight: 170 }}
         renderItem={({ item }) => renderPill(item)}
       />
       {selectedPlayer && !isGameStarted && (
@@ -191,14 +213,19 @@ export const ScoreRankings: React.FC<ScoreRankingsProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const BASE_STYLES = StyleSheet.create({
   pill: {
-    marginTop: 5,
     borderRadius: 20,
-    display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
+    alignSelf: "center",
+    marginBottom: 2,
+    marginTop: 2,
+  },
+  left: {
+    flex: 1,
+    paddingLeft: 10,
   },
   rankContainer: {
     width: 30,
@@ -213,25 +240,37 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000",
   },
+  nameContainer: {
+    flex: 4,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 12,
+  },
   name: {
     fontSize: 25,
     fontWeight: "bold",
     color: "#000",
-    marginTop: 0,
-    marginLeft: 0,
     fontFamily: "LuckiestGuy",
+    textAlign: "center",
   },
   scoreText: {
-    fontSize: 35,
     fontWeight: "bold",
     color: "#fff",
-    marginLeft: 25,
-    marginTop: 8,
     fontFamily: "LuckiestGuy",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,
     shadowRadius: 4,
+  },
+  icon: {},
+  right: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: 6,
+    paddingTop: 4,
+    marginRight: 10,
   },
   pulseStyle: {
     shadowColor: "#000",

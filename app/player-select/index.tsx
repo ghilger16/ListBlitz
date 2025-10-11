@@ -50,7 +50,7 @@ const PlayerSelect: React.FC = () => {
       : 30;
 
     const startButtonWidth = device.isLargeTablet
-      ? 650
+      ? 675
       : device.isTablet
       ? 650
       : device.isLargePhone
@@ -60,7 +60,7 @@ const PlayerSelect: React.FC = () => {
       : 350;
 
     const startButtonHeight = device.isLargeTablet
-      ? 80
+      ? 100
       : device.isTablet
       ? 80
       : device.isLargePhone

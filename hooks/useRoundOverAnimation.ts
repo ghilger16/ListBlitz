@@ -8,7 +8,7 @@ export const useRoundOverAnimation = () => {
   const trigger = () => {
     Animated.parallel([
       Animated.timing(slideAnim, {
-        toValue: -250,
+        toValue: -150,
         duration: 1100,
         useNativeDriver: true,
       }),

@@ -1,10 +1,16 @@
 export const categoryChaosPrompts = [
+  // General
+  "List U.S. States",
+  "List school subjects",
+  "List state capitals",
+  "List countries",
+
   // 🎬 Movies
   "List movies from the 80s",
-  "List animated movies",
-  "List action movies",
-  "List romantic comedy movies",
-  "List movies with one-word titles",
+  "List Pixar movies",
+  "List superhero movies",
+  "List reality TV shows",
+  "List TV Sitcoms",
 
   // 👔 Professions & Apparel
   "List occupations that require a uniform",
@@ -22,6 +28,7 @@ export const categoryChaosPrompts = [
   "List types of board games",
   "List Olympic sports",
   "List NFL teams",
+  "List NBA teams",
 
   // 🚗 Transportation & Movement
   "List modes of transportation",
@@ -43,9 +50,8 @@ export const categoryChaosPrompts = [
   "List kids TV shows",
   "List reality TV shows",
   "List YouTube channels or personalities",
-  "List video game franchises",
   "List late-night talk shows",
-  "List musical groups",
+  "List bands",
   "List cartoon characters",
   "List authors",
   "List fictional characters",
@@ -80,40 +86,15 @@ export const categoryChaosPrompts = [
   "List soda brands",
   "List candy bars",
   "List cereal brands",
-  "List snack brands",
-  "List bottled water brands",
-  "List ice cream brands",
-  "List fast food breakfast items",
+  "List types of fruit",
+  "List types of vegetables",
 
   // 🛍️ Products & Companies
-  "List smartphone brands",
   "List clothing brands",
-  "List sportswear brands",
-  "List makeup brands",
-  "List energy drink brands",
 
   // 📅 Cultural Awareness
   "List major U.S. holidays",
 
-  // 🎉 Events & Activities
-  "List holiday activities",
-  "List things to do on a date",
-  "List ways to kill time",
-  "List things to do at work",
-  "List leisure activities",
-  "List household chores",
-
   // 🧠 Everyday & General Knowledge
-  "List things you get in the mail",
-  "List things you do every day",
-  "List things you save up to buy",
-  "List reasons to make a phone call",
-  "List things that will get you fired",
-  "List items in a vending machine",
-  "List menu items",
-  "List things you get tickets for",
-  "List things you throw away",
-  "List diseases",
-  "List kids toys",
   "List U.S. presidents",
 ];

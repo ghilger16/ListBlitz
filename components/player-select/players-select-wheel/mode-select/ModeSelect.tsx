@@ -96,11 +96,11 @@ const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
   }));
 
   const nextMode = useMemo(() => {
-    return mode === GameMode.CHILL
+    return mode === GameMode.BATTLE
       ? GameMode.BLITZ
       : mode === GameMode.BLITZ
-      ? GameMode.BATTLE
-      : GameMode.CHILL;
+      ? GameMode.CHILL
+      : GameMode.BATTLE;
   }, [mode]);
 
   const handlePress = () => {
@@ -112,10 +112,10 @@ const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
   const color = getModeColor(mode);
 
   const MODES: Record<GameMode, React.ReactNode> = {
-    [GameMode.CHILL]: (
+    [GameMode.BATTLE]: (
       <View style={styles.iconContainer}>
-        <Text style={[styles.iconEmoji]}>{`😎`}</Text>
-        <Text style={[styles.modeLabel]}>Chill</Text>
+        <Text style={[styles.iconEmoji]}>{`⚔️`}</Text>
+        <Text style={[styles.modeLabelBattle]}>Battle</Text>
       </View>
     ),
     [GameMode.BLITZ]: (
@@ -124,10 +124,10 @@ const ModeSelect: React.FC<ModeSelectProps> = ({ onModeChange, mode }) => {
         <Text style={[styles.modeLabel]}>Blitz</Text>
       </View>
     ),
-    [GameMode.BATTLE]: (
+    [GameMode.CHILL]: (
       <View style={styles.iconContainer}>
-        <Text style={[styles.iconEmoji]}>{`⚔️`}</Text>
-        <Text style={[styles.modeLabelBattle]}>Battle</Text>
+        <Text style={[styles.iconEmoji]}>{`😎`}</Text>
+        <Text style={[styles.modeLabel]}>Chill</Text>
       </View>
     ),
   };
