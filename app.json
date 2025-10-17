@@ -13,7 +13,7 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "bundleIdentifier": "com.listblitz.app",
-      "buildNumber": "1.0.1",
+      "buildNumber": "2.0.1",
       "supportsTablet": true
     },
     "android": {

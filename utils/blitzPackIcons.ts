@@ -42,4 +42,10 @@ export const blitzPackIcons: Record<
     category: "Entertainment",
     productId: "com.listblitz.app.iap.pack_music_mania",
   },
+  "TV Time": {
+    icon: require("@Assets/icons/tv-time.png"),
+    titleImage: require("@Assets/icons/tv-time-title.png"),
+    category: "Entertainment",
+    productId: "com.listblitz.app.iap.pack_tv_time",
+  },
 };

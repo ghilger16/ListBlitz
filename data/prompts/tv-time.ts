@@ -7,7 +7,7 @@ export const tvTimePrompts = [
   "List game shows",
   "List cooking shows",
   "List medical dramas",
-  "List cartoon TV shows",
+  "List cartoon shows",
   "List kids’ shows",
 
   // Characters & Roles
@@ -19,6 +19,8 @@ export const tvTimePrompts = [
   "List TV families",
   "List famous TV couples",
   "List famous TV hosts",
+  "List famous TV Dads",
+  "List famous TV Moms",
 
   // Networks & Platforms
   "List shows on Netflix",
@@ -46,7 +48,6 @@ export const tvTimePrompts = [
   "List characters from Stranger Things",
 
   // Popular Culture
-  "List Emmy-winning shows",
   "List shows that have spin-offs",
   "List shows that were made into movies",
   "List shows that lasted 6 seasons or more",

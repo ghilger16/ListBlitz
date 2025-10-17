@@ -20,7 +20,7 @@ import {
   AlphaCategoryWrapper,
 } from "../alpha-category-select";
 
-const TIMER_DURATION = 2;
+const TIMER_DURATION = 30;
 
 export const BlitzMode: React.FC<ModeComponentProps> = ({
   currentPrompt,

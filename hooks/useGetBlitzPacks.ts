@@ -8,6 +8,7 @@ export const BLITZ_PACKS: IBlitzPack[] = [
   { id: 4, title: "Snack Attack", key: "snack_attack" },
   { id: 5, title: "Big Screen Blitz", key: "big_screen_blitz" },
   { id: 6, title: "Music Mania", key: "music_mania" },
+  { id: 7, title: "TV Time", key: "tv_time" },
 ];
 export const useGetBlitzPacks = (): {
   data: IBlitzPack[];
