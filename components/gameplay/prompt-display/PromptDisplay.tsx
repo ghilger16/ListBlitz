@@ -97,8 +97,8 @@ export const PromptDisplay: React.FC<{
       : device.isTablet
       ? 70
       : device.isLargePhone
-      ? 65
-      : 55;
+      ? 85
+      : 75;
     const alphaH = device.isLargeTablet
       ? 85
       : device.isTablet
@@ -107,7 +107,7 @@ export const PromptDisplay: React.FC<{
       ? 35
       : device.isSmallPhone
       ? 30
-      : 60;
+      : 45;
 
     const borderWidth = device.isLargeTablet
       ? 10

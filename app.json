@@ -3,7 +3,7 @@
     "name": "List Blitz",
     "slug": "list-blitz",
     "scheme": "listblitz",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "light",
@@ -13,7 +13,7 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "bundleIdentifier": "com.listblitz.app",
-      "buildNumber": "2.0.1",
+      "buildNumber": "3",
       "supportsTablet": true
     },
     "android": {
