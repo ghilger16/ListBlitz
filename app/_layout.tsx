@@ -14,6 +14,7 @@ import {
 
 import { SplashScreen } from "@Components";
 import { ddConfig, identifyDatadogUser } from "@Utils";
+import { isProdEnvironment } from "@Utils";
 import AppProviders from "./AppProviders";
 
 const containerStyle = { flex: 1 };
@@ -57,11 +58,15 @@ const Layout: React.FC = () => {
 
   useEffect(() => {
     const initDatadog = async () => {
-      try {
-        await DdSdkReactNative.initialize(ddConfig);
-        identifyDatadogUser();
-      } catch (err) {
-        console.warn("[Datadog] Initialization failed:", err);
+      if (isProdEnvironment()) {
+        try {
+          await DdSdkReactNative.initialize(ddConfig);
+          identifyDatadogUser();
+        } catch (err) {
+          console.warn("[Datadog] Initialization failed:", err);
+        }
+      } else {
+        console.log("🚫 Datadog disabled in non-production environment");
       }
     };
 
@@ -76,33 +81,58 @@ const Layout: React.FC = () => {
     }
   }, [showSplash, pathname]);
 
-  return (
-    <DatadogProvider configuration={ddConfig}>
-      {showSplash ? (
-        <>
-          <StatusBar hidden />
-          <SplashScreen
-            backgroundPath="landing"
-            isReady={fontsLoaded && assetsLoaded}
-            onFinish={() => {
-              DdRum.stopView("SplashScreen");
-              setShowSplash(false);
-            }}
-          />
-        </>
-      ) : (
-        <View style={containerStyle}>
-          <AppProviders>
-            <OwnedProvider>
-              <StatusBar hidden />
-              <Stack screenOptions={{ animation: "none" }} />
-              <PurchasesBootstrap />
-            </OwnedProvider>
-          </AppProviders>
-        </View>
-      )}
-    </DatadogProvider>
-  );
+  if (isProdEnvironment()) {
+    return (
+      <DatadogProvider configuration={ddConfig}>
+        {showSplash ? (
+          <>
+            <StatusBar hidden />
+            <SplashScreen
+              backgroundPath="landing"
+              isReady={fontsLoaded && assetsLoaded}
+              onFinish={() => {
+                DdRum.stopView("SplashScreen");
+                setShowSplash(false);
+              }}
+            />
+          </>
+        ) : (
+          <View style={containerStyle}>
+            <AppProviders>
+              <OwnedProvider>
+                <StatusBar hidden />
+                <Stack screenOptions={{ animation: "none" }} />
+                <PurchasesBootstrap />
+              </OwnedProvider>
+            </AppProviders>
+          </View>
+        )}
+      </DatadogProvider>
+    );
+  } else {
+    return showSplash ? (
+      <>
+        <StatusBar hidden />
+        <SplashScreen
+          backgroundPath="landing"
+          isReady={fontsLoaded && assetsLoaded}
+          onFinish={() => {
+            setShowSplash(false);
+          }}
+        />
+      </>
+    ) : (
+      <View style={containerStyle}>
+        <AppProviders>
+          <OwnedProvider>
+            <StatusBar hidden />
+            <Stack screenOptions={{ animation: "none" }} />
+            <PurchasesBootstrap />
+          </OwnedProvider>
+        </AppProviders>
+      </View>
+    );
+  }
 };
 
 export default Layout;
