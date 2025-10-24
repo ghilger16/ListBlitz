@@ -8,25 +8,25 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		1B81F92AA779FE0642FBE669 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 4231950FE53FB4C2A1B193B2 /* PrivacyInfo.xcprivacy */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		495523C50A9B76576DB4208E /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7867CAFDB3406E80C00B20B /* ExpoModulesProvider.swift */; };
-		5685EF8BA05456F894E2A8FE /* libPods-ListBlitz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CEC24D680227824B81FDE87E /* libPods-ListBlitz.a */; };
+		74CECEF12393DC0C08C49BA0 /* libPods-ListBlitz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 12209699E201F23498D6CDF4 /* libPods-ListBlitz.a */; };
+		7927FD051D4A907D9F17A516 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 36A04D3D6BF5DB1CACA51E5E /* PrivacyInfo.xcprivacy */; };
+		9810CB30129CAB1AE8C06160 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C7CFDAF6654AA96B51377F /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		12209699E201F23498D6CDF4 /* libPods-ListBlitz.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ListBlitz.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* ListBlitz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ListBlitz.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ListBlitz/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ListBlitz/Info.plist; sourceTree = "<group>"; };
-		37C35321E6AAE99DAFC9F364 /* Pods-ListBlitz.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ListBlitz.debug.xcconfig"; path = "Target Support Files/Pods-ListBlitz/Pods-ListBlitz.debug.xcconfig"; sourceTree = "<group>"; };
-		4231950FE53FB4C2A1B193B2 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = ListBlitz/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		A7867CAFDB3406E80C00B20B /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ListBlitz/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		36A04D3D6BF5DB1CACA51E5E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = ListBlitz/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		57C7CFDAF6654AA96B51377F /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ListBlitz/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		8BDE25033B603633B54A0D2B /* Pods-ListBlitz.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ListBlitz.release.xcconfig"; path = "Target Support Files/Pods-ListBlitz/Pods-ListBlitz.release.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = ListBlitz/SplashScreen.storyboard; sourceTree = "<group>"; };
+		B0CF5DB52C216E7870980810 /* Pods-ListBlitz.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ListBlitz.debug.xcconfig"; path = "Target Support Files/Pods-ListBlitz/Pods-ListBlitz.debug.xcconfig"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		CC43A74C1DC17E5589C375FB /* Pods-ListBlitz.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ListBlitz.release.xcconfig"; path = "Target Support Files/Pods-ListBlitz/Pods-ListBlitz.release.xcconfig"; sourceTree = "<group>"; };
-		CEC24D680227824B81FDE87E /* libPods-ListBlitz.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ListBlitz.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ListBlitz/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* ListBlitz-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "ListBlitz-Bridging-Header.h"; path = "ListBlitz/ListBlitz-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5685EF8BA05456F894E2A8FE /* libPods-ListBlitz.a in Frameworks */,
+				74CECEF12393DC0C08C49BA0 /* libPods-ListBlitz.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,7 +53,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				4231950FE53FB4C2A1B193B2 /* PrivacyInfo.xcprivacy */,
+				36A04D3D6BF5DB1CACA51E5E /* PrivacyInfo.xcprivacy */,
 			);
 			name = ListBlitz;
 			sourceTree = "<group>";
@@ -62,17 +62,9 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				CEC24D680227824B81FDE87E /* libPods-ListBlitz.a */,
+				12209699E201F23498D6CDF4 /* libPods-ListBlitz.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		5FFE280AE216E71C03910569 /* ListBlitz */ = {
-			isa = PBXGroup;
-			children = (
-				A7867CAFDB3406E80C00B20B /* ExpoModulesProvider.swift */,
-			);
-			name = ListBlitz;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -89,8 +81,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				D5183CB214C62F339E54ED2A /* Pods */,
-				B5145981B58D139F1DC0C89F /* ExpoModulesProviders */,
+				B18121034FA055B06268C866 /* Pods */,
+				D48C9EFBB28D7AEC9A4169F6 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -105,12 +97,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B5145981B58D139F1DC0C89F /* ExpoModulesProviders */ = {
+		B18121034FA055B06268C866 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				5FFE280AE216E71C03910569 /* ListBlitz */,
+				B0CF5DB52C216E7870980810 /* Pods-ListBlitz.debug.xcconfig */,
+				8BDE25033B603633B54A0D2B /* Pods-ListBlitz.release.xcconfig */,
 			);
-			name = ExpoModulesProviders;
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -122,14 +116,20 @@
 			path = ListBlitz/Supporting;
 			sourceTree = "<group>";
 		};
-		D5183CB214C62F339E54ED2A /* Pods */ = {
+		D48C9EFBB28D7AEC9A4169F6 /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				37C35321E6AAE99DAFC9F364 /* Pods-ListBlitz.debug.xcconfig */,
-				CC43A74C1DC17E5589C375FB /* Pods-ListBlitz.release.xcconfig */,
+				F80BE3E4068E49B52030A993 /* ListBlitz */,
 			);
-			name = Pods;
-			path = Pods;
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
+		F80BE3E4068E49B52030A993 /* ListBlitz */ = {
+			isa = PBXGroup;
+			children = (
+				57C7CFDAF6654AA96B51377F /* ExpoModulesProvider.swift */,
+			);
+			name = ListBlitz;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -140,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ListBlitz" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				14658444D80FC44DB6424E04 /* [Expo] Configure project */,
+				E603E38F722D2A746824F488 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				B747E11896B993D4957C012B /* [CP] Embed Pods Frameworks */,
+				7524A94474DAEBB2DC847F29 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -196,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				1B81F92AA779FE0642FBE669 /* PrivacyInfo.xcprivacy in Resources */,
+				7927FD051D4A907D9F17A516 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -240,24 +240,25 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		14658444D80FC44DB6424E04 /* [Expo] Configure project */ = {
+		7524A94474DAEBB2DC847F29 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ListBlitz/Pods-ListBlitz-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenTelemetrySwiftApi/OpenTelemetryApi.framework/OpenTelemetryApi",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
 			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenTelemetryApi.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-ListBlitz/expo-configure-project.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ListBlitz/Pods-ListBlitz-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -317,25 +318,24 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ListBlitz/Pods-ListBlitz-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		B747E11896B993D4957C012B /* [CP] Embed Pods Frameworks */ = {
+		E603E38F722D2A746824F488 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ListBlitz/Pods-ListBlitz-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenTelemetrySwiftApi/OpenTelemetryApi.framework/OpenTelemetryApi",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			inputFileListPaths = (
 			);
-			name = "[CP] Embed Pods Frameworks";
+			inputPaths = (
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenTelemetryApi.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ListBlitz/Pods-ListBlitz-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-ListBlitz/expo-configure-project.sh\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -345,7 +345,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				495523C50A9B76576DB4208E /* ExpoModulesProvider.swift in Sources */,
+				9810CB30129CAB1AE8C06160 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,7 +354,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 37C35321E6AAE99DAFC9F364 /* Pods-ListBlitz.debug.xcconfig */;
+			baseConfigurationReference = B0CF5DB52C216E7870980810 /* Pods-ListBlitz.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -390,7 +390,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CC43A74C1DC17E5589C375FB /* Pods-ListBlitz.release.xcconfig */;
+			baseConfigurationReference = 8BDE25033B603633B54A0D2B /* Pods-ListBlitz.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;

@@ -397,11 +397,6 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
               )}
               <View style={styles.playerRow}>
                 <View style={styles.playerCol}>
-                  {isGameStarted && turnIndex === 0 && (
-                    <Text
-                      style={styles.turnLabel}
-                    >{`List ${currentMatch[0].id}`}</Text>
-                  )}
                   <PlayerCard
                     player={currentMatch[0]}
                     onPress={turnIndex === 0 ? handlePlayerSelect : undefined}
@@ -419,11 +414,6 @@ export const BattleMode: React.FC<ModeComponentProps> = ({
                 )}
 
                 <View style={styles.playerCol}>
-                  {isGameStarted && turnIndex === 1 && (
-                    <Text
-                      style={styles.turnLabel}
-                    >{`List ${currentMatch[1].id}`}</Text>
-                  )}
                   <PlayerCard
                     player={currentMatch[1]}
                     onPress={turnIndex === 1 ? handlePlayerSelect : undefined}
